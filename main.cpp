@@ -1,17 +1,17 @@
 #include <iostream>
 #include "lexer.hpp"
+#include "interpreter.hpp"
 
 int main() {
     std::string line;
 
-    while (std::getline(std::cin, line))
+    while (std::cin)
     {
-        Lexer lexer(line);
+        std::cout << "calc> ";
+        std::getline(std::cin, line);
 
-        while (!lexer.eof())
-        {
-            std::cout << lexer.next_token() << ' ';
-        }
-        std::cout << std::endl;
+        Interpreter interpreter(line);
+
+        std::cout << interpreter.run() << std::endl;
     }
 }
