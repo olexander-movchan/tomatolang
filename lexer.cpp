@@ -51,6 +51,7 @@ bool Lexer::eof() const
     return offset == code.length();
 }
 
+
 void Lexer::skip_whitespace()
 {
     while (!eof())

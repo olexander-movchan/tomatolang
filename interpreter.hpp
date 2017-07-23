@@ -2,20 +2,22 @@
 #define INTERPRETER_INTERPRETER_HPP
 
 
-#include "lexer.hpp"
+#include "parser.hpp"
 
-class Interpreter
+
+class Interpreter : public ASTVisitor
 {
 public:
     Interpreter(const std::string &code);
 
     int run();
 
-private:
-    Lexer lexer;
-    Token current_token;
+    void visit(BinaryOperator &ast_node) override;
+    void visit(IntegerConstant &ast_node) override;
 
-    void eat(TokenType expected_type);
+private:
+    Parser parser;
+    int    last_value;
 };
 
 

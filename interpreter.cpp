@@ -1,43 +1,46 @@
 #include "interpreter.hpp"
-#include "parser.hpp"
 
 
-Interpreter::Interpreter(const std::string &code) : lexer(code)
-{
-    current_token = this->lexer.next_token();
-}
+Interpreter::Interpreter(const std::string &code) : parser(code) {}
 
 
 int Interpreter::run()
 {
-    Token left = current_token;
-    eat(TokenType::Integer);
+    auto expr = parser.parse();
 
-    int result = std::atoi(left.lexeme.c_str());
+    ASTVisitor::visit(*expr);
 
-    while (current_token.type == TokenType::OperatorPlus)
-    {
-        eat(TokenType::OperatorPlus);
-
-        Token right = current_token;
-
-        eat(TokenType::Integer);
-
-        result += std::atoi(right.lexeme.c_str());
-    }
-
-    return result;
+    return last_value;
 }
 
-
-void Interpreter::eat(TokenType expected_type)
+void Interpreter::visit(BinaryOperator &ast_node)
 {
-    if (current_token.type == expected_type)
+    ASTVisitor::visit(*ast_node.left);
+
+    int value = last_value;
+
+    ASTVisitor::visit(*ast_node.right);
+
+    switch (ast_node.token.lexeme[0])
     {
-        current_token = lexer.next_token();
+        case '+':
+            last_value = value + last_value;
+            break;
+
+        case '-':
+            last_value = value - last_value;
+            break;
+
+        case '*':
+            last_value = value * last_value;
+            break;
+
+        default:
+            throw SyntaxError("Invalid operator: " + ast_node.token.lexeme);
     }
-    else
-    {
-        throw SyntaxError("Unexpected token");
-    }
+}
+
+void Interpreter::visit(IntegerConstant &ast_node)
+{
+    last_value = std::atoi(ast_node.token.lexeme.c_str());
 }
