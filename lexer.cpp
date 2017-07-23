@@ -7,8 +7,12 @@ std::ostream &operator<<(std::ostream &stream, const TokenType type)
     {
         case TokenType::Unknown      : stream << "UNKNOWN";        break;
         case TokenType::Integer      : stream << "INTEGER";        break;
-        case TokenType::OperatorPlus : stream << "OPERATOR_PLUS";  break;
         case TokenType::EndOfFile    : stream << "END_OF_FILE";    break;
+
+        case TokenType::OperatorPlus  : stream << "OPERATOR_PLUS";   break;
+        case TokenType::OperatorMinus : stream << "OPERATOR_MINUS";  break;
+        case TokenType::OperatorMul   : stream << "OPERATOR_MUL";    break;
+        case TokenType::OperatorDiv   : stream << "OPERATOR_DIV";    break;
     }
 
     return stream;
@@ -37,9 +41,26 @@ Token Lexer::next_token()
     {
         return {TokenType::OperatorPlus, "+"};
     }
+
+    if (ch == '-')
+    {
+        return {TokenType::OperatorMinus, "-"};
+    }
+
+    if (ch == '*')
+    {
+        return {TokenType::OperatorMul, "*"};
+    }
+
+    if (ch == '/')
+    {
+        return {TokenType::OperatorDiv, "/"};
+    }
+
     if (std::isdigit(ch))
     {
-        return {TokenType::Integer, std::string(1, ch)};
+        offset--;
+        return integer();
     }
 
     return {TokenType::Unknown, std::string(1, ch)};
@@ -70,4 +91,19 @@ void Lexer::skip_whitespace()
         }
 
     }
+}
+
+Token Lexer::integer()
+{
+    Token token{TokenType::Integer};
+
+    std::size_t len = 0;
+    while (std::isdigit(code[offset + len]))
+        ++len;
+
+    token.lexeme = code.substr(offset, len);
+
+    offset += len;
+
+    return token;
 }

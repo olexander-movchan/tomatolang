@@ -20,17 +20,18 @@ std::shared_ptr<Expression> Parser::parse()
 
     eat(TokenType::Integer);
 
-    while (current_token.type == TokenType::OperatorPlus)
+    while (current_token.type == TokenType::OperatorPlus || current_token.type == TokenType::OperatorMinus)
     {
-        Token plus = current_token;
-        eat(TokenType::OperatorPlus);
+        Token op = current_token;
+
+        eat(op.type);
 
         Token num = current_token;
         eat(TokenType::Integer);
 
         std::shared_ptr<Expression> right = std::make_shared<IntegerConstant>(num);
 
-        expression = std::make_shared<BinaryOperator>(plus, expression, right);
+        expression = std::make_shared<BinaryOperator>(expression, op, right);
     }
 
     eat(TokenType::EndOfFile);
@@ -47,6 +48,6 @@ void Parser::eat(TokenType expected_type)
     }
     else
     {
-        throw SyntaxError("Unexpected token");
+        throw SyntaxError("Unexpected token: " + current_token.lexeme);
     }
 }

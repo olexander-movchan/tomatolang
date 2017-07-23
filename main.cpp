@@ -1,8 +1,8 @@
 #include <iostream>
-#include "lexer.hpp"
 #include "interpreter.hpp"
 
-int main() {
+int main(int argc, char **argv)
+{
     std::string line;
 
     while (std::cin)

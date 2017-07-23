@@ -7,7 +7,13 @@
 
 enum class TokenType
 {
-    Unknown, Integer, OperatorPlus, EndOfFile,
+    Unknown,
+    Integer,
+    OperatorPlus,
+    OperatorMinus,
+    OperatorMul,
+    OperatorDiv,
+    EndOfFile,
 };
 
 
@@ -38,6 +44,8 @@ private:
     std::size_t offset;
 
     void skip_whitespace();
+
+    Token integer();
 };
 
 

@@ -40,8 +40,8 @@ protected:
 class BinaryOperator : public Expression
 {
 public:
-    BinaryOperator(const Token &token,
-                   std::shared_ptr<Expression> left,
+    BinaryOperator(std::shared_ptr<Expression> left,
+                   const Token &token,
                    std::shared_ptr<Expression> right);
 
     std::shared_ptr<Expression> left;
