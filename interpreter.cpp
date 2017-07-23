@@ -1,6 +1,19 @@
 #include "interpreter.hpp"
 
 
+int pow(int base, int exp)
+{
+    int power = 1;
+
+    for (int i = 0; i < exp; ++i)
+    {
+        power *= base;
+    }
+
+    return power;
+}
+
+
 Interpreter::Interpreter(const std::string &code) : parser(code) {}
 
 
@@ -17,22 +30,30 @@ void Interpreter::visit(BinaryOperator &ast_node)
 {
     ASTVisitor::visit(*ast_node.left);
 
-    int value = last_value;
+    int left = last_value;
 
     ASTVisitor::visit(*ast_node.right);
 
     switch (ast_node.token.lexeme[0])
     {
         case '+':
-            last_value = value + last_value;
+            last_value = left + last_value;
             break;
 
         case '-':
-            last_value = value - last_value;
+            last_value = left - last_value;
             break;
 
         case '*':
-            last_value = value * last_value;
+            last_value = left * last_value;
+            break;
+
+        case '/':
+            last_value = left / last_value;
+            break;
+
+        case '^':
+            last_value = pow(left, last_value);
             break;
 
         default:

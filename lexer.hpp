@@ -13,6 +13,9 @@ enum class TokenType
     OperatorMinus,
     OperatorMul,
     OperatorDiv,
+    OperatorPow,
+    LeftParen,
+    RightParen,
     EndOfFile,
 };
 

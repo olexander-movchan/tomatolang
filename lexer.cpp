@@ -13,6 +13,10 @@ std::ostream &operator<<(std::ostream &stream, const TokenType type)
         case TokenType::OperatorMinus : stream << "OPERATOR_MINUS";  break;
         case TokenType::OperatorMul   : stream << "OPERATOR_MUL";    break;
         case TokenType::OperatorDiv   : stream << "OPERATOR_DIV";    break;
+        case TokenType::OperatorPow   : stream << "OPERATOR_POW";    break;
+
+        case TokenType::LeftParen   : stream << "LEFT_PARENTHESIS";   break;
+        case TokenType::RightParen  : stream << "RIGHT_PARENTHESIS";  break;
     }
 
     return stream;
@@ -55,6 +59,21 @@ Token Lexer::next_token()
     if (ch == '/')
     {
         return {TokenType::OperatorDiv, "/"};
+    }
+
+    if (ch == '^')
+    {
+        return {TokenType::OperatorPow, "^"};
+    }
+
+    if (ch == '(')
+    {
+        return {TokenType::LeftParen, "("};
+    }
+
+    if (ch == ')')
+    {
+        return {TokenType::RightParen, ")"};
     }
 
     if (std::isdigit(ch))
