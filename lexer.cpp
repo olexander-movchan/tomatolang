@@ -108,7 +108,6 @@ void Lexer::skip_whitespace()
             default:
                 return;
         }
-
     }
 }
 

@@ -52,6 +52,17 @@ protected:
 };
 
 
+class UnaryOperator : public Expression
+{
+public:
+    UnaryOperator(const Token &token, std::shared_ptr<Expression> expr);
+
+    std::shared_ptr<Expression> operand;
+
+    void accept(ASTVisitor &visitor) override;
+};
+
+
 /**
  * @brief Visitor pattern for AbstractSyntaxTree.
  */
@@ -64,8 +75,9 @@ public:
      */
     void visit(AbstractSyntaxTree &ast_node);
 
-    virtual void visit(BinaryOperator  &ast_node) = 0;
-    virtual void visit(IntegerConstant &ast_node) = 0;
+    virtual void visit(BinaryOperator  &bin_op) = 0;
+    virtual void visit(IntegerConstant &constant) = 0;
+    virtual void visit(UnaryOperator   &un_op) = 0;
 };
 
 

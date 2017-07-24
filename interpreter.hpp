@@ -15,6 +15,8 @@ public:
     void visit(BinaryOperator &ast_node) override;
     void visit(IntegerConstant &ast_node) override;
 
+    void visit(UnaryOperator &un_op) override;
+
 private:
     Parser parser;
     int    last_value;

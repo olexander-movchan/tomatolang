@@ -11,6 +11,7 @@
 class SyntaxError : public std::runtime_error
 {
 public:
+    SyntaxError(const Token &token);
     SyntaxError(std::string message);
     SyntaxError(char const* const message);
 };
@@ -25,7 +26,7 @@ public:
  * sum        := product ( (PLUS | MINUS) product )*
  * product    := power ( (MUL | DIV) power )*
  * power      := factor [ POW power ]
- * factor     := CONSTANT | LPAREN expression RPAREN
+ * factor     := (PLUS | MINUS) factor | CONSTANT | LPAREN expression RPAREN
  */
 class Parser
 {

@@ -5,6 +5,8 @@ SyntaxError::SyntaxError(char const *const message) : runtime_error(message) {}
 
 SyntaxError::SyntaxError(std::string message) : runtime_error(message.c_str()) {}
 
+SyntaxError::SyntaxError(const Token &token) : runtime_error("Unexpected token: " + token.lexeme) {}
+
 
 Parser::Parser(const std::string &code) : lexer(code)
 {
@@ -94,6 +96,22 @@ std::shared_ptr<Expression> Parser::factor()
 {
     switch (current_token.type)
     {
+        case TokenType::OperatorPlus:
+        {
+            Token plus = current_token;
+            eat(TokenType::OperatorPlus);
+
+            return std::make_shared<UnaryOperator>(plus, factor());
+        }
+
+        case TokenType::OperatorMinus:
+        {
+            Token minus = current_token;
+            eat(TokenType::OperatorMinus);
+
+            return std::make_shared<UnaryOperator>(minus, factor());
+        }
+
         case TokenType::LeftParen:
         {
             eat(TokenType::LeftParen);
@@ -111,6 +129,6 @@ std::shared_ptr<Expression> Parser::factor()
         }
 
         default:
-            throw SyntaxError("Unexpected token: " + current_token.lexeme);
+            throw SyntaxError(current_token);
     }
 }

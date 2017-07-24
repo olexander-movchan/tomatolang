@@ -65,3 +65,21 @@ void Interpreter::visit(IntegerConstant &ast_node)
 {
     last_value = std::atoi(ast_node.token.lexeme.c_str());
 }
+
+void Interpreter::visit(UnaryOperator &un_op)
+{
+    switch (un_op.token.type)
+    {
+        case TokenType::OperatorPlus:
+            ASTVisitor::visit(*un_op.operand);
+            break;
+
+        case TokenType::OperatorMinus:
+            ASTVisitor::visit(*un_op.operand);
+            last_value = - last_value;
+            break;
+
+        default:
+            throw SyntaxError(un_op.token);
+    }
+}
