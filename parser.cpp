@@ -1,11 +1,11 @@
 #include "parser.hpp"
 
 
-SyntaxError::SyntaxError(char const *const message) : runtime_error(message) {}
+using namespace AST;
+
 
 SyntaxError::SyntaxError(std::string message) : runtime_error(message.c_str()) {}
-
-SyntaxError::SyntaxError(const Token &token) : runtime_error("Unexpected token: " + token.lexeme) {}
+SyntaxError::SyntaxError(const Token &token)  : runtime_error("Unexpected token: " + (std::string)token) {}
 
 
 Parser::Parser(const std::string &code) : lexer(code)
@@ -14,11 +14,16 @@ Parser::Parser(const std::string &code) : lexer(code)
 }
 
 
-std::shared_ptr<Expression> Parser::parse()
+std::shared_ptr<Program> Parser::parse()
 {
-    auto expr = expression();
-    eat(TokenType::EndOfFile);
-    return expr;
+    auto program = std::make_shared<Program>();
+
+    while (current_token.type != TokenType::EndOfFile)
+    {
+        program->statements.push_back(statement());
+    }
+
+    return program;
 }
 
 
@@ -123,12 +128,37 @@ std::shared_ptr<Expression> Parser::factor()
 
         case TokenType::Integer:
         {
-            auto factor = std::make_shared<IntegerConstant>(current_token);
+            auto factor = std::make_shared<Constant>(current_token);
             eat(TokenType::Integer);
+            return factor;
+        }
+
+        case TokenType::Identifier:
+        {
+            auto factor = std::make_shared<Variable>(current_token);
+            eat(TokenType::Identifier);
             return factor;
         }
 
         default:
             throw SyntaxError(current_token);
     }
+}
+
+std::shared_ptr<Statement> Parser::statement()
+{
+    return assignment();
+}
+
+std::shared_ptr<Statement> Parser::assignment()
+{
+    auto var = std::make_shared<Variable>(current_token);
+    eat(TokenType::Identifier);
+
+    auto assign = current_token;
+    eat(TokenType::Assignment);
+
+    auto expr = expression();
+
+    return std::make_shared<Assignment>(var, assign, expr);
 }

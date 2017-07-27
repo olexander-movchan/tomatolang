@@ -3,34 +3,38 @@
 
 
 #include <iostream>
+#include <set>
+#include <map>
 
 
 enum class TokenType
 {
-    Unknown,
+    None,
+    EndOfFile,
+
     Integer,
+    Identifier,
+
     OperatorPlus,
     OperatorMinus,
     OperatorMul,
     OperatorDiv,
     OperatorPow,
+    Assignment,
+
     LeftParen,
     RightParen,
-    EndOfFile,
+    VariableDecl,
 };
-
-
-std::ostream& operator<<(std::ostream& stream, const TokenType type);
 
 
 struct Token
 {
     TokenType   type;
     std::string lexeme;
+
+    operator std::string() const;
 };
-
-
-std::ostream& operator<<(std::ostream& stream, const Token &token);
 
 
 class Lexer
@@ -49,6 +53,9 @@ private:
     void skip_whitespace();
 
     Token integer();
+    Token identifier();
+
+    static std::map<std::string, Token> keywords;
 };
 
 

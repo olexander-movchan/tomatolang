@@ -5,21 +5,23 @@
 #include "parser.hpp"
 
 
-class Interpreter : public ASTVisitor
+class Interpreter : public AST::Visitor
 {
 public:
-    Interpreter(const std::string &code);
+    void run(const std::string &code);
+    void print_state();
 
-    int run();
-
-    void visit(BinaryOperator &ast_node) override;
-    void visit(IntegerConstant &ast_node) override;
-
-    void visit(UnaryOperator &un_op) override;
+    void visit(AST::Program         &node) override;
+    void visit(AST::UnaryOperator   &node) override;
+    void visit(AST::BinaryOperator  &node) override;
+    void visit(AST::Variable        &node) override;
+    void visit(AST::Constant        &node) override;
+    void visit(AST::Assignment      &node) override;
 
 private:
-    Parser parser;
-    int    last_value;
+    int    temp_value;
+
+    std::map<std::string, int> variables;
 };
 
 

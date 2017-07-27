@@ -1,32 +1,34 @@
 #include "lexer.hpp"
 
 
-std::ostream &operator<<(std::ostream &stream, const TokenType type)
+Token::operator std::string() const
 {
     switch (type)
     {
-        case TokenType::Unknown      : stream << "UNKNOWN";        break;
-        case TokenType::Integer      : stream << "INTEGER";        break;
-        case TokenType::EndOfFile    : stream << "END_OF_FILE";    break;
+        case TokenType::None      : return "<NONE>";
+        case TokenType::EndOfFile : return "<EOF>";
 
-        case TokenType::OperatorPlus  : stream << "OPERATOR_PLUS";   break;
-        case TokenType::OperatorMinus : stream << "OPERATOR_MINUS";  break;
-        case TokenType::OperatorMul   : stream << "OPERATOR_MUL";    break;
-        case TokenType::OperatorDiv   : stream << "OPERATOR_DIV";    break;
-        case TokenType::OperatorPow   : stream << "OPERATOR_POW";    break;
+        case TokenType::VariableDecl : return "<var>";
+        case TokenType::LeftParen    : return "<left_paren>";
+        case TokenType::RightParen   : return "right_paren>";
 
-        case TokenType::LeftParen   : stream << "LEFT_PARENTHESIS";   break;
-        case TokenType::RightParen  : stream << "RIGHT_PARENTHESIS";  break;
+        case TokenType::OperatorPlus  : return "<plus>";
+        case TokenType::OperatorMinus : return "<minus>";
+        case TokenType::OperatorMul   : return "<mul>";
+        case TokenType::OperatorDiv   : return "<div>";
+        case TokenType::OperatorPow   : return "<pow>";
+        case TokenType::Assignment    : return "<assign>";
+
+        case TokenType::Integer    : return "<integer: " + lexeme + ">";
+        case TokenType::Identifier : return "<identifier: " + lexeme + ">";
     }
-
-    return stream;
 }
 
 
-std::ostream &operator<<(std::ostream &stream, const Token &token)
-{
-    return stream << '<' << token.type << ": " << token.lexeme << '>';
-}
+std::map<std::string, Token> Lexer::keywords = {
+        {"var", Token{TokenType::VariableDecl, "var"}}
+};
+
 
 
 Lexer::Lexer(std::string source_code) : code(source_code), offset(0) {}
@@ -66,6 +68,11 @@ Token Lexer::next_token()
         return {TokenType::OperatorPow, "^"};
     }
 
+    if (ch == '=')
+    {
+        return {TokenType::Assignment, "="};
+    }
+
     if (ch == '(')
     {
         return {TokenType::LeftParen, "("};
@@ -82,7 +89,13 @@ Token Lexer::next_token()
         return integer();
     }
 
-    return {TokenType::Unknown, std::string(1, ch)};
+    if (std::isalpha(ch))
+    {
+        offset--;
+        return identifier();
+    }
+
+    return {TokenType::None, std::string(1, ch)};
 }
 
 
@@ -124,4 +137,19 @@ Token Lexer::integer()
     offset += len;
 
     return token;
+}
+
+Token Lexer::identifier()
+{
+    std::size_t len = 0;
+    while (std::isalpha(code[offset + len]))
+        ++len;
+
+    std::string lexeme = code.substr(offset, len);
+    offset += len;
+
+    if (keywords.find(lexeme) != keywords.end())
+        return  keywords[lexeme];
+    else
+        return Token{TokenType::Identifier, lexeme};
 }
