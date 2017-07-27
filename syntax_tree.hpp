@@ -18,14 +18,6 @@ namespace AST
      */
     class AbstractSyntaxTree
     {
-    public:
-        /**
-         * @param token Token that corresponds to AST node.
-         */
-        AbstractSyntaxTree(const Token &token);
-
-        Token token;
-
     protected:
         friend class Visitor;
 
@@ -44,7 +36,12 @@ namespace AST
     class Expression : public AbstractSyntaxTree
     {
     public:
+        /**
+         * @param token Token that corresponds to AST node.
+         */
         Expression(const Token &token);
+
+        Token token;
     };
 
 
@@ -119,11 +116,7 @@ namespace AST
     /**
      * @brief Abstract base class for AST statement nodes.
      */
-    class Statement : public AbstractSyntaxTree
-    {
-    public:
-        Statement(const Token &token);
-    };
+    class Statement : public AbstractSyntaxTree {};
 
 
     /**
@@ -133,8 +126,24 @@ namespace AST
     {
     public:
         Assignment(std::shared_ptr<Variable> variable,
-                   Token token,
                    std::shared_ptr<Expression> expression);
+
+        std::shared_ptr<Variable>    variable;
+        std::shared_ptr<Expression>  expression;
+
+    protected:
+        void accept(Visitor &visitor) override;
+    };
+
+
+    /**
+     * @brief Variable declaration AST node.
+     */
+    class Declaration : public Statement
+    {
+    public:
+        Declaration(std::shared_ptr<Variable> variable,
+                    std::shared_ptr<Expression> expression);
 
         std::shared_ptr<Variable>    variable;
         std::shared_ptr<Expression>  expression;
@@ -152,8 +161,6 @@ namespace AST
     class Program : public AbstractSyntaxTree
     {
     public:
-        Program(const Token &token = Token());
-
         std::vector<std::shared_ptr<Statement>> statements;
 
     protected:
@@ -183,6 +190,7 @@ namespace AST
         virtual void visit(Variable        &node) = 0;
         virtual void visit(Constant        &node) = 0;
         virtual void visit(Assignment      &node) = 0;
+        virtual void visit(Declaration     &node) = 0;
     };
 }
 

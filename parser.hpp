@@ -46,6 +46,7 @@ private:
 
     std::shared_ptr<AST::Statement> statement();
     std::shared_ptr<AST::Statement> assignment();
+    std::shared_ptr<AST::Statement> declaration();
 
     std::shared_ptr<AST::Expression> expression();
     std::shared_ptr<AST::Expression> sum();

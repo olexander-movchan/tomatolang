@@ -147,18 +147,34 @@ std::shared_ptr<Expression> Parser::factor()
 
 std::shared_ptr<Statement> Parser::statement()
 {
-    return assignment();
+    if (current_token.type == TokenType::VariableDecl)
+        return declaration();
+    else
+        return assignment();
 }
 
 std::shared_ptr<Statement> Parser::assignment()
 {
     auto var = std::make_shared<Variable>(current_token);
-    eat(TokenType::Identifier);
 
-    auto assign = current_token;
+    eat(TokenType::Identifier);
     eat(TokenType::Assignment);
 
     auto expr = expression();
 
-    return std::make_shared<Assignment>(var, assign, expr);
+    return std::make_shared<Assignment>(var, expr);
+}
+
+std::shared_ptr<Statement> Parser::declaration()
+{
+    eat(TokenType::VariableDecl);
+
+    auto var = std::make_shared<Variable>(current_token);
+
+    eat(TokenType::Identifier);
+    eat(TokenType::Assignment);
+
+    auto expr = expression();
+
+    return std::make_shared<Declaration>(var, expr);
 }

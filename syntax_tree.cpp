@@ -6,13 +6,7 @@ using namespace AST;
 
 // AST node constructors
 
-
-AbstractSyntaxTree::AbstractSyntaxTree(const Token &token) : token(token) {}
-
-
-Program::Program      (const Token &token) : AbstractSyntaxTree(token) {}
-Statement::Statement  (const Token &token) : AbstractSyntaxTree(token) {}
-Expression::Expression(const Token &token) : AbstractSyntaxTree(token) {}
+Expression::Expression(const Token &token) : token(token) {}
 
 
 Constant::Constant(const Token &token) : Expression(token) {}
@@ -33,10 +27,15 @@ UnaryOperator::UnaryOperator(const Token &token,
 
 
 Assignment::Assignment(std::shared_ptr<Variable> variable,
-                       Token token,
                        std::shared_ptr<Expression> expression)
 
-        : Statement(token), variable(variable), expression(expression) {}
+        : variable(variable), expression(expression) {}
+
+
+Declaration::Declaration(std::shared_ptr<Variable> variable,
+                         std::shared_ptr<Expression> expression)
+
+        : variable(variable), expression(expression) {}
 
 
 // Visitor-related methods
@@ -49,3 +48,4 @@ void BinaryOperator  ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Variable        ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Constant        ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Assignment      ::accept(Visitor &visitor) { visitor.visit(*this); }
+void Declaration     ::accept(Visitor &visitor) { visitor.visit(*this); }

@@ -97,8 +97,7 @@ void Interpreter::visit(AST::Variable &node)
 {
     if (variables.find(node.token.lexeme) != variables.end())
         temp_value = variables[node.token.lexeme];
-    else
-        /// @todo Define interpretation exception.
+    else /// @todo Define interpretation exception.
         throw std::runtime_error("Variable used before defined: " + node.token.lexeme);
 }
 
@@ -106,8 +105,25 @@ void Interpreter::visit(AST::Assignment &node)
 {
     Visitor::visit(*node.expression);
 
+    /// @todo Define interpretation exception.
+    if (variables.find(node.variable->token.lexeme) == variables.end())
+        throw std::runtime_error("Assign to undefined variable: " + node.variable->token.lexeme);
+
     variables[node.variable->token.lexeme] = temp_value;
 }
+
+
+void Interpreter::visit(AST::Declaration &node)
+{
+    Visitor::visit(*node.expression);
+
+    /// @todo Define interpretation exception.
+    if (variables.find(node.variable->token.lexeme) != variables.end())
+        throw std::runtime_error("Redeclare variable: " + node.variable->token.lexeme);
+
+    variables[node.variable->token.lexeme] = temp_value;
+}
+
 
 void Interpreter::print_state()
 {

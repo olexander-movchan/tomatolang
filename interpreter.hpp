@@ -17,6 +17,7 @@ public:
     void visit(AST::Variable        &node) override;
     void visit(AST::Constant        &node) override;
     void visit(AST::Assignment      &node) override;
+    void visit(AST::Declaration     &node) override;
 
 private:
     int    temp_value;

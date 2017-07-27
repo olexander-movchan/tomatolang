@@ -3,7 +3,8 @@ Just an interpreter for my own language...
 
 #### Language Specifcation
     program    = statement +
-    statement  = assignment
+    statement  = assignment | var_decl
+    var_decl   = var variable assign expression
     assignment = variable assign expression
     
     expression = sum
@@ -22,14 +23,16 @@ Just an interpreter for my own language...
     div    = "/"
     pow    = "^"
     assign = "="
+    var    = "var"
 
 #### Example
 Here is an example of interactive session:
 
-    ti> a = 2^10
-    ti> b = 5 - (-2 * (3 + -7)) ^2
-    ti> c = a - 2*b
+    ti> var a = 2
+    ti> var b = 3
+    ti> var c = b - a
+    ti> c = a + b - c
     ti> exit
-    a	1024
-    b	-59
-    c	1142
+    a	2
+    b	3
+    c	4
