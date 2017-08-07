@@ -9,7 +9,7 @@ using namespace AST;
 Expression::Expression(const Token &token) : token(token) {}
 
 
-Constant::Constant(const Token &token) : Expression(token) {}
+Literal::Literal(const Token &token) : Expression(token) {}
 Variable::Variable(const Token &token) : Expression(token) {}
 
 
@@ -46,6 +46,6 @@ void Program         ::accept(Visitor &visitor) { visitor.visit(*this); }
 void UnaryOperator   ::accept(Visitor &visitor) { visitor.visit(*this); }
 void BinaryOperator  ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Variable        ::accept(Visitor &visitor) { visitor.visit(*this); }
-void Constant        ::accept(Visitor &visitor) { visitor.visit(*this); }
+void Literal        ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Assignment      ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Declaration     ::accept(Visitor &visitor) { visitor.visit(*this); }

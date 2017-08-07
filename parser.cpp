@@ -126,10 +126,10 @@ std::shared_ptr<Expression> Parser::factor()
             return factor;
         }
 
-        case TokenType::Integer:
+        case TokenType::Literal:
         {
-            auto factor = std::make_shared<Constant>(current_token);
-            eat(TokenType::Integer);
+            auto factor = std::make_shared<Literal>(current_token);
+            eat(TokenType::Literal);
             return factor;
         }
 
@@ -147,7 +147,7 @@ std::shared_ptr<Expression> Parser::factor()
 
 std::shared_ptr<Statement> Parser::statement()
 {
-    if (current_token.type == TokenType::VariableDecl)
+    if (current_token.type == TokenType::VariableDeclaration)
         return declaration();
     else
         return assignment();
@@ -167,7 +167,7 @@ std::shared_ptr<Statement> Parser::assignment()
 
 std::shared_ptr<Statement> Parser::declaration()
 {
-    eat(TokenType::VariableDecl);
+    eat(TokenType::VariableDeclaration);
 
     auto var = std::make_shared<Variable>(current_token);
 

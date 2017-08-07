@@ -8,7 +8,7 @@ Token::operator std::string() const
         case TokenType::None      : return "<NONE>";
         case TokenType::EndOfFile : return "<EOF>";
 
-        case TokenType::VariableDecl : return "<var>";
+        case TokenType::VariableDeclaration : return "<var>";
         case TokenType::LeftParen    : return "<left_paren>";
         case TokenType::RightParen   : return "right_paren>";
 
@@ -19,16 +19,15 @@ Token::operator std::string() const
         case TokenType::OperatorPow   : return "<pow>";
         case TokenType::Assignment    : return "<assign>";
 
-        case TokenType::Integer    : return "<integer: " + lexeme + ">";
+        case TokenType::Literal    : return "<integer: " + lexeme + ">";
         case TokenType::Identifier : return "<identifier: " + lexeme + ">";
     }
 }
 
 
 std::map<std::string, Token> Lexer::keywords = {
-        {"var", Token{TokenType::VariableDecl, "var"}}
+        {"var", Token{TokenType::VariableDeclaration, "var"}}
 };
-
 
 
 Lexer::Lexer(std::string source_code) : code(source_code), offset(0) {}
@@ -86,7 +85,7 @@ Token Lexer::next_token()
     if (std::isdigit(ch))
     {
         offset--;
-        return integer();
+        return literal();
     }
 
     if (std::isalpha(ch))
@@ -124,20 +123,31 @@ void Lexer::skip_whitespace()
     }
 }
 
-Token Lexer::integer()
+
+Token Lexer::literal()
 {
-    Token token{TokenType::Integer};
+    Token token{TokenType::Literal};
 
     std::size_t len = 0;
     while (std::isdigit(code[offset + len]))
         ++len;
 
     token.lexeme = code.substr(offset, len);
-
     offset += len;
+
+    if (code[offset] == '.')
+    {
+        len = 1;
+        while (std::isdigit(code[offset + len]))
+            ++len;
+
+        token.lexeme += code.substr(offset, len);
+        offset += len;
+    }
 
     return token;
 }
+
 
 Token Lexer::identifier()
 {

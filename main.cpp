@@ -5,20 +5,23 @@
 
 int main(int argc, char **argv)
 {
-    Interpreter interpreter;
-    std::string line;
+    std::string line, code;
 
     while (std::cin)
     {
-        std::cout << "ti> ";
+        std::cout << ">>> ";
         std::getline(std::cin, line);
 
         if (line.length() == 0 || line == "exit")
             break;
 
-        interpreter.run(line);
+        code += line;
     }
 
+    auto syntax_tree = Parser(code).parse();
+    Interpreter interpreter(syntax_tree);
+
+    interpreter.run();
     interpreter.print_state();
 
     return 0;

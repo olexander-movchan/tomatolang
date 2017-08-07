@@ -41,17 +41,17 @@ namespace AST
          */
         Expression(const Token &token);
 
-        Token token;
+        Token       token;
     };
 
 
     /**
      * @brief Integer constant AST node.
      */
-    class Constant : public Expression
+    class Literal : public Expression
     {
     public:
-        Constant(const Token &token);
+        Literal(const Token &token);
 
     protected:
         void accept(Visitor &visitor) override;
@@ -188,7 +188,7 @@ namespace AST
         virtual void visit(UnaryOperator   &node) = 0;
         virtual void visit(BinaryOperator  &node) = 0;
         virtual void visit(Variable        &node) = 0;
-        virtual void visit(Constant        &node) = 0;
+        virtual void visit(Literal         &node) = 0;
         virtual void visit(Assignment      &node) = 0;
         virtual void visit(Declaration     &node) = 0;
     };

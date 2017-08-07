@@ -12,7 +12,7 @@ enum class TokenType
     None,
     EndOfFile,
 
-    Integer,
+    Literal,
     Identifier,
 
     OperatorPlus,
@@ -24,7 +24,7 @@ enum class TokenType
 
     LeftParen,
     RightParen,
-    VariableDecl,
+    VariableDeclaration,
 };
 
 
@@ -52,7 +52,7 @@ private:
 
     void skip_whitespace();
 
-    Token integer();
+    Token literal();
     Token identifier();
 
     static std::map<std::string, Token> keywords;
