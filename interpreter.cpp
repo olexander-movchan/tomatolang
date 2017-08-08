@@ -1,16 +1,15 @@
 #include "interpreter.hpp"
 
+#include <iostream>
+
 
 using namespace AST;
 
 
-Interpreter::Interpreter(std::shared_ptr<AbstractSyntaxTree> tree)
-        : syntax_tree(tree) {}
-
-
-void Interpreter::run()
+void Interpreter::interpret(const std::string &code)
 {
-    Visitor::visit(*syntax_tree);
+    auto syntax_tree = Parser(code).parse();
+    visit(*syntax_tree);
 }
 
 
@@ -81,11 +80,11 @@ void Interpreter::visit(UnaryOperator &node)
 {
     switch (node.token.type)
     {
-        case TokenType::OperatorPlus:
+        case TokenType::Add:
             Visitor::visit(*node.operand);
             break;
 
-        case TokenType::OperatorMinus:
+        case TokenType::Sub:
             Visitor::visit(*node.operand);
             temporary = temporary->opposite();
             break;

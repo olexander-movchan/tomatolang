@@ -20,15 +20,9 @@ class Interpreter : public AST::Visitor
 {
 public:
     /**
-     * @brief Creates interpreter
-     * @param tree AST built by parser
-     */
-    Interpreter(std::shared_ptr<AST::AbstractSyntaxTree>  tree);
-
-    /**
      * @brief Executes commands represented by AST
      */
-    void run();
+    void interpret(const std::string &code);
 
     /**
      * @brief Prints interpreter state (i.e. all variable's values)
@@ -47,7 +41,6 @@ private:
 private:
     Object::Ref                               temporary;
     std::map<std::string, Object::Ref>        memory;
-    std::shared_ptr<AST::AbstractSyntaxTree>  syntax_tree;
 };
 
 

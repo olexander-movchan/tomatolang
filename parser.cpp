@@ -48,8 +48,8 @@ std::shared_ptr<Expression> Parser::sum()
 {
     auto sum = product();
 
-    while (current_token.type == TokenType::OperatorPlus ||
-           current_token.type == TokenType::OperatorMinus)
+    while (current_token.type == TokenType::Add ||
+           current_token.type == TokenType::Sub)
     {
         auto op = current_token;
         eat(current_token.type);
@@ -66,8 +66,8 @@ std::shared_ptr<Expression> Parser::product()
 {
     auto prod = power();
 
-    while (current_token.type == TokenType::OperatorMul ||
-           current_token.type == TokenType::OperatorDiv)
+    while (current_token.type == TokenType::Mul ||
+           current_token.type == TokenType::Div)
     {
         auto op = current_token;
         eat(current_token.type);
@@ -84,10 +84,10 @@ std::shared_ptr<Expression> Parser::power()
 {
     auto base = factor();
 
-    if (current_token.type == TokenType::OperatorPow)
+    if (current_token.type == TokenType::Pow)
     {
         auto pow = current_token;
-        eat(TokenType::OperatorPow);
+        eat(TokenType::Pow);
 
         auto exponent = power();
 
@@ -101,18 +101,18 @@ std::shared_ptr<Expression> Parser::factor()
 {
     switch (current_token.type)
     {
-        case TokenType::OperatorPlus:
+        case TokenType::Add:
         {
             Token plus = current_token;
-            eat(TokenType::OperatorPlus);
+            eat(TokenType::Add);
 
             return std::make_shared<UnaryOperator>(plus, factor());
         }
 
-        case TokenType::OperatorMinus:
+        case TokenType::Sub:
         {
             Token minus = current_token;
-            eat(TokenType::OperatorMinus);
+            eat(TokenType::Sub);
 
             return std::make_shared<UnaryOperator>(minus, factor());
         }
@@ -147,7 +147,7 @@ std::shared_ptr<Expression> Parser::factor()
 
 std::shared_ptr<Statement> Parser::statement()
 {
-    if (current_token.type == TokenType::VariableDeclaration)
+    if (current_token.type == TokenType::Var)
         return declaration();
     else
         return assignment();
@@ -158,7 +158,7 @@ std::shared_ptr<Statement> Parser::assignment()
     auto var = std::make_shared<Variable>(current_token);
 
     eat(TokenType::Identifier);
-    eat(TokenType::Assignment);
+    eat(TokenType::Assign);
 
     auto expr = expression();
 
@@ -167,12 +167,12 @@ std::shared_ptr<Statement> Parser::assignment()
 
 std::shared_ptr<Statement> Parser::declaration()
 {
-    eat(TokenType::VariableDeclaration);
+    eat(TokenType::Var);
 
     auto var = std::make_shared<Variable>(current_token);
 
     eat(TokenType::Identifier);
-    eat(TokenType::Assignment);
+    eat(TokenType::Assign);
 
     auto expr = expression();
 

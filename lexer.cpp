@@ -7,26 +7,26 @@ Token::operator std::string() const
     {
         case TokenType::None      : return "<NONE>";
         case TokenType::EndOfFile : return "<EOF>";
+        case TokenType::Assign    : return "<assign>";
 
-        case TokenType::VariableDeclaration : return "<var>";
         case TokenType::LeftParen    : return "<left_paren>";
         case TokenType::RightParen   : return "right_paren>";
 
-        case TokenType::OperatorPlus  : return "<plus>";
-        case TokenType::OperatorMinus : return "<minus>";
-        case TokenType::OperatorMul   : return "<mul>";
-        case TokenType::OperatorDiv   : return "<div>";
-        case TokenType::OperatorPow   : return "<pow>";
-        case TokenType::Assignment    : return "<assign>";
+        case TokenType::Var : return "<var>";
+        case TokenType::Add : return "<add>";
+        case TokenType::Sub : return "<sub>";
+        case TokenType::Mul : return "<mul>";
+        case TokenType::Div : return "<div>";
+        case TokenType::Pow : return "<pow>";
 
-        case TokenType::Literal    : return "<integer: " + lexeme + ">";
+        case TokenType::Literal    : return "<literal: " + lexeme + ">";
         case TokenType::Identifier : return "<identifier: " + lexeme + ">";
     }
 }
 
 
 std::map<std::string, Token> Lexer::keywords = {
-        {"var", Token{TokenType::VariableDeclaration, "var"}}
+        {"var", Token{TokenType::Var, "var"}}
 };
 
 
@@ -40,61 +40,48 @@ Token Lexer::next_token()
     if (offset == code.length())
         return {TokenType::EndOfFile, ""};
 
-    char ch = code[offset++];
-
-    if (ch == '+')
+    // Check one-char tokens
+    switch (code[offset++])
     {
-        return {TokenType::OperatorPlus, "+"};
+        case '+':
+            return {TokenType::Add, "+"};
+
+        case '-':
+            return {TokenType::Sub, "-"};
+
+        case '*':
+            return {TokenType::Mul, "*"};
+
+        case '/':
+            return {TokenType::Div, "/"};
+
+        case '^':
+            return {TokenType::Pow, "^"};
+
+        case '=':
+            return {TokenType::Assign, "="};
+
+        case '(':
+            return {TokenType::LeftParen, "("};
+
+        case ')':
+            return {TokenType::RightParen, ")"};
+
+        default:
+            offset--;
     }
 
-    if (ch == '-')
+    if (std::isdigit(code[offset]))
     {
-        return {TokenType::OperatorMinus, "-"};
-    }
-
-    if (ch == '*')
-    {
-        return {TokenType::OperatorMul, "*"};
-    }
-
-    if (ch == '/')
-    {
-        return {TokenType::OperatorDiv, "/"};
-    }
-
-    if (ch == '^')
-    {
-        return {TokenType::OperatorPow, "^"};
-    }
-
-    if (ch == '=')
-    {
-        return {TokenType::Assignment, "="};
-    }
-
-    if (ch == '(')
-    {
-        return {TokenType::LeftParen, "("};
-    }
-
-    if (ch == ')')
-    {
-        return {TokenType::RightParen, ")"};
-    }
-
-    if (std::isdigit(ch))
-    {
-        offset--;
         return literal();
     }
 
-    if (std::isalpha(ch))
+    if (std::isalpha(code[offset]))
     {
-        offset--;
         return identifier();
     }
 
-    return {TokenType::None, std::string(1, ch)};
+    throw std::runtime_error("Unexpected character");
 }
 
 

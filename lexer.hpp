@@ -2,8 +2,7 @@
 #define INTERPRETER_LEXER_HPP
 
 
-#include <iostream>
-#include <set>
+#include <string>
 #include <map>
 
 
@@ -15,16 +14,16 @@ enum class TokenType
     Literal,
     Identifier,
 
-    OperatorPlus,
-    OperatorMinus,
-    OperatorMul,
-    OperatorDiv,
-    OperatorPow,
-    Assignment,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Pow,
+    Assign,
 
     LeftParen,
     RightParen,
-    VariableDeclaration,
+    Var,
 };
 
 
@@ -32,6 +31,8 @@ struct Token
 {
     TokenType   type;
     std::string lexeme;
+    size_t      line;
+    size_t      column;
 
     operator std::string() const;
 };

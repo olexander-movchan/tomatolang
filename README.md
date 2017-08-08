@@ -8,7 +8,7 @@ Here is simple program example:
     >>> var a = 3 * 10^2 + 11*5
     >>> var b = 11^2 - 2^3
     >>> var pi = a / b
-    >>> 
+    >>> print
     var | value
     -----------
     a   | 355
