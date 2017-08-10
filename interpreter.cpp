@@ -1,4 +1,6 @@
 #include "interpreter.hpp"
+#include "types/float.hpp"
+#include "types/integer.hpp"
 
 #include <iostream>
 
@@ -82,11 +84,12 @@ void Interpreter::visit(UnaryOperator &node)
     {
         case TokenType::Add:
             Visitor::visit(*node.operand);
+            temporary = temporary->un_plus();
             break;
 
         case TokenType::Sub:
             Visitor::visit(*node.operand);
-            temporary = temporary->opposite();
+            temporary = temporary->un_minus();
             break;
 
         default:
@@ -121,7 +124,7 @@ void Interpreter::visit(AST::Assignment &node)
     if (memory.find(node.variable->token.lexeme) == memory.end())
         throw RuntimeError("Assign to undefined variable: " + node.variable->token.lexeme);
 
-    memory[node.variable->token.lexeme] = temporary;
+    memory[node.variable->token.lexeme]->assign(*temporary);
 }
 
 

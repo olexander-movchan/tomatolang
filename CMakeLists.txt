@@ -13,8 +13,14 @@ set(SOURCE_FILES
         parser.hpp
         interpreter.cpp
         interpreter.hpp
-        types.cpp
-        types.hpp
+        types/object.cpp
+        types/object.hpp
+        types/integer.cpp
+        types/integer.hpp
+        types/float.cpp
+        types/float.hpp
+        types/bool.cpp
+        types/bool.hpp
         )
 
 add_executable(interpreter ${SOURCE_FILES})

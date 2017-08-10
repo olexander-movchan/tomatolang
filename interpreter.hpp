@@ -3,7 +3,7 @@
 
 
 #include "parser.hpp"
-#include "types.hpp"
+#include "types/object.hpp"
 
 
 class RuntimeError : std::runtime_error

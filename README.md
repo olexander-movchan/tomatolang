@@ -1,4 +1,5 @@
 ## About
+
 Just an interpreter for my own language...
 
 
@@ -38,7 +39,9 @@ A new value can be assigned to variable:
 
 
 ## Print statement
+
 Just `print` with no whitespaces around will print all the declared variables and their values.
+
 
 ## Expressions
 
@@ -57,4 +60,10 @@ Unary operator are unary plus (+) and minus (-).
 
 ## Type system
 
-As far as type checking hasn't been implemented yet, language has dynamic typing for now.
+Language is static and strongly typed.
+However there are only two types supported: integer and floating-point.
+
+Here are some rules:
+- Operation with integer and float returns float
+- Division returns float
+- Integer can be assigned to a float variable
