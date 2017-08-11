@@ -16,12 +16,6 @@ int main(int argc, char **argv)
         std::cout << PROMPT;
         std::getline(std::cin, line);
 
-        if (line == "print")
-        {
-            interpreter.print_state();
-            continue;
-        }
-
         try
         {
             interpreter.interpret(line);

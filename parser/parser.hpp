@@ -29,8 +29,7 @@ private:
     std::shared_ptr<AST::Statement> declaration();
 
     std::shared_ptr<AST::Expression> expression();
-    std::shared_ptr<AST::Expression> sum();
-    std::shared_ptr<AST::Expression> product();
+    std::shared_ptr<AST::Expression> term();
     std::shared_ptr<AST::Expression> power();
     std::shared_ptr<AST::Expression> factor();
 };

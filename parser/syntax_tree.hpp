@@ -31,9 +31,15 @@ namespace AST
 
 
     /**
+     * @brief Abstract base class for AST statement nodes.
+     */
+    class Statement : public AbstractSyntaxTree {};
+
+
+    /**
      * @brief Abstract base class for AST expression nodes.
      */
-    class Expression : public AbstractSyntaxTree
+    class Expression : public Statement
     {
     public:
         /**
@@ -114,22 +120,16 @@ namespace AST
 
 
     /**
-     * @brief Abstract base class for AST statement nodes.
-     */
-    class Statement : public AbstractSyntaxTree {};
-
-
-    /**
      * @brief Assignment AST node.
      */
     class Assignment : public Statement
     {
     public:
-        Assignment(std::shared_ptr<Variable> variable,
+        Assignment(std::shared_ptr<Expression> lvalue,
                    std::shared_ptr<Expression> expression);
 
-        std::shared_ptr<Variable>    variable;
-        std::shared_ptr<Expression>  expression;
+        std::shared_ptr<Expression> lvalue;
+        std::shared_ptr<Expression> expression;
 
     protected:
         void accept(Visitor &visitor) override;

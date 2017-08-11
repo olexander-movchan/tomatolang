@@ -21,11 +21,6 @@ public:
      */
     void interpret(const std::string &code);
 
-    /**
-     * @brief Prints interpreter state (i.e. all variable's values)
-     */
-    void print_state();
-
 private:
     void visit(AST::Program         &node) override;
     void visit(AST::UnaryOperator   &node) override;

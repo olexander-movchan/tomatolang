@@ -39,13 +39,7 @@ void Parser::eat(Token::Type expected_type)
 
 std::shared_ptr<Expression> Parser::expression()
 {
-    return sum();
-}
-
-
-std::shared_ptr<Expression> Parser::sum()
-{
-    auto sum = product();
+    auto sum = term();
 
     while (current_token.type == Token::Type::Add ||
            current_token.type == Token::Type::Sub)
@@ -53,7 +47,7 @@ std::shared_ptr<Expression> Parser::sum()
         auto op = current_token;
         eat(current_token.type);
 
-        auto right = product();
+        auto right = term();
 
         sum = std::make_shared<BinaryOperator>(sum, op, right);
     }
@@ -62,7 +56,7 @@ std::shared_ptr<Expression> Parser::sum()
 }
 
 
-std::shared_ptr<Expression> Parser::product()
+std::shared_ptr<Expression> Parser::term()
 {
     auto prod = power();
 
@@ -152,21 +146,19 @@ std::shared_ptr<Statement> Parser::statement()
 {
     if (current_token.type == Token::Type::Var)
         return declaration();
-    else
-        return assignment();
-}
-
-
-std::shared_ptr<Statement> Parser::assignment()
-{
-    auto var = std::make_shared<Variable>(current_token);
-
-    eat(Token::Type::Identifier);
-    eat(Token::Type::Assign);
 
     auto expr = expression();
 
-    return std::make_shared<Assignment>(var, expr);
+    if (current_token.type == Token::Type::Assign)
+    {
+        eat(Token::Type::Assign);
+
+        auto right_expr = expression();
+
+        return std::make_shared<Assignment>(expr, right_expr);
+    }
+
+    return expr;
 }
 
 

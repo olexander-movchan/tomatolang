@@ -26,10 +26,10 @@ UnaryOperator::UnaryOperator(const Token &token,
         : Expression(token), operand(expr) {}
 
 
-Assignment::Assignment(std::shared_ptr<Variable> variable,
+Assignment::Assignment(std::shared_ptr<Expression> lvalue,
                        std::shared_ptr<Expression> expression)
 
-        : variable(variable), expression(expression) {}
+        : lvalue(lvalue), expression(expression) {}
 
 
 Declaration::Declaration(std::shared_ptr<Variable> variable,
@@ -46,6 +46,6 @@ void Program         ::accept(Visitor &visitor) { visitor.visit(*this); }
 void UnaryOperator   ::accept(Visitor &visitor) { visitor.visit(*this); }
 void BinaryOperator  ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Variable        ::accept(Visitor &visitor) { visitor.visit(*this); }
-void Literal        ::accept(Visitor &visitor) { visitor.visit(*this); }
+void Literal         ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Assignment      ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Declaration     ::accept(Visitor &visitor) { visitor.visit(*this); }

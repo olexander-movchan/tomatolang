@@ -8,21 +8,19 @@ Just an interpreter for my own language...
 Here is simple interactive session example:
 
     >>> var a = 3 * 10^2 + 11*5
-    >>> var b = 11^2 - 2^3
+    >>> var b = 10 * (2^3 + 2) + 13
     >>> var pi = a / b
-    >>> print
-    var | value
-    -----------
-    a   | 355
-    b   | 113
-    pi  | 3.141593
+    >>> pi
+    3.141593
 
 
 ## General program definition
 
 Program consists of statements.
 
-Statement is variable declaration, assignment or print statement.
+Statement is variable declaration, assignment or expression.
+
+If expression is given, interpreter will print its value.
 
 
 ## Variables
@@ -36,11 +34,6 @@ Variable can be declared using next syntax construction:
 A new value can be assigned to variable:
 
     <variable_name> = <expression>
-
-
-## Print statement
-
-Just `print` with no whitespaces around will print all the declared variables and their values.
 
 
 ## Expressions

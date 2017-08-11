@@ -105,6 +105,11 @@ void Interpreter::visit(AST::Program &node)
     {
         Visitor::visit(*statement);
     }
+
+    if (temporary != nullptr)
+    {
+        std::cout << temporary->str() << std::endl;
+    }
 }
 
 
@@ -122,10 +127,12 @@ void Interpreter::visit(AST::Assignment &node)
     Visitor::visit(*node.expression);
 
     // TODO: Define interpretation exception.
-    if (memory.find(node.variable->token.lexeme) == memory.end())
-        throw RuntimeError("Assign to undefined variable: " + node.variable->token.lexeme);
+    if (memory.find(node.lvalue->token.lexeme) == memory.end())
+        throw RuntimeError("Assign to undefined variable: " + node.lvalue->token.lexeme);
 
-    memory[node.variable->token.lexeme]->assign(*temporary);
+    memory[node.lvalue->token.lexeme]->assign(*temporary);
+
+    temporary = nullptr;
 }
 
 
@@ -138,18 +145,8 @@ void Interpreter::visit(AST::Declaration &node)
         throw RuntimeError("Redeclare variable: " + node.variable->token.lexeme);
 
     memory[node.variable->token.lexeme] = temporary;
-}
 
-
-void Interpreter::print_state()
-{
-    std::cout << "var | value" << std::endl;
-    std::cout << "-----------" << std::endl;
-
-    for (auto pair : memory)
-    {
-        std::cout << pair.first << "\t| " << pair.second->str() << std::endl;
-    }
+    temporary = nullptr;
 }
 
 
