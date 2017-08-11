@@ -1,6 +1,7 @@
 #include <iostream>
 
-#include "interpreter.hpp"
+#include "interpreter/interpreter.hpp"
+#include "parser/error.hpp"
 
 
 int main(int argc, char **argv)
@@ -21,7 +22,22 @@ int main(int argc, char **argv)
             continue;
         }
 
-        interpreter.interpret(line);
+        try
+        {
+            interpreter.interpret(line);
+        }
+        catch (const SyntaxError &error)
+        {
+            std::cout << error.what() << std::endl;
+        }
+        catch (const RuntimeError &error)
+        {
+            std::cout << error.what() << std::endl;
+        }
+        catch (TypeError)
+        {
+            std::cout << "Incompatible types!" << std::endl;
+        }
     }
 
     return 0;

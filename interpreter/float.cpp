@@ -15,7 +15,8 @@ void Float::assign(const Object &object)
     else if (object.is_instance<Integer>())
         value = object.as<Integer>().value;
 
-    throw TypeError();
+    else
+        throw TypeError();
 }
 
 

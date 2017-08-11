@@ -24,6 +24,8 @@ public:
 
     Ref op_not() override;
 
+    static Ref True();
+    static Ref False();
 };
 
 

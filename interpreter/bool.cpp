@@ -41,3 +41,13 @@ Object::Ref Bool::op_or(const Object &object)
 
     return std::make_shared<Bool>(value || object.as<Bool>().value);
 }
+
+Object::Ref Bool::True()
+{
+    return std::make_shared<Bool>(true);
+}
+
+Object::Ref Bool::False()
+{
+    return std::make_shared<Bool>(false);
+}

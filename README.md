@@ -67,3 +67,54 @@ Here are some rules:
 - Operation with integer and float returns float
 - Division returns float
 - Integer can be assigned to a float variable
+
+
+## Formal language specification
+
+Here is LL(1) compatible language grammar:
+
+    program    = statements
+
+    statements = statement statements
+               | statement
+
+    statement  = var_decl
+               | assignment
+               | expression
+
+    var_decl   = var identifier assign expression
+    assignment = expression assign expression
+
+    expression = term add expression
+               | term sub expression
+               | term
+
+    term       = power mul term
+               | power div term
+               | power
+
+    power      = factor pow power
+               | factor
+
+    factor     = lparen expression rparen
+               | identifier
+               | literal
+
+
+    # LEXICAL
+
+    var = 'var'
+
+    add = '+'
+    sub = '-'
+    mul = '*'
+    div = '/'
+    pow = '^'
+
+    assign = '='
+    lparen = '('
+    rparen = ')'
+
+    identifier = "[A-Za-z][A-Za-z0-9]*"
+
+    literal = "\d+(?:\.\d+)?"

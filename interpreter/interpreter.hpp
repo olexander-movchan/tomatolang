@@ -2,20 +2,17 @@
 #define INTERPRETER_INTERPRETER_HPP
 
 
-#include "parser.hpp"
-#include "types/object.hpp"
+#include "../parser/parser.hpp"
+#include "object.hpp"
 
 
-class RuntimeError : std::runtime_error
+class RuntimeError : public std::runtime_error
 {
 public:
     RuntimeError(const std::string &message);
 };
 
 
-/**
- * @brief Interpreter executes
- */
 class Interpreter : public AST::Visitor
 {
 public:
@@ -39,8 +36,8 @@ private:
     void visit(AST::Declaration     &node) override;
 
 private:
-    Object::Ref                               temporary;
-    std::map<std::string, Object::Ref>        memory;
+    Object::Ref                         temporary;
+    std::map<std::string, Object::Ref>  memory;
 };
 
 

@@ -9,26 +9,6 @@
 
 
 /**
- *
- */
-class SyntaxError : public std::runtime_error
-{
-public:
-    /**
-     * @brief Constructs an exception for unexpected token
-     * @param token Unexpected token
-     */
-    SyntaxError(const Token &token);
-
-    /**
-     * @brief Constructs an exception with custom message
-     * @param message Error message
-     */
-    SyntaxError(std::string message);
-};
-
-
-/**
  * @brief Parser builds abstract syntax tree;
  */
 class Parser
@@ -42,7 +22,7 @@ private:
     Lexer lexer;
     Token current_token;
 
-    void eat(TokenType expected_type);
+    void eat(Token::Type expected_type);
 
     std::shared_ptr<AST::Statement> statement();
     std::shared_ptr<AST::Statement> assignment();

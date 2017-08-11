@@ -5,22 +5,26 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCE_FILES
         main.cpp
-        lexer.cpp
-        lexer.hpp
-        syntax_tree.cpp
-        syntax_tree.hpp
-        parser.cpp
-        parser.hpp
-        interpreter.cpp
-        interpreter.hpp
-        types/object.cpp
-        types/object.hpp
-        types/integer.cpp
-        types/integer.hpp
-        types/float.cpp
-        types/float.hpp
-        types/bool.cpp
-        types/bool.hpp
+
+        parser/lexer.cpp
+        parser/lexer.hpp
+        parser/syntax_tree.cpp
+        parser/syntax_tree.hpp
+        parser/parser.cpp
+        parser/parser.hpp
+        parser/error.cpp
+        parser/error.hpp
+
+        interpreter/interpreter.cpp
+        interpreter/interpreter.hpp
+        interpreter/object.cpp
+        interpreter/object.hpp
+        interpreter/integer.cpp
+        interpreter/integer.hpp
+        interpreter/float.cpp
+        interpreter/float.hpp
+        interpreter/bool.cpp
+        interpreter/bool.hpp
         )
 
 add_executable(interpreter ${SOURCE_FILES})

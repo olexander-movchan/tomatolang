@@ -6,35 +6,36 @@
 #include <map>
 
 
-enum class TokenType
-{
-    None,
-    EndOfFile,
-
-    Literal,
-    Identifier,
-
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Pow,
-    Assign,
-
-    LeftParen,
-    RightParen,
-    Var,
-};
-
-
 struct Token
 {
-    TokenType   type;
-    std::string lexeme;
-    size_t      line;
-    size_t      column;
+    enum class Type
+    {
+        None,
+        EndOfFile,
 
-    operator std::string() const;
+        Literal,
+        Identifier,
+
+        Add,
+        Sub,
+        Mul,
+        Div,
+        Pow,
+        Assign,
+
+        LT, LE, GT, GE, EQ, NE,
+
+        And, Or, Not,
+
+        LParen,
+        RParen,
+        Var,
+    };
+
+    Type        type;
+    std::string lexeme;
+    int         line;
+    int         column;
 };
 
 

@@ -1,6 +1,7 @@
 #include "interpreter.hpp"
-#include "types/float.hpp"
-#include "types/integer.hpp"
+#include "float.hpp"
+#include "integer.hpp"
+#include "../parser/error.hpp"
 
 #include <iostream>
 
@@ -82,12 +83,12 @@ void Interpreter::visit(UnaryOperator &node)
 {
     switch (node.token.type)
     {
-        case TokenType::Add:
+        case Token::Type::Add:
             Visitor::visit(*node.operand);
             temporary = temporary->un_plus();
             break;
 
-        case TokenType::Sub:
+        case Token::Type::Sub:
             Visitor::visit(*node.operand);
             temporary = temporary->un_minus();
             break;

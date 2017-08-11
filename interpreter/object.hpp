@@ -11,7 +11,6 @@ class TypeError : std::exception {};
 /**
  * @brief Abstract base class for all runtime objects.
  *
- * @note Subclasses should use dynamic cast to implement methods.
  * @note Similar to Python's 'object' superclass
  */
 class Object
@@ -47,7 +46,10 @@ public:
     template <typename T>
     const T & as() const
     {
-        return *dynamic_cast<const T*>(this);
+        if (!is_instance<T>())
+            throw TypeError();
+
+        return dynamic_cast<const T &>(*this);
     }
 
     /**
