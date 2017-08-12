@@ -2,6 +2,7 @@
 #include "float.hpp"
 #include "integer.hpp"
 #include "../parser/error.hpp"
+#include "bool.hpp"
 
 #include <iostream>
 
@@ -59,6 +60,10 @@ void Interpreter::visit(Literal &node)
         case Literal::Type::Float:
             temporary = std::make_shared<Float>(node.fvalue());
             break;
+
+        case Literal::Type::Bool:
+            temporary = std::make_shared<Bool>(node.bvalue());
+            break;
     }
 }
 
@@ -95,10 +100,12 @@ void Interpreter::visit(AST::Program &node)
         Visitor::visit(*statement);
     }
 
-    if (temporary != nullptr)
+    if (node.statements.size() == 1 && temporary != nullptr)
     {
         std::cout << temporary->str() << std::endl;
     }
+
+    temporary = nullptr;
 }
 
 

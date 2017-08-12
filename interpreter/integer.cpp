@@ -1,20 +1,8 @@
 #include "integer.hpp"
 #include "float.hpp"
+#include "bool.hpp"
 
 #include <cmath>
-
-
-int ipow(int base, int exp)
-{
-    int power = 1;
-
-    for (int i = 0; i < exp; ++i)
-    {
-        power *= base;
-    }
-
-    return power;
-}
 
 
 Integer::Integer(int value) : value(value) {}
@@ -90,7 +78,7 @@ Object::Ref Integer::div(const Object &object)
 Object::Ref Integer::exp(const Object &object)
 {
     if (object.is_instance<Integer>())
-        return std::make_shared<Integer>(ipow(value, object.as<Integer>().value));
+        return std::make_shared<Float>(std::pow(float(value), float(object.as<Integer>().value)));
 
     else if (object.is_instance<Float>())
         return std::make_shared<Float>(std::pow(float(value), object.as<Float>().value));
@@ -99,12 +87,92 @@ Object::Ref Integer::exp(const Object &object)
         throw TypeError();
 }
 
+
 Object::Ref Integer::un_minus()
 {
     return std::make_shared<Integer>(-value);
 }
 
+
 Object::Ref Integer::un_plus()
 {
     return std::make_shared<Integer>(+value);
+}
+
+
+Object::Ref Integer::lt(const Object &object)
+{
+    if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value < object.as<Integer>().value);
+
+    else if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value < object.as<Float>().value);
+
+    else
+        throw TypeError();
+}
+
+
+Object::Ref Integer::gt(const Object &object)
+{
+    if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value > object.as<Integer>().value);
+
+    else if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value > object.as<Float>().value);
+
+    else
+        throw TypeError();
+}
+
+
+Object::Ref Integer::le(const Object &object)
+{
+    if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value <= object.as<Integer>().value);
+
+    else if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value <= object.as<Float>().value);
+
+    else
+        throw TypeError();
+}
+
+
+Object::Ref Integer::ge(const Object &object)
+{
+    if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value >= object.as<Integer>().value);
+
+    else if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value >= object.as<Float>().value);
+
+    else
+        throw TypeError();
+}
+
+
+Object::Ref Integer::eq(const Object &object)
+{
+    if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value == object.as<Integer>().value);
+
+    else if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value == object.as<Float>().value);
+
+    else
+        throw TypeError();
+}
+
+
+Object::Ref Integer::ne(const Object &object)
+{
+    if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value != object.as<Integer>().value);
+
+    else if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value != object.as<Float>().value);
+
+    else
+        throw TypeError();
 }

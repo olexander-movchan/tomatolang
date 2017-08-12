@@ -19,8 +19,12 @@ Declaration::Declaration(std::shared_ptr<Identifier> variable,
 
 Literal::Literal(const std::string &lexeme) : lexeme(lexeme)
 {
-    if (lexeme.find('.') == lexeme.npos)
+    if (lexeme == "true" || lexeme == "false")
+        type = Type ::Bool;
+
+    else if (lexeme.find('.') == lexeme.npos)
         type = Type::Integer;
+
     else
         type = Type::Float;
 }
@@ -44,6 +48,7 @@ Identifier::Identifier(const std::string &name) : name(name) {}
 
 int   Literal::ivalue() { return std::stoi(lexeme); }
 float Literal::fvalue() { return std::stof(lexeme); }
+bool  Literal::bvalue() { return lexeme == "true"; }
 
 
 // Visitor-related methods

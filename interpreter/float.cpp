@@ -1,5 +1,6 @@
 #include "float.hpp"
 #include "integer.hpp"
+#include "bool.hpp"
 
 #include <cmath>
 
@@ -95,4 +96,82 @@ Object::Ref Float::un_plus()
 
 Object::Ref Float::un_minus(){
     return std::make_shared<Float>(-value);
+}
+
+
+Object::Ref Float::lt(const Object &object)
+{
+    if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value < object.as<Float>().value);
+
+    else if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value < object.as<Integer>().value);
+
+    else
+        throw TypeError();
+}
+
+
+Object::Ref Float::gt(const Object &object)
+{
+    if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value > object.as<Float>().value);
+
+    else if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value > object.as<Integer>().value);
+
+    else
+        throw TypeError();
+}
+
+
+Object::Ref Float::le(const Object &object)
+{
+    if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value <= object.as<Float>().value);
+
+    else if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value <= object.as<Integer>().value);
+
+    else
+        throw TypeError();
+}
+
+
+Object::Ref Float::ge(const Object &object)
+{
+    if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value >= object.as<Float>().value);
+
+    else if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value >= object.as<Integer>().value);
+
+    else
+        throw TypeError();
+}
+
+
+Object::Ref Float::eq(const Object &object)
+{
+    if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value == object.as<Float>().value);
+
+    else if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value == object.as<Integer>().value);
+
+    else
+        throw TypeError();
+}
+
+
+Object::Ref Float::ne(const Object &object)
+{
+    if (object.is_instance<Float>())
+        return std::make_shared<Bool>(value != object.as<Float>().value);
+
+    else if (object.is_instance<Integer>())
+        return std::make_shared<Bool>(value != object.as<Integer>().value);
+
+    else
+        throw TypeError();
 }

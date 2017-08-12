@@ -49,7 +49,7 @@ namespace AST
     public:
         enum class Type
         {
-            Integer, Float,
+            Integer, Float, Bool,
         };
 
         Literal(const std::string &lexeme);
@@ -59,6 +59,7 @@ namespace AST
 
         int    ivalue();
         float  fvalue();
+        bool   bvalue();
 
     protected:
         void accept(Visitor &visitor) override;
@@ -154,8 +155,8 @@ namespace AST
         Declaration(std::shared_ptr<Identifier>   variable,
                     std::shared_ptr<Expression> value);
 
-        std::shared_ptr<Identifier>    variable;
-        std::shared_ptr<Expression>  value;
+        std::shared_ptr<Identifier> variable;
+        std::shared_ptr<Expression> value;
 
     protected:
         void accept(Visitor &visitor) override;

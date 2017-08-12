@@ -3,10 +3,12 @@
 
 
 std::map<std::string, Token> Lexer::keywords = {
-        {"var", Token{Token::Type::Var, "var"}},
-        {"and", Token{Token::Type::And, "and"}},
-        {"not", Token{Token::Type::Not, "not"}},
-        {"or",  Token{Token::Type::Or,  "or" }},
+        {"var",   Token{Token::Type::Var, "var"}},
+        {"and",   Token{Token::Type::And, "and"}},
+        {"not",   Token{Token::Type::Not, "not"}},
+        {"or",    Token{Token::Type::Or,  "or" }},
+        {"true",  Token{Token::Type::Literal, "true"}},
+        {"false", Token{Token::Type::Literal, "false"}},
 };
 
 
@@ -85,7 +87,7 @@ Token Lexer::next_token()
 
         case '!':
         {
-            if (code[offset+1] == '=')
+            if (code[offset] == '=')
             {
                 offset += 1;
                 return {Token::Type::NE, "!="};
@@ -93,12 +95,11 @@ Token Lexer::next_token()
             else
             {
                 offset -= 1;
-                throw SyntaxError("Invalid token: " + code.substr(offset, 4) + "...");
             }
         }
 
         default:
-            offset--;
+            offset -= 1;
     }
 
     // Numerical literal

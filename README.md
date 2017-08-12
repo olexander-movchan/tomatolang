@@ -2,27 +2,24 @@
 
 Just an interpreter for my own language...
 
+Program should consist of statements. Statements are:
+
+- variable declaration
+- assignment
+- expression
+
+If single expression is given, its value will be printed.
+
 
 ## Example
 
 Here is interactive session example:
 
-    >>> var a = 3 * 10^2 + 11*5
-    >>> var b = 10 * (2^3 + 2) + 13
-    >>> var pi = a / b
-    >>> pi
-    3.141593
-
-
-## Type system
-
-Language is static and strongly typed.
-There are three types supported: integer, floating-point and boolean (WIP).
-
-Here are some rules for numeric operations:
-- Algebraic operation on integer and float returns float
-- Division returns float
-- Integer value can be assigned to a float variable
+	>>> var pi = 3.1415926
+	>>> var eps = 10^-5
+	>>> var diff = pi - 355/113
+	>>> -eps < diff and diff < eps
+	true
 
 
 ## Variables
@@ -37,6 +34,18 @@ Variable can be declared using next syntax construction:
 A new value can be assigned to variable:
 
     <variable_name> = <expression>
+
+
+## Type system
+
+Language is static and strongly typed.
+There are three types supported: integer, floating-point and boolean.
+
+Here are some rules for numeric operations:
+- Algebraic operation on integer and float returns float;
+- Division returns float;
+- Exponentiation returns float;
+- Integer value can be assigned to a float variable.
 
 
 ## Expressions
