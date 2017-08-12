@@ -101,10 +101,10 @@ Object::Ref Integer::exp(const Object &object)
 
 Object::Ref Integer::un_minus()
 {
-    return std::make_shared<Integer>(value);
+    return std::make_shared<Integer>(-value);
 }
 
 Object::Ref Integer::un_plus()
 {
-    return std::make_shared<Integer>(-value);
+    return std::make_shared<Integer>(+value);
 }

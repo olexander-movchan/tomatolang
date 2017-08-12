@@ -90,7 +90,7 @@ Object::Ref Float::exp(const Object &object)
 
 Object::Ref Float::un_plus()
 {
-    return std::make_shared<Float>(value);
+    return std::make_shared<Float>(+value);
 }
 
 Object::Ref Float::un_minus(){
