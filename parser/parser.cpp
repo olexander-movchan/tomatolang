@@ -5,9 +5,73 @@
 using namespace AST;
 
 
+const int MaxPrecedence = 5;
+
+
+int precedence(Token::Type op)
+{
+    switch (op)
+    {
+        case Token::Type::Or:
+            return 0;
+
+        case Token::Type::And:
+            return 1;
+
+        case Token::Type::LT:
+        case Token::Type::GT:
+        case Token::Type::LE:
+        case Token::Type::GE:
+        case Token::Type::EQ:
+        case Token::Type::NE:
+            return 2;
+
+        case Token::Type::Add:
+        case Token::Type::Sub:
+            return 3;
+
+        case Token::Type::Mul:
+        case Token::Type::Div:
+            return 4;
+
+        case Token::Type::Exp:
+            return 5;
+
+        default:
+            throw std::runtime_error("Getting precedence of non-operator");
+    }
+}
+
+
+bool left_associative(Token::Type op)
+{
+    switch (op)
+    {
+        case Token::Type::Exp:
+            return false;
+
+        default:
+            return true;
+    }
+}
+
+
 Parser::Parser(const std::string &code) : lexer(code)
 {
     current_token = this->lexer.next_token();
+}
+
+
+void Parser::shift(Token::Type expected_type)
+{
+    if (current_token.type == expected_type)
+    {
+        current_token = lexer.next_token();
+    }
+    else
+    {
+        throw SyntaxError("Unexpected token: " + current_token.lexeme);
+    }
 }
 
 
@@ -24,120 +88,71 @@ std::shared_ptr<Program> Parser::parse()
 }
 
 
-void Parser::eat(Token::Type expected_type)
+std::shared_ptr<Expression> Parser::expression(int curr_precedence)
 {
-    if (current_token.type == expected_type)
+    if (curr_precedence > MaxPrecedence)
+        return term();
+
+    auto expr = expression(curr_precedence + 1);
+
+    while (current_token.is_bin_operator() && precedence(current_token.type) == curr_precedence)
     {
-        current_token = lexer.next_token();
-    }
-    else
-    {
-        throw SyntaxError("Unexpected token: " + current_token.lexeme);
-    }
-}
+        auto bin_op = current_token.type;
+        shift(current_token.type);
 
-
-std::shared_ptr<Expression> Parser::expression()
-{
-    auto sum = term();
-
-    while (current_token.type == Token::Type::Add ||
-           current_token.type == Token::Type::Sub)
-    {
-        auto op = current_token;
-        eat(current_token.type);
-
-        auto right = term();
-
-        sum = std::make_shared<BinaryOperator>(sum, op, right);
+        expr = std::make_shared<BinaryOperator>(expr,
+                                                bin_op,
+                                                expression(curr_precedence + 1));
     }
 
-    return sum;
+    return expr;
 }
 
 
 std::shared_ptr<Expression> Parser::term()
 {
-    auto prod = power();
-
-    while (current_token.type == Token::Type::Mul ||
-           current_token.type == Token::Type::Div)
-    {
-        auto op = current_token;
-        eat(current_token.type);
-
-        auto right = power();
-
-        prod = std::make_shared<BinaryOperator>(prod, op, right);
-    }
-
-    return prod;
-}
-
-
-std::shared_ptr<Expression> Parser::power()
-{
-    auto base = factor();
-
-    if (current_token.type == Token::Type::Pow)
-    {
-        auto pow = current_token;
-        eat(Token::Type::Pow);
-
-        auto exponent = power();
-
-        return std::make_shared<BinaryOperator>(base, pow, exponent);
-    }
-
-    return base;
-}
-
-
-std::shared_ptr<Expression> Parser::factor()
-{
     switch (current_token.type)
     {
-        case Token::Type::Add:
-        {
-            Token plus = current_token;
-            eat(Token::Type::Add);
-
-            return std::make_shared<UnaryOperator>(plus, factor());
-        }
-
-        case Token::Type::Sub:
-        {
-            Token minus = current_token;
-            eat(Token::Type::Sub);
-
-            return std::make_shared<UnaryOperator>(minus, factor());
-        }
-
         case Token::Type::LParen:
         {
-            eat(Token::Type::LParen);
-            auto factor = expression();
-            eat(Token::Type::RParen);
+            shift(Token::Type::LParen);
+            auto expr = expression();
+            shift(Token::Type::RParen);
 
-            return factor;
+            return expr;
         }
 
-        case Token::Type::Literal:
+        case Token::Type::Not:
+        case Token::Type::Add:
+        case Token::Type::Sub:
         {
-            auto factor = std::make_shared<Literal>(current_token);
-            eat(Token::Type::Literal);
-            return factor;
+            auto un_op = current_token.type;
+
+            shift(current_token.type);
+
+            // Read only product:
+            // TODO: Remove hardcoded value
+            auto expr = expression(4);
+
+            return std::make_shared<UnaryOperator>(un_op, expr);
         }
 
         case Token::Type::Identifier:
         {
-            auto factor = std::make_shared<Variable>(current_token);
-            eat(Token::Type::Identifier);
-            return factor;
+            auto identifier = std::make_shared<Identifier>(current_token.lexeme);
+            shift(current_token.type);
+            return identifier;
+        }
+
+        case Token::Type::Literal:
+        {
+            auto literal = std::make_shared<Literal>(current_token.lexeme);
+            shift(current_token.type);
+            return literal;
         }
 
         default:
-            throw SyntaxError(current_token);
+            throw std::runtime_error("Unexpected token");
     }
 }
 
@@ -151,11 +166,11 @@ std::shared_ptr<Statement> Parser::statement()
 
     if (current_token.type == Token::Type::Assign)
     {
-        eat(Token::Type::Assign);
+        shift(Token::Type::Assign);
 
-        auto right_expr = expression();
+        auto rvalue = expression();
 
-        return std::make_shared<Assignment>(expr, right_expr);
+        return std::make_shared<Assignment>(expr, rvalue);
     }
 
     return expr;
@@ -164,12 +179,12 @@ std::shared_ptr<Statement> Parser::statement()
 
 std::shared_ptr<Statement> Parser::declaration()
 {
-    eat(Token::Type::Var);
+    shift(Token::Type::Var);
 
-    auto var = std::make_shared<Variable>(current_token);
+    auto var = std::make_shared<Identifier>(current_token.lexeme);
 
-    eat(Token::Type::Identifier);
-    eat(Token::Type::Assign);
+    shift(Token::Type::Identifier);
+    shift(Token::Type::Assign);
 
     auto expr = expression();
 

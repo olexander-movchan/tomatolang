@@ -18,7 +18,7 @@ public:
     Ref mul(const Object &object) override;
     Ref div(const Object &object) override;
 
-    Ref pow(const Object &object) override;
+    Ref exp(const Object &object) override;
     Ref un_minus() override;
 
     Ref un_plus() override;

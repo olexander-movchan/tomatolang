@@ -5,37 +5,45 @@ using namespace AST;
 
 
 // AST node constructors
+Assignment::Assignment(std::shared_ptr<Expression> lvalue,
+                       std::shared_ptr<Expression> rvalue)
 
-Expression::Expression(const Token &token) : token(token) {}
+        : lvalue(lvalue), rvalue(rvalue) {}
 
 
-Literal::Literal(const Token &token) : Expression(token) {}
-Variable::Variable(const Token &token) : Expression(token) {}
+Declaration::Declaration(std::shared_ptr<Identifier> variable,
+                         std::shared_ptr<Expression> value)
+
+        : variable(variable), value(value) {}
+
+
+Literal::Literal(const std::string &lexeme) : lexeme(lexeme)
+{
+    if (lexeme.find('.') == lexeme.npos)
+        type = Type::Integer;
+    else
+        type = Type::Float;
+}
 
 
 BinaryOperator::BinaryOperator(std::shared_ptr<Expression> left,
-                               const Token &token,
+                               Token::Type                 operation,
                                std::shared_ptr<Expression> right)
 
-        : Expression(token), left(left), right(right) {}
+        : left(left), operation(operation), right(right) {}
 
 
-UnaryOperator::UnaryOperator(const Token &token,
-                             std::shared_ptr<Expression> expr)
+UnaryOperator::UnaryOperator(Token::Type                 operation,
+                             std::shared_ptr<Expression> expression)
 
-        : Expression(token), operand(expr) {}
-
-
-Assignment::Assignment(std::shared_ptr<Expression> lvalue,
-                       std::shared_ptr<Expression> expression)
-
-        : lvalue(lvalue), expression(expression) {}
+        : operation(operation), expression(expression) {}
 
 
-Declaration::Declaration(std::shared_ptr<Variable> variable,
-                         std::shared_ptr<Expression> expression)
+Identifier::Identifier(const std::string &name) : name(name) {}
 
-        : variable(variable), expression(expression) {}
+
+int   Literal::ivalue() { return std::stoi(lexeme); }
+float Literal::fvalue() { return std::stof(lexeme); }
 
 
 // Visitor-related methods
@@ -45,7 +53,7 @@ void Visitor::visit(AbstractSyntaxTree &node) { node.accept(*this); }
 void Program         ::accept(Visitor &visitor) { visitor.visit(*this); }
 void UnaryOperator   ::accept(Visitor &visitor) { visitor.visit(*this); }
 void BinaryOperator  ::accept(Visitor &visitor) { visitor.visit(*this); }
-void Variable        ::accept(Visitor &visitor) { visitor.visit(*this); }
+void Identifier      ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Literal         ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Assignment      ::accept(Visitor &visitor) { visitor.visit(*this); }
 void Declaration     ::accept(Visitor &visitor) { visitor.visit(*this); }

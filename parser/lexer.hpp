@@ -20,7 +20,7 @@ struct Token
         Sub,
         Mul,
         Div,
-        Pow,
+        Exp,
         Assign,
 
         LT, LE, GT, GE, EQ, NE,
@@ -34,8 +34,8 @@ struct Token
 
     Type        type;
     std::string lexeme;
-    int         line;
-    int         column;
+
+    bool is_bin_operator() const;
 };
 
 

@@ -97,7 +97,7 @@ public:
      * @param object exponent
      * @return power
      */
-    virtual Ref pow(const Object &object);
+    virtual Ref exp(const Object &object);
 
 
     virtual Ref un_minus();

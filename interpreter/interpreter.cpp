@@ -24,77 +24,66 @@ void Interpreter::visit(BinaryOperator &ast_node)
 
     Visitor::visit(*ast_node.right);
 
-    switch (ast_node.token.lexeme[0])
+    switch (ast_node.operation)
     {
-        case '+':
-            temporary = left->add(*temporary);
-            break;
+        case Token::Type::Add: temporary = left->add(*temporary); break;
+        case Token::Type::Sub: temporary = left->sub(*temporary); break;
+        case Token::Type::Mul: temporary = left->mul(*temporary); break;
+        case Token::Type::Div: temporary = left->div(*temporary); break;
+        case Token::Type::Exp: temporary = left->exp(*temporary); break;
 
-        case '-':
-            temporary = left->sub(*temporary);
-            break;
+        case Token::Type::And: temporary = left->op_and(*temporary); break;
+        case Token::Type::Or : temporary = left->op_or (*temporary); break;
 
-        case '*':
-            temporary = left->mul(*temporary);
-            break;
-
-        case '/':
-            temporary = left->div(*temporary);
-            break;
-
-        case '^':
-            temporary = left->pow(*temporary);
-            break;
+        case Token::Type::LT: temporary = left->lt(*temporary); break;
+        case Token::Type::GT: temporary = left->gt(*temporary); break;
+        case Token::Type::LE: temporary = left->le(*temporary); break;
+        case Token::Type::GE: temporary = left->ge(*temporary); break;
+        case Token::Type::EQ: temporary = left->eq(*temporary); break;
+        case Token::Type::NE: temporary = left->ne(*temporary); break;
 
         default:
-            throw SyntaxError("Invalid operator: " + ast_node.token.lexeme);
+            throw SyntaxError("Invalid operator");
     }
 }
 
 
 void Interpreter::visit(Literal &node)
 {
-    if (node.token.lexeme.find('.') != std::string::npos)
+    switch (node.type)
     {
-        try
-        {
-            temporary = std::make_shared<Float>(std::stof(node.token.lexeme));
-        }
-        catch (std::invalid_argument)
-        {
-            throw SyntaxError("Invalid numerical literal");
-        }
-    }
-    else
-    {
-        try
-        {
-            temporary = std::make_shared<Integer>(std::stoi(node.token.lexeme));
-        }
-        catch (std::invalid_argument)
-        {
-            throw SyntaxError("Invalid numerical literal");
-        }
+        case Literal::Type::Integer:
+            temporary = std::make_shared<Integer>(node.ivalue());
+            break;
+
+        case Literal::Type::Float:
+            temporary = std::make_shared<Float>(node.fvalue());
+            break;
     }
 }
 
 
 void Interpreter::visit(UnaryOperator &node)
 {
-    switch (node.token.type)
+    switch (node.operation)
     {
         case Token::Type::Add:
-            Visitor::visit(*node.operand);
+            Visitor::visit(*node.expression);
             temporary = temporary->un_plus();
             break;
 
         case Token::Type::Sub:
-            Visitor::visit(*node.operand);
+            Visitor::visit(*node.expression);
             temporary = temporary->un_minus();
             break;
 
+        case Token::Type::Not:
+            Visitor::visit(*node.expression);
+            temporary = temporary->op_not();
+            break;
+
         default:
-            throw SyntaxError(node.token);
+            throw SyntaxError("Invalid unary operator");
     }
 }
 
@@ -113,24 +102,24 @@ void Interpreter::visit(AST::Program &node)
 }
 
 
-void Interpreter::visit(AST::Variable &node)
+void Interpreter::visit(AST::Identifier &node)
 {
-    if (memory.find(node.token.lexeme) != memory.end())
-        temporary = memory[node.token.lexeme];
-    else // TODO: Define interpretation exception.
-        throw RuntimeError("Variable used before defined: " + node.token.lexeme);
+    if (memory.find(node.name) != memory.end())
+        temporary = memory[node.name];
+    else
+        throw RuntimeError("Undefined variable: " + node.name);
 }
 
 
 void Interpreter::visit(AST::Assignment &node)
 {
-    Visitor::visit(*node.expression);
+    Visitor::visit(*node.lvalue);
+    auto var = temporary;
 
-    // TODO: Define interpretation exception.
-    if (memory.find(node.lvalue->token.lexeme) == memory.end())
-        throw RuntimeError("Assign to undefined variable: " + node.lvalue->token.lexeme);
+    Visitor::visit(*node.rvalue);
+    auto value = temporary;
 
-    memory[node.lvalue->token.lexeme]->assign(*temporary);
+    var->assign(*value);
 
     temporary = nullptr;
 }
@@ -138,13 +127,13 @@ void Interpreter::visit(AST::Assignment &node)
 
 void Interpreter::visit(AST::Declaration &node)
 {
-    Visitor::visit(*node.expression);
+    Visitor::visit(*node.value);
 
     // TODO: Define interpretation exception.
-    if (memory.find(node.variable->token.lexeme) != memory.end())
-        throw RuntimeError("Redeclare variable: " + node.variable->token.lexeme);
+    if (memory.find(node.variable->name) != memory.end())
+        throw RuntimeError("Redeclare variable: " + node.variable->name);
 
-    memory[node.variable->token.lexeme] = temporary;
+    memory[node.variable->name] = temporary;
 
     temporary = nullptr;
 }

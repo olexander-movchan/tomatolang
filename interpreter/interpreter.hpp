@@ -2,6 +2,7 @@
 #define INTERPRETER_INTERPRETER_HPP
 
 
+#include <map>
 #include "../parser/parser.hpp"
 #include "object.hpp"
 
@@ -25,7 +26,7 @@ private:
     void visit(AST::Program         &node) override;
     void visit(AST::UnaryOperator   &node) override;
     void visit(AST::BinaryOperator  &node) override;
-    void visit(AST::Variable        &node) override;
+    void visit(AST::Identifier      &node) override;
     void visit(AST::Literal         &node) override;
     void visit(AST::Assignment      &node) override;
     void visit(AST::Declaration     &node) override;

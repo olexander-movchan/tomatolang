@@ -36,7 +36,7 @@ Token Lexer::next_token()
             return {Token::Type::Div, "/"};
 
         case '^':
-            return {Token::Type::Pow, "^"};
+            return {Token::Type::Exp, "^"};
 
         case '(':
             return {Token::Type::LParen, "("};
@@ -182,4 +182,29 @@ Token Lexer::identifier()
         return  keywords[lexeme];
     else
         return Token{Token::Type::Identifier, lexeme};
+}
+
+
+bool Token::is_bin_operator() const
+{
+    switch (type)
+    {
+        case Token::Type::Or:
+        case Token::Type::And:
+        case Token::Type::LT:
+        case Token::Type::GT:
+        case Token::Type::LE:
+        case Token::Type::GE:
+        case Token::Type::EQ:
+        case Token::Type::NE:
+        case Token::Type::Add:
+        case Token::Type::Sub:
+        case Token::Type::Mul:
+        case Token::Type::Div:
+        case Token::Type::Exp:
+            return true;
+
+        default:
+            return false;
+    }
 }

@@ -10,7 +10,7 @@ Object::Ref Object::add(const Object &object) { throw TypeError(); }
 Object::Ref Object::sub(const Object &object) { throw TypeError(); }
 Object::Ref Object::mul(const Object &object) { throw TypeError(); }
 Object::Ref Object::div(const Object &object) { throw TypeError(); }
-Object::Ref Object::pow(const Object &object) { throw TypeError(); }
+Object::Ref Object::exp(const Object &object) { throw TypeError(); }
 
 Object::Ref Object::un_minus() { throw TypeError(); }
 Object::Ref Object::un_plus() { throw TypeError(); }

@@ -5,7 +5,7 @@ Just an interpreter for my own language...
 
 ## Example
 
-Here is simple interactive session example:
+Here is interactive session example:
 
     >>> var a = 3 * 10^2 + 11*5
     >>> var b = 10 * (2^3 + 2) + 13
@@ -14,18 +14,21 @@ Here is simple interactive session example:
     3.141593
 
 
-## General program definition
+## Type system
 
-Program consists of statements.
+Language is static and strongly typed.
+There are three types supported: integer, floating-point and boolean (WIP).
 
-Statement is variable declaration, assignment or expression.
-
-If expression is given, interpreter will print its value.
+Here are some rules for numeric operations:
+- Algebraic operation on integer and float returns float
+- Division returns float
+- Integer value can be assigned to a float variable
 
 
 ## Variables
 
-Variable cannot be used until it declared. Once declared, variable can not be declared again.
+Variable cannot be used until it declared.
+Once declared, variable can not be declared again.
 
 Variable can be declared using next syntax construction:
 
@@ -38,76 +41,23 @@ A new value can be assigned to variable:
 
 ## Expressions
 
-Expression is similar to algebraic expression.
 Binary operators, unary operators and parentheses can be used.
 
 Binary operators are:
-- addition (+)
-- subtraction (-)
-- multiplication (*)
-- division (/)
-- exponentiation (^)
+- algebraic (`+`, `-`, `*`, `/`, `^`)
+- comparative (`==`, `!=`, `>`, `>=`, `<`, `<=`)
+- boolean (`and`, `or`)
 
-Unary operator are unary plus (+) and minus (-).
+Unary operators are `+`, `-` and `not`.
 
+All operators are left-associative, except exponentiation (`^`) which is right-associative.
 
-## Type system
+Here is operator precedence:
 
-Language is static and strongly typed.
-However there are only two types supported: integer and floating-point.
-
-Here are some rules:
-- Operation with integer and float returns float
-- Division returns float
-- Integer can be assigned to a float variable
-
-
-## Formal language specification
-
-Here is LL(1) compatible language grammar:
-
-    program    = statements
-
-    statements = statement statements
-               | statement
-
-    statement  = var_decl
-               | assignment
-               | expression
-
-    var_decl   = var identifier assign expression
-    assignment = expression assign expression
-
-    expression = term add expression
-               | term sub expression
-               | term
-
-    term       = power mul term
-               | power div term
-               | power
-
-    power      = factor pow power
-               | factor
-
-    factor     = lparen expression rparen
-               | identifier
-               | literal
-
-
-    # LEXICAL
-
-    var = 'var'
-
-    add = '+'
-    sub = '-'
-    mul = '*'
-    div = '/'
-    pow = '^'
-
-    assign = '='
-    lparen = '('
-    rparen = ')'
-
-    identifier = "[A-Za-z][A-Za-z0-9]*"
-
-    literal = "\d+(?:\.\d+)?"
+1. `^`
+2. `*` and `/`
+3. unary `+`, `-` and `not`
+4. `+` and `-`
+5. `==`, `!=`, `>`, `>=`, `<`, `<=`
+6. `and`
+7. `or`

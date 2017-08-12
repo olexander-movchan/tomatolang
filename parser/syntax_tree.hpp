@@ -4,7 +4,6 @@
 
 #include <memory>
 #include <queue>
-
 #include "lexer.hpp"
 
 
@@ -39,16 +38,7 @@ namespace AST
     /**
      * @brief Abstract base class for AST expression nodes.
      */
-    class Expression : public Statement
-    {
-    public:
-        /**
-         * @param token Token that corresponds to AST node.
-         */
-        Expression(const Token &token);
-
-        Token       token;
-    };
+    class Expression : public Statement {};
 
 
     /**
@@ -57,7 +47,18 @@ namespace AST
     class Literal : public Expression
     {
     public:
-        Literal(const Token &token);
+        enum class Type
+        {
+            Integer, Float,
+        };
+
+        Literal(const std::string &lexeme);
+
+        Type        type;
+        std::string lexeme;
+
+        int    ivalue();
+        float  fvalue();
 
     protected:
         void accept(Visitor &visitor) override;
@@ -65,12 +66,14 @@ namespace AST
 
 
     /**
-     * @brief Variable AST node.
+     * @brief Identifier AST node.
      */
-    class Variable : public Expression
+    class Identifier : public Expression
     {
     public:
-        Variable(const Token &token);
+        Identifier(const std::string &name);
+
+        std::string name;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -84,15 +87,16 @@ namespace AST
     {
     public:
         /**
-         * @param left   Expression to the left of operator
-         * @param token  Operator token
-         * @param right  Expression to the right of operator
+         * @param left       Expression to the left of operator
+         * @param operation  Operator type
+         * @param right      Expression to the right of operator
          */
         BinaryOperator(std::shared_ptr<Expression> left,
-                       const Token &token,
+                       Token::Type                 operation,
                        std::shared_ptr<Expression> right);
 
         std::shared_ptr<Expression> left;
+        Token::Type                 operation;
         std::shared_ptr<Expression> right;
 
     protected:
@@ -107,12 +111,13 @@ namespace AST
     {
     public:
         /**
-         * @param token  Operator token
-         * @param expr   Operand expression
+         * @param operation  Operator type
+         * @param expression Operand
          */
-        UnaryOperator(const Token &token, std::shared_ptr<Expression> expr);
+        UnaryOperator(Token::Type operation, std::shared_ptr<Expression> expression);
 
-        std::shared_ptr<Expression> operand;
+        Token::Type                 operation;
+        std::shared_ptr<Expression> expression;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -125,11 +130,15 @@ namespace AST
     class Assignment : public Statement
     {
     public:
+        /**
+         * @param lvalue Reference to update value (i.e. Variable)
+         * @param rvalue Value that should be assigned
+         */
         Assignment(std::shared_ptr<Expression> lvalue,
-                   std::shared_ptr<Expression> expression);
+                   std::shared_ptr<Expression> rvalue);
 
         std::shared_ptr<Expression> lvalue;
-        std::shared_ptr<Expression> expression;
+        std::shared_ptr<Expression> rvalue;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -142,11 +151,11 @@ namespace AST
     class Declaration : public Statement
     {
     public:
-        Declaration(std::shared_ptr<Variable> variable,
-                    std::shared_ptr<Expression> expression);
+        Declaration(std::shared_ptr<Identifier>   variable,
+                    std::shared_ptr<Expression> value);
 
-        std::shared_ptr<Variable>    variable;
-        std::shared_ptr<Expression>  expression;
+        std::shared_ptr<Identifier>    variable;
+        std::shared_ptr<Expression>  value;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -155,8 +164,6 @@ namespace AST
 
     /**
      * @brief Program AST node, i.e. tree root.
-     *
-     * @note Doesn't have corresponding token.
      */
     class Program : public AbstractSyntaxTree
     {
@@ -187,7 +194,7 @@ namespace AST
         virtual void visit(Program         &node) = 0;
         virtual void visit(UnaryOperator   &node) = 0;
         virtual void visit(BinaryOperator  &node) = 0;
-        virtual void visit(Variable        &node) = 0;
+        virtual void visit(Identifier      &node) = 0;
         virtual void visit(Literal         &node) = 0;
         virtual void visit(Assignment      &node) = 0;
         virtual void visit(Declaration     &node) = 0;

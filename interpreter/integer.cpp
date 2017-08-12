@@ -87,7 +87,7 @@ Object::Ref Integer::div(const Object &object)
 }
 
 
-Object::Ref Integer::pow(const Object &object)
+Object::Ref Integer::exp(const Object &object)
 {
     if (object.is_instance<Integer>())
         return std::make_shared<Integer>(ipow(value, object.as<Integer>().value));

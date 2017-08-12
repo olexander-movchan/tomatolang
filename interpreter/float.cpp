@@ -76,7 +76,7 @@ Object::Ref Float::div(const Object &object)
         throw TypeError();
 }
 
-Object::Ref Float::pow(const Object &object)
+Object::Ref Float::exp(const Object &object)
 {
     if (object.is_instance<Float>())
         return std::make_shared<Float>(std::pow(value, object.as<Float>().value));
