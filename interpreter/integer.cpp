@@ -1,9 +1,25 @@
 #include "integer.hpp"
 #include "float.hpp"
 #include "bool.hpp"
+#include "interpreter.hpp"
 
 #include <cmath>
 
+
+int ipow(int base, int exp)
+{
+    if (exp < 0)
+        throw RuntimeError("Negative integer exponentiation.");
+
+    int pow = 1;
+
+    for (int i = 0; i < exp; ++i)
+    {
+        pow *= base;
+    }
+
+    return pow;
+}
 
 Integer::Integer(int value) : value(value) {}
 
@@ -78,7 +94,7 @@ Object::Ref Integer::div(const Object &object)
 Object::Ref Integer::exp(const Object &object)
 {
     if (object.is_instance<Integer>())
-        return std::make_shared<Float>(std::pow(float(value), float(object.as<Integer>().value)));
+        return std::make_shared<Integer>(ipow(value, object.as<Integer>().value));
 
     else if (object.is_instance<Float>())
         return std::make_shared<Float>(std::pow(float(value), object.as<Float>().value));

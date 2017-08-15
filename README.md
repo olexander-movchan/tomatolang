@@ -44,7 +44,6 @@ There are three types supported: integer, floating-point and boolean.
 Here are some rules for numeric operations:
 - Algebraic operation on integer and float returns float;
 - Division returns float;
-- Exponentiation returns float;
 - Integer value can be assigned to a float variable.
 
 

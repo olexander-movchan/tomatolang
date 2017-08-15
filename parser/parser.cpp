@@ -94,15 +94,31 @@ std::shared_ptr<Expression> Parser::expression(int curr_precedence)
         return term();
 
     auto expr = expression(curr_precedence + 1);
-
-    while (current_token.is_bin_operator() && precedence(current_token.type) == curr_precedence)
+  
+    if (current_token.is_bin_operator() && left_associative(current_token.type))
     {
-        auto bin_op = current_token.type;
-        shift(current_token.type);
+        while (current_token.is_bin_operator() && precedence(current_token.type) == curr_precedence)
+        {
+            auto bin_op = current_token.type;
+            shift(current_token.type);
 
-        expr = std::make_shared<BinaryOperator>(expr,
-                                                bin_op,
-                                                expression(curr_precedence + 1));
+            expr = std::make_shared<BinaryOperator>(expr,
+                                                    bin_op,
+                                                    expression(curr_precedence + 1));
+        }
+    }
+    else if (current_token.is_bin_operator())
+    {
+        if (current_token.is_bin_operator() && precedence(current_token.type) == curr_precedence)
+        {
+            auto bin_op = current_token.type;
+            shift(current_token.type);
+
+            expr = std::make_shared<BinaryOperator>(expr,
+                                                    bin_op,
+                                                    expression(curr_precedence));
+
+        }
     }
 
     return expr;
