@@ -4,7 +4,7 @@
 
 #include <memory>
 #include <queue>
-#include "lexer.hpp"
+#include "token.hpp"
 
 
 /**
@@ -38,7 +38,12 @@ namespace AST
     /**
      * @brief Abstract base class for AST expression nodes.
      */
-    class Expression : public Statement {};
+    class Expression : public Statement
+    {
+    public:
+        Expression(const Token &token);
+        Token token;
+    };
 
 
     /**
@@ -52,7 +57,7 @@ namespace AST
             Integer, Float, Bool,
         };
 
-        Literal(const std::string &lexeme);
+        Literal(const Token &token);
 
         Type        type;
         std::string lexeme;
@@ -72,7 +77,7 @@ namespace AST
     class Identifier : public Expression
     {
     public:
-        Identifier(const std::string &name);
+        Identifier(const Token &token);
 
         std::string name;
 
@@ -88,12 +93,12 @@ namespace AST
     {
     public:
         /**
-         * @param left       Expression to the left of operator
-         * @param operation  Operator type
-         * @param right      Expression to the right of operator
+         * @param left        Expression to the left of operator
+         * @param operator_t  Operator token
+         * @param right       Expression to the right of operator
          */
         BinaryOperator(std::shared_ptr<Expression> left,
-                       Token::Type                 operation,
+                       const Token                 &operator_t,
                        std::shared_ptr<Expression> right);
 
         std::shared_ptr<Expression> left;
@@ -112,10 +117,10 @@ namespace AST
     {
     public:
         /**
-         * @param operation  Operator type
-         * @param expression Operand
+         * @param operator_t  Operator token
+         * @param expression  Operand
          */
-        UnaryOperator(Token::Type operation, std::shared_ptr<Expression> expression);
+        UnaryOperator(const Token &operator_t, std::shared_ptr<Expression> expression);
 
         Token::Type                 operation;
         std::shared_ptr<Expression> expression;
@@ -132,14 +137,18 @@ namespace AST
     {
     public:
         /**
-         * @param lvalue Reference to update value (i.e. Variable)
-         * @param rvalue Value that should be assigned
+         * @param lvalue  Reference to update value (i.e. Variable)
+         * @param set     "=" token
+         * @param rvalue  Value that should be assigned
          */
         Assignment(std::shared_ptr<Expression> lvalue,
+                   const Token                 &set,
                    std::shared_ptr<Expression> rvalue);
 
         std::shared_ptr<Expression> lvalue;
         std::shared_ptr<Expression> rvalue;
+
+        Token token;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -152,11 +161,14 @@ namespace AST
     class Declaration : public Statement
     {
     public:
-        Declaration(std::shared_ptr<Identifier>   variable,
-                    std::shared_ptr<Expression> value);
+        Declaration(const Token &var, std::shared_ptr<Identifier> variable,
+                    const Token &set, std::shared_ptr<Expression> value);
 
         std::shared_ptr<Identifier> variable;
         std::shared_ptr<Expression> value;
+
+        Token token_var;
+        Token token_set;
 
     protected:
         void accept(Visitor &visitor) override;

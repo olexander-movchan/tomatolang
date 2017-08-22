@@ -4,20 +4,10 @@
 using namespace AST;
 
 
-// AST node constructors
-Assignment::Assignment(std::shared_ptr<Expression> lvalue,
-                       std::shared_ptr<Expression> rvalue)
-
-        : lvalue(lvalue), rvalue(rvalue) {}
+Expression::Expression(const Token &token) : token(token) {}
 
 
-Declaration::Declaration(std::shared_ptr<Identifier> variable,
-                         std::shared_ptr<Expression> value)
-
-        : variable(variable), value(value) {}
-
-
-Literal::Literal(const std::string &lexeme) : lexeme(lexeme)
+Literal::Literal(const Token &token) : Expression(token), lexeme(token.lexeme)
 {
     if (lexeme == "true" || lexeme == "false")
         type = Type ::Bool;
@@ -30,25 +20,33 @@ Literal::Literal(const std::string &lexeme) : lexeme(lexeme)
 }
 
 
-BinaryOperator::BinaryOperator(std::shared_ptr<Expression> left,
-                               Token::Type                 operation,
-                               std::shared_ptr<Expression> right)
-
-        : left(left), operation(operation), right(right) {}
-
-
-UnaryOperator::UnaryOperator(Token::Type                 operation,
-                             std::shared_ptr<Expression> expression)
-
-        : operation(operation), expression(expression) {}
-
-
-Identifier::Identifier(const std::string &name) : name(name) {}
-
-
 int   Literal::ivalue() { return std::stoi(lexeme); }
 float Literal::fvalue() { return std::stof(lexeme); }
 bool  Literal::bvalue() { return lexeme == "true"; }
+
+
+Identifier::Identifier(const Token &token) : Expression(token), name(token.lexeme) {}
+
+
+BinaryOperator::BinaryOperator(std::shared_ptr<Expression> left,
+                               const Token &operator_t,
+                               std::shared_ptr<Expression> right)
+        : Expression(operator_t), left(left), operation(operator_t.type), right(right) {}
+
+
+UnaryOperator::UnaryOperator(const Token &operator_t, std::shared_ptr<Expression> expression)
+        : Expression(operator_t), operation(operator_t.type), expression(expression) {}
+
+
+Assignment::Assignment(std::shared_ptr<Expression> lvalue,
+                       const Token                 &set,
+                       std::shared_ptr<Expression> rvalue)
+        : token(set), lvalue(lvalue) , rvalue(rvalue) {}
+
+
+Declaration::Declaration(const Token &var, std::shared_ptr<Identifier> variable,
+                         const Token &set, std::shared_ptr<Expression> value)
+        : token_var(var), token_set(set), variable(variable), value(value) {}
 
 
 // Visitor-related methods

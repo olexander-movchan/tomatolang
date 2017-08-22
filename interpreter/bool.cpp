@@ -1,4 +1,5 @@
 #include "bool.hpp"
+#include "parser/errors.hpp"
 
 
 Bool::Bool(bool value) : value(value) {}

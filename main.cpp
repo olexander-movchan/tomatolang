@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "interpreter/interpreter.hpp"
-#include "parser/error.hpp"
 
 
 int main(int argc, char **argv)
@@ -20,17 +19,23 @@ int main(int argc, char **argv)
         {
             interpreter.interpret(line);
         }
-        catch (const SyntaxError &error)
+        catch (const TypeError &error)
+        {
+            std::cout << "Type Error!" << std::endl;
+        }
+        catch (const CodeError &error)
         {
             std::cout << error.what() << std::endl;
+            std::cout << line << std::endl;
+            for (int i = 0; i < error.token.position; ++i)
+            {
+                std::cout << ' ';
+            }
+            std::cout << "^\n" << std::endl;
         }
         catch (const RuntimeError &error)
         {
             std::cout << error.what() << std::endl;
-        }
-        catch (TypeError)
-        {
-            std::cout << "Incompatible types!" << std::endl;
         }
     }
 

@@ -3,7 +3,7 @@
 
 
 #include <map>
-#include "../parser/parser.hpp"
+#include "parser/parser.hpp"
 #include "object.hpp"
 
 

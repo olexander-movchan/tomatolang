@@ -2,6 +2,7 @@
 #include "float.hpp"
 #include "bool.hpp"
 #include "interpreter.hpp"
+#include "parser/errors.hpp"
 
 #include <cmath>
 

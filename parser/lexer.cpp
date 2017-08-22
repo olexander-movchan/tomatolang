@@ -1,121 +1,42 @@
 #include "lexer.hpp"
-#include "error.hpp"
 
 
-std::map<std::string, Token> Lexer::keywords = {
-        {"var",   Token{Token::Type::Var, "var"}},
-        {"and",   Token{Token::Type::And, "and"}},
-        {"not",   Token{Token::Type::Not, "not"}},
-        {"or",    Token{Token::Type::Or,  "or" }},
-        {"true",  Token{Token::Type::Literal, "true"}},
-        {"false", Token{Token::Type::Literal, "false"}},
+std::map<std::string, Token::Type> Lexer::keywords = {
+        { "var"    ,  Token::Type::Var },
+        { "let"    ,  Token::Type::Let },
+
+        { "if"     ,  Token::Type::If },
+        { "then"   ,  Token::Type::Then },
+        { "else"   ,  Token::Type::Else },
+        { "end"    ,  Token::Type::End },
+        { "for"    ,  Token::Type::For },
+        { "in "    ,  Token::Type::In },
+        { "while"  ,  Token::Type::While },
+        { "do"     ,  Token::Type::Do },
+
+        { "and"    ,  Token::Type::And },
+        { "not"    ,  Token::Type::Not },
+        { "or"     ,  Token::Type::Or },
+
+        { "true"   ,  Token::Type::Literal },
+        { "false"  ,  Token::Type::Literal },
+
+        { "print"  ,  Token::Type::Print },
 };
 
 
-Lexer::Lexer(std::string source_code) : code(source_code), offset(0) {}
+Lexer::Lexer(const std::string &code) : code(code), offset(0) {}
 
 
-Token Lexer::next_token()
+char Lexer::current_char()
 {
-    skip_whitespace();
+    return code[offset];
+}
 
-    if (offset == code.length())
-        return {Token::Type::EndOfFile, ""};
 
-    // Check operator tokens:
-    switch (code[offset++])
-    {
-        case '+':
-            return {Token::Type::Add, "+"};
-
-        case '-':
-            return {Token::Type::Sub, "-"};
-
-        case '*':
-            return {Token::Type::Mul, "*"};
-
-        case '/':
-            return {Token::Type::Div, "/"};
-
-        case '^':
-            return {Token::Type::Exp, "^"};
-
-        case '(':
-            return {Token::Type::LParen, "("};
-
-        case ')':
-            return {Token::Type::RParen, ")"};
-
-        case '=':
-        {
-            if (code[offset] == '=')
-            {
-                offset += 1;
-                return {Token::Type::EQ, "=="};
-            }
-            else
-            {
-                return {Token::Type::Assign, "="};
-            }
-        }
-
-        case '<':
-        {
-            if (code[offset] == '=')
-            {
-                offset += 1;
-                return {Token::Type::LE, "<="};
-            }
-            else
-            {
-                return {Token::Type::LT, "<"};
-            }
-        }
-
-        case '>':
-        {
-            if (code[offset] == '=')
-            {
-                offset += 1;
-                return {Token::Type::GE, ">="};
-            }
-            else
-            {
-                return {Token::Type::GT, ">"};
-            }
-        }
-
-        case '!':
-        {
-            if (code[offset] == '=')
-            {
-                offset += 1;
-                return {Token::Type::NE, "!="};
-            }
-            else
-            {
-                offset -= 1;
-            }
-        }
-
-        default:
-            offset -= 1;
-    }
-
-    // Numerical literal
-    if (std::isdigit(code[offset]))
-    {
-        return literal();
-    }
-
-    // Identifier
-    if (std::isalpha(code[offset]))
-    {
-        return identifier();
-    }
-
-    // Neither of valid token appeared
-    throw std::runtime_error("Invalid token: " + code.substr(offset, 5) + "...");
+void Lexer::advance()
+{
+    offset += 1;
 }
 
 
@@ -125,17 +46,156 @@ bool Lexer::eof() const
 }
 
 
+Token Lexer::next()
+{
+    skip_whitespace();
+
+    if (eof())
+    {
+        return Token(Token::Type::EndOfFile, "", offset);
+    }
+
+    // Save token start position
+    token_pos = offset;
+
+
+    if (current_char() == '\n')
+    {
+        advance();
+        return Token(Token::Type::EndOfLine, "\n", token_pos);
+    }
+
+    static const std::string op_chars = "+-*/%^<!=>()";
+    if (op_chars.find(current_char()) != op_chars.npos)
+    {
+        return operator_token();
+    }
+
+    // Numerical literal
+    if (std::isdigit(current_char()))
+    {
+        return literal();
+    }
+
+    // Identifier
+    if (std::isalpha(current_char()))
+    {
+        return identifier();
+    }
+
+    // Neither of valid token appeared
+    advance();
+    return Token(Token::Type::Invalid, code.substr(offset-1, 1), token_pos);
+}
+
+
+Token Lexer::operator_token()
+{
+    char current = current_char();
+    advance();
+
+    switch (current)
+    {
+        case '+':
+            return Token(Token::Type::Add, "+", token_pos);
+
+        case '-':
+            return Token(Token::Type::Sub, "-", token_pos);
+
+        case '*':
+            return Token(Token::Type::Mul, "*", token_pos);
+
+        case '/':
+        {
+            if (current_char() == '/')
+            {
+                advance();
+                return Token(Token::Type::IntDiv, "//", token_pos);
+            }
+            else
+            {
+                return Token(Token::Type::Div, "/", token_pos);
+            }
+        }
+
+        case '^':
+            return Token(Token::Type::Exp, "^", token_pos);
+
+        case '(':
+            return Token(Token::Type::LParen, "(", token_pos);
+
+        case ')':
+            return Token(Token::Type::RParen, ")", token_pos);
+
+        case '=':
+        {
+            if (current_char() == '=')
+            {
+                advance();
+                return Token(Token::Type::EQ, "==", token_pos);
+            }
+            else
+            {
+                return Token(Token::Type::Assign, "=", token_pos);
+            }
+        }
+
+        case '<':
+        {
+            if (current_char() == '=')
+            {
+                advance();
+                return Token(Token::Type::LE, "<=", token_pos);
+            }
+            else
+            {
+                return Token(Token::Type::LT, "<", token_pos);
+            }
+        }
+
+        case '>':
+        {
+            if (current_char() == '=')
+            {
+                advance();
+                return Token(Token::Type::GE, ">=", token_pos);
+            }
+            else
+            {
+                return Token(Token::Type::GT, ">", token_pos);
+            }
+        }
+
+        case '!':
+        {
+            if (current_char() == '=')
+            {
+                advance();
+                return Token(Token::Type::NE, "!=", token_pos);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        default:
+            break;
+    }
+
+    return Token(Token::Type::Invalid, code.substr(offset-1, 1), token_pos);
+}
+
+
 void Lexer::skip_whitespace()
 {
     while (!eof())
     {
-        switch (code[offset])
+        switch (current_char())
         {
             case ' ':
             case '\t':
-            case '\r':
-            case '\n':
-                ++offset;
+                advance();
                 break;
 
             default:
@@ -147,65 +207,38 @@ void Lexer::skip_whitespace()
 
 Token Lexer::literal()
 {
-    Token token{Token::Type::Literal};
+    while (std::isdigit(current_char()))
+        advance();
 
-    std::size_t len = 0;
-    while (std::isdigit(code[offset + len]))
-        ++len;
-
-    token.lexeme = code.substr(offset, len);
-    offset += len;
-
-    if (code[offset] == '.')
+    if (current_char() == '.')
     {
-        len = 1;
-        while (std::isdigit(code[offset + len]))
-            ++len;
+        advance();
 
-        token.lexeme += code.substr(offset, len);
-        offset += len;
+        while (std::isdigit(current_char()))
+            advance();
     }
 
-    return token;
+    std::size_t len = offset - token_pos;
+    std::string lexeme = code.substr(offset - len, len);
+
+    return Token(Token::Type::Literal, lexeme, token_pos);
 }
 
 
 Token Lexer::identifier()
 {
-    std::size_t len = 0;
-    while (std::isalpha(code[offset + len]))
-        ++len;
+    while (std::isalpha(current_char()))
+        advance();
 
-    std::string lexeme = code.substr(offset, len);
-    offset += len;
+    std::size_t len = offset - token_pos;
+    std::string lexeme = code.substr(offset - len, len);
 
     if (keywords.find(lexeme) != keywords.end())
-        return  keywords[lexeme];
-    else
-        return Token{Token::Type::Identifier, lexeme};
-}
-
-
-bool Token::is_bin_operator() const
-{
-    switch (type)
     {
-        case Token::Type::Or:
-        case Token::Type::And:
-        case Token::Type::LT:
-        case Token::Type::GT:
-        case Token::Type::LE:
-        case Token::Type::GE:
-        case Token::Type::EQ:
-        case Token::Type::NE:
-        case Token::Type::Add:
-        case Token::Type::Sub:
-        case Token::Type::Mul:
-        case Token::Type::Div:
-        case Token::Type::Exp:
-            return true;
-
-        default:
-            return false;
+        return Token(keywords[lexeme], lexeme, token_pos);
+    }
+    else
+    {
+        return Token(Token::Type::Identifier, lexeme, token_pos);
     }
 }

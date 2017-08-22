@@ -5,59 +5,45 @@
 #include <string>
 #include <map>
 
-
-struct Token
-{
-    enum class Type
-    {
-        None,
-        EndOfFile,
-
-        Literal,
-        Identifier,
-
-        Add,
-        Sub,
-        Mul,
-        Div,
-        Exp,
-        Assign,
-
-        LT, LE, GT, GE, EQ, NE,
-
-        And, Or, Not,
-
-        LParen,
-        RParen,
-        Var,
-    };
-
-    Type        type;
-    std::string lexeme;
-
-    bool is_bin_operator() const;
-};
+#include "token.hpp"
 
 
 class Lexer
 {
 public:
-    Lexer(std::string source_code);
+    /**
+     * @param code program source code
+     */
+    Lexer(const std::string &code);
 
-    Token next_token();
+    /**
+     * @brief Parses next lexical token
+     * @return next token
+     */
+    Token next();
 
+    /**
+     * @brief Checks whether end of file reached
+     * @return true if EOF reached
+     */
     bool eof() const;
 
 private:
     std::string code;
     std::size_t offset;
+    std::size_t token_pos;
 
+    char current_char();
+    void advance();
     void skip_whitespace();
 
     Token literal();
     Token identifier();
 
-    static std::map<std::string, Token> keywords;
+    /// @todo Refactor method
+    Token operator_token();
+
+    static std::map<std::string, Token::Type> keywords;
 };
 
 

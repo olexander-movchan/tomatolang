@@ -12,8 +12,10 @@ set(SOURCE_FILES
         parser/syntax_tree.hpp
         parser/parser.cpp
         parser/parser.hpp
-        parser/error.cpp
-        parser/error.hpp
+        parser/errors.cpp
+        parser/errors.hpp
+        parser/token.cpp
+        parser/token.hpp
 
         interpreter/interpreter.cpp
         interpreter/interpreter.hpp
@@ -28,3 +30,5 @@ set(SOURCE_FILES
         )
 
 add_executable(interpreter ${SOURCE_FILES})
+
+target_include_directories(interpreter PUBLIC .)

@@ -1,7 +1,7 @@
 #include "interpreter.hpp"
 #include "float.hpp"
 #include "integer.hpp"
-#include "../parser/error.hpp"
+#include "parser/errors.hpp"
 #include "bool.hpp"
 
 #include <iostream>
@@ -44,7 +44,7 @@ void Interpreter::visit(BinaryOperator &ast_node)
         case Token::Type::NE: temporary = left->ne(*temporary); break;
 
         default:
-            throw SyntaxError("Invalid operator");
+            throw std::runtime_error("Parsing or interpretation error.");
     }
 }
 
@@ -88,12 +88,12 @@ void Interpreter::visit(UnaryOperator &node)
             break;
 
         default:
-            throw SyntaxError("Invalid unary operator");
+            throw std::runtime_error("Parsing or interpretation error.");
     }
 }
 
 
-void Interpreter::visit(AST::Program &node)
+void Interpreter::visit(Program &node)
 {
     for (auto &statement : node.statements)
     {
@@ -109,7 +109,7 @@ void Interpreter::visit(AST::Program &node)
 }
 
 
-void Interpreter::visit(AST::Identifier &node)
+void Interpreter::visit(Identifier &node)
 {
     if (memory.find(node.name) != memory.end())
         temporary = memory[node.name];
@@ -118,7 +118,7 @@ void Interpreter::visit(AST::Identifier &node)
 }
 
 
-void Interpreter::visit(AST::Assignment &node)
+void Interpreter::visit(Assignment &node)
 {
     Visitor::visit(*node.lvalue);
     auto var = temporary;
@@ -132,7 +132,7 @@ void Interpreter::visit(AST::Assignment &node)
 }
 
 
-void Interpreter::visit(AST::Declaration &node)
+void Interpreter::visit(Declaration &node)
 {
     Visitor::visit(*node.value);
 

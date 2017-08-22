@@ -1,5 +1,5 @@
 #include "parser.hpp"
-#include "error.hpp"
+#include "errors.hpp"
 
 
 using namespace AST;
@@ -58,7 +58,7 @@ bool left_associative(Token::Type op)
 
 Parser::Parser(const std::string &code) : lexer(code)
 {
-    current_token = this->lexer.next_token();
+    current_token = this->lexer.next();
 }
 
 
@@ -66,11 +66,11 @@ void Parser::shift(Token::Type expected_type)
 {
     if (current_token.type == expected_type)
     {
-        current_token = lexer.next_token();
+        current_token = lexer.next();
     }
     else
     {
-        throw SyntaxError("Unexpected token: " + current_token.lexeme);
+        throw SyntaxError(current_token, "Unexpected token: " + current_token.lexeme);
     }
 }
 
@@ -95,11 +95,11 @@ std::shared_ptr<Expression> Parser::expression(int curr_precedence)
 
     auto expr = expression(curr_precedence + 1);
   
-    if (current_token.is_bin_operator() && left_associative(current_token.type))
+    if (current_token.is_binary_op() && left_associative(current_token.type))
     {
-        while (current_token.is_bin_operator() && precedence(current_token.type) == curr_precedence)
+        while (current_token.is_binary_op() && precedence(current_token.type) == curr_precedence)
         {
-            auto bin_op = current_token.type;
+            auto bin_op = current_token;
             shift(current_token.type);
 
             expr = std::make_shared<BinaryOperator>(expr,
@@ -107,11 +107,11 @@ std::shared_ptr<Expression> Parser::expression(int curr_precedence)
                                                     expression(curr_precedence + 1));
         }
     }
-    else if (current_token.is_bin_operator())
+    else if (current_token.is_binary_op())
     {
-        if (current_token.is_bin_operator() && precedence(current_token.type) == curr_precedence)
+        if (current_token.is_binary_op() && precedence(current_token.type) == curr_precedence)
         {
-            auto bin_op = current_token.type;
+            auto bin_op = current_token;
             shift(current_token.type);
 
             expr = std::make_shared<BinaryOperator>(expr,
@@ -142,7 +142,7 @@ std::shared_ptr<Expression> Parser::term()
         case Token::Type::Add:
         case Token::Type::Sub:
         {
-            auto un_op = current_token.type;
+            auto un_op = current_token;
 
             shift(current_token.type);
 
@@ -155,20 +155,20 @@ std::shared_ptr<Expression> Parser::term()
 
         case Token::Type::Identifier:
         {
-            auto identifier = std::make_shared<Identifier>(current_token.lexeme);
+            auto identifier = std::make_shared<Identifier>(current_token);
             shift(current_token.type);
             return identifier;
         }
 
         case Token::Type::Literal:
         {
-            auto literal = std::make_shared<Literal>(current_token.lexeme);
+            auto literal = std::make_shared<Literal>(current_token);
             shift(current_token.type);
             return literal;
         }
 
         default:
-            throw std::runtime_error("Unexpected token");
+            throw SyntaxError(current_token, "Unexpected token");
     }
 }
 
@@ -182,11 +182,12 @@ std::shared_ptr<Statement> Parser::statement()
 
     if (current_token.type == Token::Type::Assign)
     {
+        auto token = current_token;
         shift(Token::Type::Assign);
 
         auto rvalue = expression();
 
-        return std::make_shared<Assignment>(expr, rvalue);
+        return std::make_shared<Assignment>(expr, token, rvalue);
     }
 
     return expr;
@@ -195,14 +196,16 @@ std::shared_ptr<Statement> Parser::statement()
 
 std::shared_ptr<Statement> Parser::declaration()
 {
+    auto token_var = current_token;
     shift(Token::Type::Var);
 
-    auto var = std::make_shared<Identifier>(current_token.lexeme);
-
+    auto var = std::make_shared<Identifier>(current_token);
     shift(Token::Type::Identifier);
+
+    auto token_set = current_token;
     shift(Token::Type::Assign);
 
     auto expr = expression();
 
-    return std::make_shared<Declaration>(var, expr);
+    return std::make_shared<Declaration>(token_var, var, token_set, expr);
 }

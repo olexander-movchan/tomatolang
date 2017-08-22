@@ -3,9 +3,7 @@
 
 
 #include <memory>
-
-
-class TypeError : std::exception {};
+#include "parser/errors.hpp"
 
 
 /**
