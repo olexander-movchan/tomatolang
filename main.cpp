@@ -1,40 +1,44 @@
 #include <iostream>
 
+#include "parser/parser.hpp"
 #include "interpreter/interpreter.hpp"
 
 
 int main(int argc, char **argv)
 {
+    Parser parser;
     Interpreter interpreter;
-    std::string line;
 
-    static const char * const PROMPT = ">>> ";
+    std::string code, line;
+
+    char const * const PS1 = ">>> ";
+    char const * const PS2 = "... ";
+
+    char const * PS = PS1;
 
     while (std::cin)
     {
-        std::cout << PROMPT;
+        std::cout << PS;
         std::getline(std::cin, line);
+        code += line;
 
         try
         {
-            interpreter.interpret(line);
-        }
-        catch (const TypeError &error)
-        {
-            std::cout << "Type Error!" << std::endl;
+            auto ast = parser.parse(code);
+
+            interpreter.interpret(ast);
+
+            code.clear();
+            PS = PS1;
         }
         catch (const CodeError &error)
         {
-            std::cout << error.what() << std::endl;
-            std::cout << line << std::endl;
-            for (int i = 0; i < error.token.position; ++i)
+            if (error.token.type == Token::Type::EndOfFile && std::cin)
             {
-                std::cout << ' ';
+                PS = PS2;
+                continue;
             }
-            std::cout << "^\n" << std::endl;
-        }
-        catch (const RuntimeError &error)
-        {
+
             std::cout << error.what() << std::endl;
         }
     }

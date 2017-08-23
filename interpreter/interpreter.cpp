@@ -1,8 +1,6 @@
 #include "interpreter.hpp"
-#include "float.hpp"
-#include "integer.hpp"
-#include "parser/errors.hpp"
-#include "bool.hpp"
+
+#include "objects/types.hpp"
 
 #include <iostream>
 
@@ -10,10 +8,9 @@
 using namespace AST;
 
 
-void Interpreter::interpret(const std::string &code)
+void Interpreter::interpret(std::shared_ptr<AST::AbstractSyntaxTree> ast)
 {
-    auto syntax_tree = Parser(code).parse();
-    visit(*syntax_tree);
+    Visitor::visit(*ast);
 }
 
 
@@ -114,7 +111,7 @@ void Interpreter::visit(Identifier &node)
     if (memory.find(node.name) != memory.end())
         temporary = memory[node.name];
     else
-        throw RuntimeError("Undefined variable: " + node.name);
+        throw InterpretationError("Undefined variable: " + node.name);
 }
 
 
@@ -138,7 +135,7 @@ void Interpreter::visit(Declaration &node)
 
     // TODO: Define interpretation exception.
     if (memory.find(node.variable->name) != memory.end())
-        throw RuntimeError("Redeclare variable: " + node.variable->name);
+        throw InterpretationError("Redeclare variable: " + node.variable->name);
 
     memory[node.variable->name] = temporary;
 
@@ -146,4 +143,4 @@ void Interpreter::visit(Declaration &node)
 }
 
 
-RuntimeError::RuntimeError(const std::string &message) : std::runtime_error(message.c_str()) {}
+InterpretationError::InterpretationError(const std::string &message) : std::runtime_error(message.c_str()) {}

@@ -3,14 +3,15 @@
 
 
 #include <map>
-#include "parser/parser.hpp"
-#include "object.hpp"
+
+#include "parser/syntax_tree.hpp"
+#include "objects/object.hpp"
 
 
-class RuntimeError : public std::runtime_error
+class InterpretationError : public std::runtime_error
 {
 public:
-    RuntimeError(const std::string &message);
+    InterpretationError(const std::string &message);
 };
 
 
@@ -20,7 +21,7 @@ public:
     /**
      * @brief Executes commands represented by AST
      */
-    void interpret(const std::string &code);
+    void interpret(std::shared_ptr<AST::AbstractSyntaxTree> ast);
 
 private:
     void visit(AST::Program         &node) override;

@@ -56,17 +56,11 @@ bool left_associative(Token::Type op)
 }
 
 
-Parser::Parser(const std::string &code) : lexer(code)
-{
-    current_token = this->lexer.next();
-}
-
-
 void Parser::shift(Token::Type expected_type)
 {
     if (current_token.type == expected_type)
     {
-        current_token = lexer.next();
+        current_token = lexer->next();
     }
     else
     {
@@ -75,14 +69,19 @@ void Parser::shift(Token::Type expected_type)
 }
 
 
-std::shared_ptr<Program> Parser::parse()
+std::shared_ptr<Program> Parser::parse(const std::string &code)
 {
+    lexer = std::make_unique<Lexer>(code);
+    current_token = lexer->next();
+
     auto program = std::make_shared<Program>();
 
     while (current_token.type != Token::Type::EndOfFile)
     {
         program->statements.push_back(statement());
     }
+
+    lexer = nullptr;
 
     return program;
 }

@@ -15,13 +15,11 @@
 class Parser
 {
 public:
-    Parser(const std::string &code);
-
-    std::shared_ptr<AST::Program> parse();
+    std::shared_ptr<AST::Program> parse(const std::string &code);
 
 private:
-    Lexer lexer;
-    Token current_token;
+    std::unique_ptr<Lexer>  lexer;
+    Token                   current_token;
 
     void shift(Token::Type expected_type);
 

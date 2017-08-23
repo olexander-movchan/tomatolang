@@ -1,7 +1,7 @@
 #include "integer.hpp"
 #include "float.hpp"
 #include "bool.hpp"
-#include "interpreter.hpp"
+#include "interpreter/interpreter.hpp"
 #include "parser/errors.hpp"
 
 #include <cmath>
@@ -10,7 +10,7 @@
 int ipow(int base, int exp)
 {
     if (exp < 0)
-        throw RuntimeError("Negative integer exponentiation.");
+        throw InterpretationError("Negative integer exponentiation.");
 
     int pow = 1;
 

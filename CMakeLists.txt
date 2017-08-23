@@ -19,15 +19,15 @@ set(SOURCE_FILES
 
         interpreter/interpreter.cpp
         interpreter/interpreter.hpp
-        interpreter/object.cpp
-        interpreter/object.hpp
-        interpreter/integer.cpp
-        interpreter/integer.hpp
-        interpreter/float.cpp
-        interpreter/float.hpp
-        interpreter/bool.cpp
-        interpreter/bool.hpp
-        )
+        interpreter/objects/object.cpp
+        interpreter/objects/object.hpp
+        interpreter/objects/integer.cpp
+        interpreter/objects/integer.hpp
+        interpreter/objects/float.cpp
+        interpreter/objects/float.hpp
+        interpreter/objects/bool.cpp
+        interpreter/objects/bool.hpp
+        interpreter/objects/types.hpp)
 
 add_executable(interpreter ${SOURCE_FILES})
 
