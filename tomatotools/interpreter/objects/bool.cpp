@@ -1,5 +1,5 @@
 #include "bool.hpp"
-#include "parser/errors.hpp"
+#include "syntax/errors.hpp"
 
 
 Bool::Bool(bool value) : value(value) {}

@@ -4,7 +4,7 @@
 
 #include <map>
 
-#include "parser/syntax_tree.hpp"
+#include "syntax/syntax_tree.hpp"
 #include "objects/object.hpp"
 
 

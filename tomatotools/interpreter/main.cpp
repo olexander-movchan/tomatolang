@@ -2,8 +2,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-#include "parser/parser.hpp"
-#include "interpreter/interpreter.hpp"
+#include "syntax/parser.hpp"
+#include "interpreter.hpp"
 
 
 int main(int argc, char **argv)

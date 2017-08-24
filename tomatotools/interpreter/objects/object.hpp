@@ -3,7 +3,7 @@
 
 
 #include <memory>
-#include "parser/errors.hpp"
+#include "syntax/errors.hpp"
 
 
 /**
