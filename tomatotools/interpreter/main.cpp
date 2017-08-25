@@ -32,7 +32,7 @@ int main(int argc, char **argv)
             add_history(line);
         }
 
-        code += line;
+        code = code + line + "\n";
         free(line);
 
         try
@@ -40,9 +40,6 @@ int main(int argc, char **argv)
             auto ast = parser.parse(code);
 
             interpreter.interpret(ast);
-
-            code.clear();
-            PS = PS1;
         }
         catch (const CodeError &error)
         {
@@ -52,8 +49,15 @@ int main(int argc, char **argv)
                 continue;
             }
 
-            std::cout << error.what() << std::endl;
+            std::cout << "Oops, there was an error!" << std::endl;
         }
+        catch (const InterpretationError &error)
+        {
+            std::cout << "Oops, there was an error!" << std::endl;
+        }
+
+        code.clear();
+        PS = PS1;
     }
 
     return 0;

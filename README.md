@@ -1,66 +1,84 @@
-## About
+# Tomato
 
-Just an interpreter for my own language...
-
-Program should consist of statements. Statements are:
-
-- variable declaration
-- assignment
-- expression
-
-If single expression is given, its value will be printed.
+**Tomato** is a general purpose programming language.
 
 
-## Example
+## Interpreter
 
-Here is interactive session example:
+### Build & Run
 
-	>>> var pi = 3.1415926
-	>>> var eps = 10^-5
-	>>> var diff = pi - 355/113
-	>>> -eps < diff and diff < eps
-	true
-
-
-## Variables
-
-Variable cannot be used until it declared.
-Once declared, variable can not be declared again.
-
-Variable can be declared using next syntax construction:
-
-    var <variable_name> = <expression>
-
-A new value can be assigned to variable:
-
-    <variable_name> = <expression>
+    $ mkdir cmake-build
+    $ cd cmake-build
+    $ cmake ..
+    $ cmake --build .
+    $ ./tomatotools/tomato
 
 
-## Type system
+### Third-Party libraries
 
-Language is static and strongly typed.
-There are three types supported: integer, floating-point and boolean.
-
-Here are some rules for numeric operations:
-- Algebraic operation on integer and float returns float;
-- Division returns float;
-- Integer value can be assigned to a float variable.
+GNU readline library is used for interactive command-line interface.
 
 
-## Expressions
+## Language
 
-Binary operators, unary operators and parentheses can be used.
+### General Language Description
 
-Binary operators are:
-- algebraic (`+`, `-`, `*`, `/`, `^`)
-- comparative (`==`, `!=`, `>`, `>=`, `<`, `<=`)
-- boolean (`and`, `or`)
+Every programm consist of statements. Valid statements are:
 
-Unary operators are `+`, `-` and `not`.
+- Print statement (`print <expression>`);
+- Single expression
+- Variable declaration;
+- Assignment;
+- Control flow statement;
+
+
+### Variables & Type System
+
+**Tomato** language is statically and strongly typed, i.e. once variable was
+declared, its type can't be changed and only values of that type can be
+assigned to variable.
+
+Variables must be declared only once and can't be used until declared.
+Variable's type is implicitly infered and is same as initial value's type.
+
+Declaration looks like:
+
+    var <name> = <expression>
+
+Assignment:
+
+    <name> = <expression>
+
+Note that assignment is not an expression.
+
+
+#### Numerical Operations
+
+There are simple rules for deducting numerical types:
+
+- Binary operation on integer and float produces float;
+- Division produces float;
+- Division by 0 is an error.
+- Float exponent with negative base is an error;
+- Negative integer exponent with an integer base is an error;
+
+
+### Expressions & Operators
+
+Expression can consist of literals, variables, binary and unary
+operators and nested expressions (using parentheses)
+
+Supported operators are:
+
+- Algebraic (`+`, `-`, `*`, `/`, `^`)
+- Comparative (`==`, `!=`, `>`, `>=`, `<`, `<=`)
+- Boolean (`not`, `and`, `or`)
 
 All operators are left-associative, except exponentiation (`^`) which is right-associative.
 
-Here is operator precedence:
+Operator `not` is unary. `+` and `-` can be both unary and binary depending on their position.
+
+Expression are evaluated according to next operator precedence:
 
 1. `^`
 2. `*` and `/`
@@ -69,3 +87,30 @@ Here is operator precedence:
 5. `==`, `!=`, `>`, `>=`, `<`, `<=`
 6. `and`
 7. `or`
+
+
+### Control Flow Statements
+
+#### If-Then-Else
+
+Condition must be boolean expression. Alternative `else` branch is optional.
+For now `else-if` branches are not supported, but nested statements works fine.
+
+    if <condition> then
+        [statements]
+    end
+
+
+    if <condition> then
+        [statements]
+    else
+        [statements]
+    end
+
+
+#### While-Do
+Condition must be boolean expression. Since there is no local scopes, variables should not be declared inside loop.
+
+    while <condition> do
+        [statements]
+    end

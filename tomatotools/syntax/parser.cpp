@@ -69,20 +69,14 @@ void Parser::shift(Token::Type expected_type)
 }
 
 
-std::shared_ptr<Program> Parser::parse(const std::string &code)
+std::shared_ptr<Statements> Parser::parse(const std::string &code)
 {
     lexer = std::make_unique<Lexer>(code);
     current_token = lexer->next();
 
-    auto program = std::make_shared<Program>();
-
-    while (current_token.type != Token::Type::EndOfFile)
-    {
-        program->statements.push_back(statement());
-    }
+    auto program = statements();
 
     lexer = nullptr;
-
     return program;
 }
 
@@ -174,26 +168,50 @@ std::shared_ptr<Expression> Parser::term()
 
 std::shared_ptr<Statement> Parser::statement()
 {
-    if (current_token.type == Token::Type::Var)
-        return declaration();
-
-    auto expr = expression();
-
-    if (current_token.type == Token::Type::Assign)
+    switch (current_token.type)
     {
-        auto token = current_token;
-        shift(Token::Type::Assign);
+        case Token::Type::Print:
+            return print();
 
-        auto rvalue = expression();
+        case Token::Type::Var:
+            return declaration();
 
-        return std::make_shared<Assignment>(expr, token, rvalue);
+        case Token::Type::If:
+            return conditional();
+
+        case Token::Type::While:
+            return while_loop();
+
+        // Expression begins with on of next tokens:
+        case Token::Type::LParen:
+        case Token::Type::Add:
+        case Token::Type::Sub:
+        case Token::Type::Not:
+        case Token::Type::Literal:
+        case Token::Type::Identifier:
+        {
+            auto expr = expression();
+
+            if (current_token.type == Token::Type::Assign)
+            {
+                auto token = current_token;
+                shift(Token::Type::Assign);
+
+                auto rvalue = expression();
+
+                return std::make_shared<Assignment>(expr, token, rvalue);
+            }
+
+            return expr;
+        }
+
+        default:
+            throw SyntaxError(current_token, "Unexpected token");
     }
-
-    return expr;
 }
 
 
-std::shared_ptr<Statement> Parser::declaration()
+std::shared_ptr<Declaration> Parser::declaration()
 {
     auto token_var = current_token;
     shift(Token::Type::Var);
@@ -207,4 +225,65 @@ std::shared_ptr<Statement> Parser::declaration()
     auto expr = expression();
 
     return std::make_shared<Declaration>(token_var, var, token_set, expr);
+}
+
+
+std::shared_ptr<Conditional> Parser::conditional()
+{
+    shift(Token::Type::If);
+
+    auto condition = expression();
+
+    shift(Token::Type::Then);
+
+    auto consequent = statements();
+
+    decltype(statements()) alternative;
+
+    if (current_token.type == Token::Type::Else)
+    {
+        shift(Token::Type::Else);
+        alternative = statements();
+    }
+
+    shift(Token::Type::End);
+
+    return std::make_shared<Conditional>(condition, consequent, alternative);
+}
+
+
+std::shared_ptr<WhileLoop> Parser::while_loop()
+{
+    shift(Token::Type::While);
+    auto condition = expression();
+
+    shift(Token::Type::Do);
+    auto body = statements();
+    shift(Token::Type::End);
+
+    return std::make_shared<WhileLoop>(condition, body);
+}
+
+
+std::shared_ptr<Print> Parser::print()
+{
+    shift(Token::Type::Print);
+    auto expr = expression();
+
+    return std::make_shared<Print>(expr);
+}
+
+
+std::shared_ptr<Statements> Parser::statements()
+{
+    auto st = std::make_shared<Statements>();
+
+    while (current_token.type != Token::Type::EndOfFile
+           && current_token.type != Token::Type::Else
+           && current_token.type != Token::Type::End)
+    {
+        st->statements.push_back(statement());
+    }
+
+    return st;
 }

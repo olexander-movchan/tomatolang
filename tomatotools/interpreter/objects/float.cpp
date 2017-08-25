@@ -10,14 +10,10 @@ Float::Float(float value) : value(value) {}
 
 void Float::assign(const Object &object)
 {
-    if (object.is_instance<Float>())
-        value = object.as<Float>().value;
-
-    else if (object.is_instance<Integer>())
-        value = object.as<Integer>().value;
-
-    else
+    if (!object.is_instance<Float>())
         throw TypeError();
+
+    value = object.as<Float>().value;
 }
 
 

@@ -3,7 +3,7 @@
 
 
 #include <memory>
-#include <queue>
+#include <list>
 #include "token.hpp"
 
 
@@ -33,6 +33,16 @@ namespace AST
      * @brief Abstract base class for AST statement nodes.
      */
     class Statement : public AbstractSyntaxTree {};
+
+
+    class Statements : public AbstractSyntaxTree
+    {
+    public:
+        std::list<std::shared_ptr<Statement>> statements;
+
+    protected:
+        void accept(Visitor &visitor) override;
+    };
 
 
     /**
@@ -176,12 +186,54 @@ namespace AST
 
 
     /**
-     * @brief Program AST node, i.e. tree root.
+     * @brief Conditional statement.
+     *
+     * Classical if-then-else statement.
      */
-    class Program : public AbstractSyntaxTree
+    class Conditional : public Statement
     {
     public:
-        std::vector<std::shared_ptr<Statement>> statements;
+        Conditional(std::shared_ptr<Expression> condition,
+                    std::shared_ptr<Statements> consequent,
+                    std::shared_ptr<Statements> alternative);
+
+        std::shared_ptr<Expression> condition;
+        std::shared_ptr<Statements> consequent;
+        std::shared_ptr<Statements> alternative;
+
+    protected:
+        void accept(Visitor &visitor) override;
+    };
+
+
+    /**
+     * @brief Loop with boolean expression condition.
+     */
+    class WhileLoop : public Statement
+    {
+    public:
+        WhileLoop(std::shared_ptr<Expression> condition,
+                  std::shared_ptr<Statements> statements);
+
+        std::shared_ptr<Expression> condition;
+        std::shared_ptr<Statements> statements;
+
+    protected:
+        void accept(Visitor &visitor) override;
+    };
+
+
+    /**
+     * @brief Prints expression value.
+     *
+     * @warning Class is temporary and will exist until functions have been implemented.
+     */
+    class Print : public Statement
+    {
+    public:
+        Print(std::shared_ptr<Expression> expression);
+
+        std::shared_ptr<Expression> expression;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -204,13 +256,21 @@ namespace AST
     public:
         void visit(AbstractSyntaxTree &node);
 
-        virtual void visit(Program         &node) = 0;
-        virtual void visit(UnaryOperator   &node) = 0;
-        virtual void visit(BinaryOperator  &node) = 0;
-        virtual void visit(Identifier      &node) = 0;
-        virtual void visit(Literal         &node) = 0;
+        virtual void visit(Statements      &node) = 0;
+
+        virtual void visit(Print           &node) = 0;
         virtual void visit(Assignment      &node) = 0;
         virtual void visit(Declaration     &node) = 0;
+
+        // Expressions
+        virtual void visit(BinaryOperator  &node) = 0;
+        virtual void visit(UnaryOperator   &node) = 0;
+        virtual void visit(Identifier      &node) = 0;
+        virtual void visit(Literal         &node) = 0;
+
+        // Flow-control statements
+        virtual void visit(Conditional     &node) = 0;
+        virtual void visit(WhileLoop       &node) = 0;
     };
 }
 

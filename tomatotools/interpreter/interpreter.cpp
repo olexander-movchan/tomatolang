@@ -90,19 +90,12 @@ void Interpreter::visit(UnaryOperator &node)
 }
 
 
-void Interpreter::visit(Program &node)
+void Interpreter::visit(Statements &node)
 {
     for (auto &statement : node.statements)
     {
         Visitor::visit(*statement);
     }
-
-    if (node.statements.size() == 1 && temporary != nullptr)
-    {
-        std::cout << temporary->str() << std::endl;
-    }
-
-    temporary = nullptr;
 }
 
 
@@ -124,8 +117,6 @@ void Interpreter::visit(Assignment &node)
     auto value = temporary;
 
     var->assign(*value);
-
-    temporary = nullptr;
 }
 
 
@@ -138,8 +129,41 @@ void Interpreter::visit(Declaration &node)
         throw InterpretationError("Redeclare variable: " + node.variable->name);
 
     memory[node.variable->name] = temporary;
+}
 
-    temporary = nullptr;
+
+void Interpreter::visit(AST::Print &node)
+{
+    Visitor::visit(*node.expression);
+
+    std::cout << temporary->str() << std::endl;
+}
+
+
+void Interpreter::visit(AST::Conditional &node)
+{
+    Visitor::visit(*node.condition);
+
+    if (temporary->as<Bool>().value)
+    {
+        visit(*node.consequent);
+    }
+    else if (node.alternative != nullptr)
+    {
+        visit(*node.alternative);
+    }
+}
+
+
+void Interpreter::visit(AST::WhileLoop &node)
+{
+    Visitor::visit(*node.condition);
+
+    while (temporary->as<Bool>().value)
+    {
+        visit(*node.statements);
+        Visitor::visit(*node.condition);
+    }
 }
 
 

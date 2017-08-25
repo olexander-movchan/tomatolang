@@ -195,6 +195,7 @@ void Lexer::skip_whitespace()
         {
             case ' ':
             case '\t':
+            case '\n':
                 advance();
                 break;
 

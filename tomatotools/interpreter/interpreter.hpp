@@ -24,13 +24,19 @@ public:
     void interpret(std::shared_ptr<AST::AbstractSyntaxTree> ast);
 
 private:
-    void visit(AST::Program         &node) override;
-    void visit(AST::UnaryOperator   &node) override;
+    void visit(AST::Statements      &node) override;
+
+    void visit(AST::Declaration     &node) override;
+    void visit(AST::Assignment      &node) override;
+    void visit(AST::Print           &node) override;
+
     void visit(AST::BinaryOperator  &node) override;
+    void visit(AST::UnaryOperator   &node) override;
     void visit(AST::Identifier      &node) override;
     void visit(AST::Literal         &node) override;
-    void visit(AST::Assignment      &node) override;
-    void visit(AST::Declaration     &node) override;
+
+    void visit(AST::Conditional     &node) override;
+    void visit(AST::WhileLoop       &node) override;
 
 private:
     Object::Ref                         temporary;
