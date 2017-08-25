@@ -36,6 +36,16 @@ char Lexer::current_char()
 
 void Lexer::advance()
 {
+    if (current_char() == '\n')
+    {
+        current_pos.line  += 1;
+        current_pos.column = 1;
+    }
+    else
+    {
+        current_pos.column += 1;
+    }
+
     offset += 1;
 }
 
@@ -52,11 +62,11 @@ Token Lexer::next()
 
     if (eof())
     {
-        return Token(Token::Type::EndOfFile, "", offset);
+        return Token(Token::Type::EndOfFile, "", current_pos);
     }
 
     // Save token start position
-    token_pos = offset;
+    token_pos = current_pos;
 
 
     if (current_char() == '\n')
@@ -219,7 +229,7 @@ Token Lexer::literal()
             advance();
     }
 
-    std::size_t len = offset - token_pos;
+    std::size_t len = current_pos.column - token_pos.column;
     std::string lexeme = code.substr(offset - len, len);
 
     return Token(Token::Type::Literal, lexeme, token_pos);
@@ -231,7 +241,7 @@ Token Lexer::identifier()
     while (std::isalpha(current_char()))
         advance();
 
-    std::size_t len = offset - token_pos;
+    std::size_t len = current_pos.column - token_pos.column;
     std::string lexeme = code.substr(offset - len, len);
 
     if (keywords.find(lexeme) != keywords.end())

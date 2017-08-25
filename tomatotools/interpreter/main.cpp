@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -12,6 +13,7 @@ int main(int argc, char **argv)
     Interpreter interpreter;
 
     std::string code;
+    std::vector<std::string> code_history;
 
     char const * const PS1 = ">>> ";
     char const * const PS2 = "... ";
@@ -33,6 +35,7 @@ int main(int argc, char **argv)
         }
 
         code = code + line + "\n";
+        code_history.push_back(line);
         free(line);
 
         try
@@ -49,7 +52,18 @@ int main(int argc, char **argv)
                 continue;
             }
 
-            std::cout << "Oops, there was an error!" << std::endl;
+            std::cout << "\n" << error.what() << " at line "
+                      << error.token.position.line << ", column "
+                      << error.token.position.column << ":\n\n";
+
+            std::cout << code_history[error.token.position.line - 1] << '\n';
+
+            for (int i = 1; i < error.token.position.column; ++i)
+            {
+                std::cout << ' ';
+            }
+
+            std::cout << "^\n" << std::endl;
         }
         catch (const InterpretationError &error)
         {
@@ -57,6 +71,7 @@ int main(int argc, char **argv)
         }
 
         code.clear();
+        code_history.clear();
         PS = PS1;
     }
 

@@ -40,12 +40,12 @@ public:
 
 
     Token() = default;
-    Token(const Type &type, const std::string &lexeme, std::size_t position);
+    Token(const Type &type, const std::string &lexeme, Position position);
 
 
     Type         type;
     std::string  lexeme;
-    std::size_t  position;
+    Position     position;
 
 
     bool is_binary_op() const;

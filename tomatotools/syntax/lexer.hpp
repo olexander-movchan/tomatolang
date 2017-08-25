@@ -31,7 +31,9 @@ public:
 private:
     std::string code;
     std::size_t offset;
-    std::size_t token_pos;
+
+    Token::Position token_pos;
+    Token::Position current_pos;
 
     char current_char();
     void advance();

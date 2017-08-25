@@ -1,7 +1,7 @@
 #include "token.hpp"
 
 
-Token::Token(const Token::Type &type, const std::string &lexeme, std::size_t position)
+Token::Token(const Token::Type &type, const std::string &lexeme, Token::Position position)
         : type(type), lexeme(lexeme), position(position) {}
 
 
