@@ -1,5 +1,7 @@
 #include "bool.hpp"
-#include "syntax/errors.hpp"
+
+
+using namespace Tomato;
 
 
 Bool::Bool(bool value) : value(value) {}

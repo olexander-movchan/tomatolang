@@ -1,5 +1,5 @@
-#ifndef INTERPRETER_INTERPRETER_HPP
-#define INTERPRETER_INTERPRETER_HPP
+#ifndef TOMATO_INTERPRETER_HPP
+#define TOMATO_INTERPRETER_HPP
 
 
 #include <map>
@@ -8,40 +8,43 @@
 #include "objects/object.hpp"
 
 
-class InterpretationError : public std::runtime_error
+namespace Tomato
 {
-public:
-    InterpretationError(const std::string &message);
-};
+    class InterpretationError : public std::runtime_error
+    {
+    public:
+        InterpretationError(const std::string &message);
+    };
 
 
-class Interpreter : public AST::Visitor
-{
-public:
-    /**
-     * @brief Executes commands represented by AST
-     */
-    void interpret(std::shared_ptr<AST::AbstractSyntaxTree> ast);
+    class Interpreter : public AST::Visitor
+    {
+    public:
+        /**
+         * @brief Executes commands represented by AST
+         */
+        void interpret(std::shared_ptr<AST::Node> ast);
 
-private:
-    void visit(AST::Statements      &node) override;
+    private:
+        void visit(AST::StatementListNode   &node) override;
 
-    void visit(AST::Declaration     &node) override;
-    void visit(AST::Assignment      &node) override;
-    void visit(AST::Print           &node) override;
+        void visit(AST::DeclarationNode     &node) override;
+        void visit(AST::AssignmentNode      &node) override;
+        void visit(AST::PrintNode           &node) override;
 
-    void visit(AST::BinaryOperator  &node) override;
-    void visit(AST::UnaryOperator   &node) override;
-    void visit(AST::Identifier      &node) override;
-    void visit(AST::Literal         &node) override;
+        void visit(AST::BinaryOperatorNode  &node) override;
+        void visit(AST::UnaryOperatorNode   &node) override;
+        void visit(AST::IdentifierNode      &node) override;
+        void visit(AST::LiteralNode         &node) override;
 
-    void visit(AST::Conditional     &node) override;
-    void visit(AST::WhileLoop       &node) override;
+        void visit(AST::ConditionalNode     &node) override;
+        void visit(AST::LoopNode            &node) override;
 
-private:
-    Object::Ref                         temporary;
-    std::map<std::string, Object::Ref>  memory;
-};
+    private:
+        Object::Ref                         temporary;
+        std::map<std::string, Object::Ref>  memory;
+    };
+}
 
 
-#endif //INTERPRETER_INTERPRETER_HPP
+#endif //TOMATO_INTERPRETER_HPP

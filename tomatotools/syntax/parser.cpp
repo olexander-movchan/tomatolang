@@ -2,7 +2,7 @@
 #include "errors.hpp"
 
 
-using namespace AST;
+using namespace Tomato;
 
 
 const int MaxPrecedence = 5;
@@ -69,19 +69,19 @@ void Parser::shift(Token::Type expected_type)
 }
 
 
-std::shared_ptr<Statements> Parser::parse(const std::string &code)
+std::shared_ptr<AST::StatementListNode> Parser::parse(const std::string &code)
 {
     lexer = std::make_unique<Lexer>(code);
     current_token = lexer->next();
 
-    auto program = statements();
+    auto program = statement_list();
 
     lexer = nullptr;
     return program;
 }
 
 
-std::shared_ptr<Expression> Parser::expression(int curr_precedence)
+std::shared_ptr<AST::ExpressionNode> Parser::expression(int curr_precedence)
 {
     if (curr_precedence > MaxPrecedence)
         return term();
@@ -95,9 +95,11 @@ std::shared_ptr<Expression> Parser::expression(int curr_precedence)
             auto bin_op = current_token;
             shift(current_token.type);
 
-            expr = std::make_shared<BinaryOperator>(expr,
-                                                    bin_op,
-                                                    expression(curr_precedence + 1));
+            expr = std::make_shared<AST::BinaryOperatorNode>(
+                    expr,
+                    bin_op,
+                    expression(curr_precedence + 1)
+            );
         }
     }
     else if (current_token.is_binary_op())
@@ -107,9 +109,11 @@ std::shared_ptr<Expression> Parser::expression(int curr_precedence)
             auto bin_op = current_token;
             shift(current_token.type);
 
-            expr = std::make_shared<BinaryOperator>(expr,
-                                                    bin_op,
-                                                    expression(curr_precedence));
+            expr = std::make_shared<AST::BinaryOperatorNode>(
+                    expr,
+                    bin_op,
+                    expression(curr_precedence)
+            );
 
         }
     }
@@ -118,7 +122,7 @@ std::shared_ptr<Expression> Parser::expression(int curr_precedence)
 }
 
 
-std::shared_ptr<Expression> Parser::term()
+std::shared_ptr<AST::ExpressionNode> Parser::term()
 {
     switch (current_token.type)
     {
@@ -143,19 +147,19 @@ std::shared_ptr<Expression> Parser::term()
             // TODO: Remove hardcoded value
             auto expr = expression(4);
 
-            return std::make_shared<UnaryOperator>(un_op, expr);
+            return std::make_shared<AST::UnaryOperatorNode>(un_op, expr);
         }
 
         case Token::Type::Identifier:
         {
-            auto identifier = std::make_shared<Identifier>(current_token);
+            auto identifier = std::make_shared<AST::IdentifierNode>(current_token);
             shift(current_token.type);
             return identifier;
         }
 
         case Token::Type::Literal:
         {
-            auto literal = std::make_shared<Literal>(current_token);
+            auto literal = std::make_shared<AST::LiteralNode>(current_token);
             shift(current_token.type);
             return literal;
         }
@@ -166,7 +170,7 @@ std::shared_ptr<Expression> Parser::term()
 }
 
 
-std::shared_ptr<Statement> Parser::statement()
+std::shared_ptr<AST::StatementNode> Parser::statement()
 {
     switch (current_token.type)
     {
@@ -199,7 +203,7 @@ std::shared_ptr<Statement> Parser::statement()
 
                 auto rvalue = expression();
 
-                return std::make_shared<Assignment>(expr, token, rvalue);
+                return std::make_shared<AST::AssignmentNode>(expr, rvalue);
             }
 
             return expr;
@@ -211,12 +215,12 @@ std::shared_ptr<Statement> Parser::statement()
 }
 
 
-std::shared_ptr<Declaration> Parser::declaration()
+std::shared_ptr<AST::DeclarationNode> Parser::declaration()
 {
     auto token_var = current_token;
     shift(Token::Type::Var);
 
-    auto var = std::make_shared<Identifier>(current_token);
+    auto var = std::make_shared<AST::IdentifierNode>(current_token);
     shift(Token::Type::Identifier);
 
     auto token_set = current_token;
@@ -224,11 +228,11 @@ std::shared_ptr<Declaration> Parser::declaration()
 
     auto expr = expression();
 
-    return std::make_shared<Declaration>(token_var, var, token_set, expr);
+    return std::make_shared<AST::DeclarationNode>(var, expr);
 }
 
 
-std::shared_ptr<Conditional> Parser::conditional()
+std::shared_ptr<AST::ConditionalNode> Parser::conditional()
 {
     shift(Token::Type::If);
 
@@ -236,47 +240,47 @@ std::shared_ptr<Conditional> Parser::conditional()
 
     shift(Token::Type::Then);
 
-    auto consequent = statements();
+    auto consequent = statement_list();
 
-    decltype(statements()) alternative;
+    decltype(statement_list()) alternative;
 
     if (current_token.type == Token::Type::Else)
     {
         shift(Token::Type::Else);
-        alternative = statements();
+        alternative = statement_list();
     }
 
     shift(Token::Type::End);
 
-    return std::make_shared<Conditional>(condition, consequent, alternative);
+    return std::make_shared<AST::ConditionalNode>(condition, consequent, alternative);
 }
 
 
-std::shared_ptr<WhileLoop> Parser::while_loop()
+std::shared_ptr<AST::LoopNode> Parser::while_loop()
 {
     shift(Token::Type::While);
     auto condition = expression();
 
     shift(Token::Type::Do);
-    auto body = statements();
+    auto body = statement_list();
     shift(Token::Type::End);
 
-    return std::make_shared<WhileLoop>(condition, body);
+    return std::make_shared<AST::LoopNode>(condition, body);
 }
 
 
-std::shared_ptr<Print> Parser::print()
+std::shared_ptr<AST::PrintNode> Parser::print()
 {
     shift(Token::Type::Print);
     auto expr = expression();
 
-    return std::make_shared<Print>(expr);
+    return std::make_shared<AST::PrintNode>(expr);
 }
 
 
-std::shared_ptr<Statements> Parser::statements()
+std::shared_ptr<AST::StatementListNode> Parser::statement_list()
 {
-    auto st = std::make_shared<Statements>();
+    auto st = std::make_shared<AST::StatementListNode>();
 
     while (current_token.type != Token::Type::EndOfFile
            && current_token.type != Token::Type::Else

@@ -5,6 +5,9 @@
 #include <cmath>
 
 
+using namespace Tomato;
+
+
 Float::Float(float value) : value(value) {}
 
 

@@ -5,22 +5,22 @@
 #include <iostream>
 
 
-using namespace AST;
+using namespace Tomato;
 
 
-void Interpreter::interpret(std::shared_ptr<AST::AbstractSyntaxTree> ast)
+void Interpreter::interpret(std::shared_ptr<AST::Node> ast)
 {
-    Visitor::visit(*ast);
+    AST::Visitor::visit(*ast);
 }
 
 
-void Interpreter::visit(BinaryOperator &ast_node)
+void Interpreter::visit(AST::BinaryOperatorNode &ast_node)
 {
-    Visitor::visit(*ast_node.left);
+    AST::Visitor::visit(*ast_node.left);
 
     Object::Ref left = temporary;
 
-    Visitor::visit(*ast_node.right);
+    AST::Visitor::visit(*ast_node.right);
 
     switch (ast_node.operation)
     {
@@ -46,41 +46,41 @@ void Interpreter::visit(BinaryOperator &ast_node)
 }
 
 
-void Interpreter::visit(Literal &node)
+void Interpreter::visit(AST::LiteralNode &node)
 {
     switch (node.type)
     {
-        case Literal::Type::Integer:
+        case AST::LiteralNode::Type::Integer:
             temporary = std::make_shared<Integer>(node.ivalue());
             break;
 
-        case Literal::Type::Float:
+        case AST::LiteralNode::Type::Float:
             temporary = std::make_shared<Float>(node.fvalue());
             break;
 
-        case Literal::Type::Bool:
+        case AST::LiteralNode::Type::Bool:
             temporary = std::make_shared<Bool>(node.bvalue());
             break;
     }
 }
 
 
-void Interpreter::visit(UnaryOperator &node)
+void Interpreter::visit(AST::UnaryOperatorNode &node)
 {
     switch (node.operation)
     {
         case Token::Type::Add:
-            Visitor::visit(*node.expression);
+            AST::Visitor::visit(*node.expression);
             temporary = temporary->un_plus();
             break;
 
         case Token::Type::Sub:
-            Visitor::visit(*node.expression);
+            AST::Visitor::visit(*node.expression);
             temporary = temporary->un_minus();
             break;
 
         case Token::Type::Not:
-            Visitor::visit(*node.expression);
+            AST::Visitor::visit(*node.expression);
             temporary = temporary->op_not();
             break;
 
@@ -90,16 +90,16 @@ void Interpreter::visit(UnaryOperator &node)
 }
 
 
-void Interpreter::visit(Statements &node)
+void Interpreter::visit(AST::StatementListNode &node)
 {
     for (auto &statement : node.statements)
     {
-        Visitor::visit(*statement);
+        AST::Visitor::visit(*statement);
     }
 }
 
 
-void Interpreter::visit(Identifier &node)
+void Interpreter::visit(AST::IdentifierNode &node)
 {
     if (memory.find(node.name) != memory.end())
         temporary = memory[node.name];
@@ -108,21 +108,21 @@ void Interpreter::visit(Identifier &node)
 }
 
 
-void Interpreter::visit(Assignment &node)
+void Interpreter::visit(AST::AssignmentNode &node)
 {
-    Visitor::visit(*node.lvalue);
+    AST::Visitor::visit(*node.lvalue);
     auto var = temporary;
 
-    Visitor::visit(*node.rvalue);
+    AST::Visitor::visit(*node.rvalue);
     auto value = temporary;
 
     var->assign(*value);
 }
 
 
-void Interpreter::visit(Declaration &node)
+void Interpreter::visit(AST::DeclarationNode &node)
 {
-    Visitor::visit(*node.value);
+    AST::Visitor::visit(*node.value);
 
     // TODO: Define interpretation exception.
     if (memory.find(node.variable->name) != memory.end())
@@ -132,17 +132,17 @@ void Interpreter::visit(Declaration &node)
 }
 
 
-void Interpreter::visit(AST::Print &node)
+void Interpreter::visit(AST::PrintNode &node)
 {
-    Visitor::visit(*node.expression);
+    AST::Visitor::visit(*node.expression);
 
     std::cout << temporary->str() << std::endl;
 }
 
 
-void Interpreter::visit(AST::Conditional &node)
+void Interpreter::visit(AST::ConditionalNode &node)
 {
-    Visitor::visit(*node.condition);
+    AST::Visitor::visit(*node.condition);
 
     if (temporary->as<Bool>().value)
     {
@@ -155,14 +155,14 @@ void Interpreter::visit(AST::Conditional &node)
 }
 
 
-void Interpreter::visit(AST::WhileLoop &node)
+void Interpreter::visit(AST::LoopNode &node)
 {
-    Visitor::visit(*node.condition);
+    AST::Visitor::visit(*node.condition);
 
     while (temporary->as<Bool>().value)
     {
         visit(*node.statements);
-        Visitor::visit(*node.condition);
+        AST::Visitor::visit(*node.condition);
     }
 }
 

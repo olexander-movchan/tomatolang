@@ -19,8 +19,8 @@ set(SOURCE_FILES
         syntax/syntax_tree.hpp
         syntax/parser.cpp
         syntax/parser.hpp
-        syntax/errors.cpp
-        syntax/errors.hpp
+        errors.cpp
+        errors.hpp
 
         interpreter/main.cpp
         interpreter/interpreter.cpp
@@ -34,7 +34,7 @@ set(SOURCE_FILES
         interpreter/objects/bool.cpp
         interpreter/objects/bool.hpp
         interpreter/objects/types.hpp
-        )
+        syntax/codepoint.cpp syntax/codepoint.hpp)
 
 
 add_executable(tomato ${SOURCE_FILES})

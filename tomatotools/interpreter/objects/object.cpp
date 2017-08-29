@@ -1,6 +1,8 @@
 #include "object.hpp"
 
 
+using namespace Tomato;
+
 /*
  * Any Object subclass doesn't have to override all of this methods,
  * but invoking not overloaded one should cause the type error.

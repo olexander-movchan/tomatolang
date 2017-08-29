@@ -1,7 +1,10 @@
 #include "token.hpp"
 
 
-Token::Token(const Token::Type &type, const std::string &lexeme, Token::Position position)
+using namespace Tomato;
+
+
+Token::Token(const Token::Type &type, const std::string &lexeme, const CodePoint &position)
         : type(type), lexeme(lexeme), position(position) {}
 
 

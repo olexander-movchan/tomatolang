@@ -1,13 +1,92 @@
 #include "syntax_tree.hpp"
 
 
-using namespace AST;
+using namespace Tomato;
+using namespace Tomato::AST;
 
 
-Expression::Expression(const Token &token) : token(token) {}
+ExpressionNode::ExpressionNode(const Token &token) : token(token) {}
 
 
-Literal::Literal(const Token &token) : Expression(token), lexeme(token.lexeme)
+IdentifierNode::IdentifierNode(const Token &token) : IdentifierNode(token.lexeme)
+{
+    this->token = token;
+}
+
+
+IdentifierNode::IdentifierNode(const std::string &name) : name(name) {}
+
+
+BinaryOperatorNode::BinaryOperatorNode(
+        std::shared_ptr<ExpressionNode>  left,
+        Token::Type                      operation,
+        std::shared_ptr<ExpressionNode>  right
+) : left(left), operation(operation), right(right) {}
+
+
+BinaryOperatorNode::BinaryOperatorNode(
+        std::shared_ptr<ExpressionNode>  left,
+        const Token                      &token,
+        std::shared_ptr<ExpressionNode>  right
+) : BinaryOperatorNode(left, token.type, right)
+{
+    this->token = token;
+}
+
+
+UnaryOperatorNode::UnaryOperatorNode(
+        Token::Type                      operation,
+        std::shared_ptr<ExpressionNode>  expression
+) : operation(operation), expression(expression) {}
+
+
+UnaryOperatorNode::UnaryOperatorNode(
+        const Token                      &token,
+        std::shared_ptr<ExpressionNode>  expression
+) : UnaryOperatorNode(token.type, expression)
+{
+    this->token = token;
+}
+
+
+AssignmentNode::AssignmentNode(
+        std::shared_ptr<ExpressionNode> lvalue,
+        std::shared_ptr<ExpressionNode> rvalue
+) : lvalue(lvalue), rvalue(rvalue) {}
+
+
+DeclarationNode::DeclarationNode(
+        std::shared_ptr<IdentifierNode> variable,
+        std::shared_ptr<ExpressionNode> value
+) : variable(variable), value(value) {}
+
+
+ConditionalNode::ConditionalNode(
+        std::shared_ptr<ExpressionNode>     condition,
+        std::shared_ptr<StatementListNode>  consequent,
+        std::shared_ptr<StatementListNode>  alternative
+) : condition(condition), consequent(consequent), alternative(alternative) {}
+
+
+LoopNode::LoopNode(
+        std::shared_ptr<ExpressionNode>     condition,
+        std::shared_ptr<StatementListNode>  statements
+) : condition(condition), statements(statements) {}
+
+
+PrintNode::PrintNode(
+        std::shared_ptr<ExpressionNode> expression
+) : expression(expression) {}
+
+
+
+LiteralNode::LiteralNode(const Token &token) : LiteralNode(token.lexeme)
+{
+    this->token = token;
+}
+
+
+LiteralNode::LiteralNode(const std::string &lexeme) : lexeme(lexeme)
 {
     if (lexeme == "true" || lexeme == "false")
         type = Type ::Bool;
@@ -20,63 +99,25 @@ Literal::Literal(const Token &token) : Expression(token), lexeme(token.lexeme)
 }
 
 
-int   Literal::ivalue() { return std::stoi(lexeme); }
-float Literal::fvalue() { return std::stof(lexeme); }
-bool  Literal::bvalue() { return lexeme == "true"; }
-
-
-Identifier::Identifier(const Token &token) : Expression(token), name(token.lexeme) {}
-
-
-BinaryOperator::BinaryOperator(std::shared_ptr<Expression> left,
-                               const Token &operator_t,
-                               std::shared_ptr<Expression> right)
-        : Expression(operator_t), left(left), operation(operator_t.type), right(right) {}
-
-
-UnaryOperator::UnaryOperator(const Token &operator_t, std::shared_ptr<Expression> expression)
-        : Expression(operator_t), operation(operator_t.type), expression(expression) {}
-
-
-Assignment::Assignment(std::shared_ptr<Expression> lvalue,
-                       const Token                 &set,
-                       std::shared_ptr<Expression> rvalue)
-        : token(set), lvalue(lvalue) , rvalue(rvalue) {}
-
-
-Declaration::Declaration(const Token &var, std::shared_ptr<Identifier> variable,
-                         const Token &set, std::shared_ptr<Expression> value)
-        : token_var(var), token_set(set), variable(variable), value(value) {}
-
-
-Conditional::Conditional(std::shared_ptr<Expression> condition,
-                         std::shared_ptr<Statements> consequent,
-                         std::shared_ptr<Statements> alternative)
-        : condition(condition), consequent(consequent), alternative(alternative) {}
-
-
-WhileLoop::WhileLoop(std::shared_ptr<Expression> condition,
-                     std::shared_ptr<Statements> statements)
-        : condition(condition), statements(statements) {}
-
-
-Print::Print(std::shared_ptr<Expression> expression) : expression(expression) {}
+int   LiteralNode::ivalue() { return std::stoi(lexeme); }
+float LiteralNode::fvalue() { return std::stof(lexeme); }
+bool  LiteralNode::bvalue() { return lexeme == "true"; }
 
 
 // Visitor-related methods
 
-void Visitor::visit(AbstractSyntaxTree &node) { node.accept(*this); }
+void Visitor::visit(Node &node) { node.accept(*this); }
 
-void Statements      ::accept(Visitor &visitor) { visitor.visit(*this); }
+void StatementListNode   ::accept(Visitor &visitor) { visitor.visit(*this); }
 
-void Print           ::accept(Visitor &visitor) { visitor.visit(*this); }
-void Assignment      ::accept(Visitor &visitor) { visitor.visit(*this); }
-void Declaration     ::accept(Visitor &visitor) { visitor.visit(*this); }
+void PrintNode           ::accept(Visitor &visitor) { visitor.visit(*this); }
+void AssignmentNode      ::accept(Visitor &visitor) { visitor.visit(*this); }
+void DeclarationNode     ::accept(Visitor &visitor) { visitor.visit(*this); }
 
-void BinaryOperator  ::accept(Visitor &visitor) { visitor.visit(*this); }
-void UnaryOperator   ::accept(Visitor &visitor) { visitor.visit(*this); }
-void Identifier      ::accept(Visitor &visitor) { visitor.visit(*this); }
-void Literal         ::accept(Visitor &visitor) { visitor.visit(*this); }
+void BinaryOperatorNode  ::accept(Visitor &visitor) { visitor.visit(*this); }
+void UnaryOperatorNode   ::accept(Visitor &visitor) { visitor.visit(*this); }
+void IdentifierNode      ::accept(Visitor &visitor) { visitor.visit(*this); }
+void LiteralNode         ::accept(Visitor &visitor) { visitor.visit(*this); }
 
-void Conditional     ::accept(Visitor &visitor) { visitor.visit(*this); }
-void WhileLoop       ::accept(Visitor &visitor) { visitor.visit(*this); }
+void ConditionalNode     ::accept(Visitor &visitor) { visitor.visit(*this); }
+void LoopNode            ::accept(Visitor &visitor) { visitor.visit(*this); }

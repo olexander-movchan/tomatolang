@@ -2,9 +2,11 @@
 #include "float.hpp"
 #include "bool.hpp"
 #include "interpreter/interpreter.hpp"
-#include "syntax/errors.hpp"
 
 #include <cmath>
+
+
+using namespace Tomato;
 
 
 int ipow(int base, int exp)

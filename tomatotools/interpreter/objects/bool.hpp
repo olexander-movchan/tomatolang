@@ -1,32 +1,35 @@
-#ifndef INTERPRETER_BOOL_HPP
-#define INTERPRETER_BOOL_HPP
+#ifndef TOMATO_BOOL_HPP
+#define TOMATO_BOOL_HPP
 
 
 #include "object.hpp"
 
 
-/**
- * @brief Represents boolean values.
- */
-class Bool : public Object
+namespace Tomato
 {
-public:
-    Bool(bool value = false);
+    /**
+     * @brief Represents boolean values.
+     */
+    class Bool : public Object
+    {
+    public:
+        Bool(bool value = false);
 
-    bool value;
+        bool value;
 
-    void assign(const Object &object) override;
+        void assign(const Object &object) override;
 
-    std::string str() override;
+        std::string str() override;
 
-    Ref op_and(const Object &object) override;
-    Ref op_or (const Object &object) override;
+        Ref op_and(const Object &object) override;
+        Ref op_or (const Object &object) override;
 
-    Ref op_not() override;
+        Ref op_not() override;
 
-    static Ref True();
-    static Ref False();
-};
+        static Ref True();
+        static Ref False();
+    };
+}
 
 
-#endif //INTERPRETER_BOOL_HPP
+#endif //TOMATO_BOOL_HPP

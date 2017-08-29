@@ -1,5 +1,5 @@
-#ifndef INTERPRETER_SYNTAX_TREE_HPP
-#define INTERPRETER_SYNTAX_TREE_HPP
+#ifndef TOMATO_AST_HPP
+#define TOMATO_AST_HPP
 
 
 #include <memory>
@@ -10,20 +10,26 @@
 /**
  * @brief Abstract syntax tree.
  */
-namespace AST
+namespace Tomato::AST
 {
     /**
      * @brief Abstract base class for all AST nodes.
+     *
+     * @note AST users should implement visitor pattern.
      */
-    class AbstractSyntaxTree
+    class Node
     {
     protected:
         friend class Visitor;
 
         /**
-         * @brief Virtual method provides double dispatch (see visitor design pattern).
-         *
+         * @brief Provides double dispatch (see visitor design pattern).
          * @param visitor Visitor instance
+         *
+         * Every non-abstract Node subclass should define accept method as follows:
+         * @code{.cpp}
+         * void accept(Visitor &visitor) { visitor.visit(*this); }
+         * @endcode
          */
         virtual void accept(class Visitor &visitor) = 0;
     };
@@ -32,13 +38,16 @@ namespace AST
     /**
      * @brief Abstract base class for AST statement nodes.
      */
-    class Statement : public AbstractSyntaxTree {};
+    class StatementNode : public Node {};
 
 
-    class Statements : public AbstractSyntaxTree
+    /**
+     * @brief List of statements
+     */
+    class StatementListNode : public Node
     {
     public:
-        std::list<std::shared_ptr<Statement>> statements;
+        std::list<std::shared_ptr<StatementNode>> statements;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -48,18 +57,20 @@ namespace AST
     /**
      * @brief Abstract base class for AST expression nodes.
      */
-    class Expression : public Statement
+    class ExpressionNode : public StatementNode
     {
     public:
-        Expression(const Token &token);
+        ExpressionNode() = default;
+        ExpressionNode(const Token &token);
+
         Token token;
     };
 
 
     /**
-     * @brief Integer constant AST node.
+     * @brief Literal AST node.
      */
-    class Literal : public Expression
+    class LiteralNode : public ExpressionNode
     {
     public:
         enum class Type
@@ -67,7 +78,8 @@ namespace AST
             Integer, Float, Bool,
         };
 
-        Literal(const Token &token);
+        LiteralNode(const std::string &lexeme);
+        LiteralNode(const Token &token);
 
         Type        type;
         std::string lexeme;
@@ -84,10 +96,11 @@ namespace AST
     /**
      * @brief Identifier AST node.
      */
-    class Identifier : public Expression
+    class IdentifierNode : public ExpressionNode
     {
     public:
-        Identifier(const Token &token);
+        IdentifierNode(const std::string &name);
+        IdentifierNode(const Token &token);
 
         std::string name;
 
@@ -99,21 +112,24 @@ namespace AST
     /**
      * @brief Binary operator AST node.
      */
-    class BinaryOperator : public Expression
+    class BinaryOperatorNode : public ExpressionNode
     {
     public:
-        /**
-         * @param left        Expression to the left of operator
-         * @param operator_t  Operator token
-         * @param right       Expression to the right of operator
-         */
-        BinaryOperator(std::shared_ptr<Expression> left,
-                       const Token                 &operator_t,
-                       std::shared_ptr<Expression> right);
+        BinaryOperatorNode(
+                std::shared_ptr<ExpressionNode> left,
+                Token::Type                     operation,
+                std::shared_ptr<ExpressionNode> right
+        );
 
-        std::shared_ptr<Expression> left;
-        Token::Type                 operation;
-        std::shared_ptr<Expression> right;
+        BinaryOperatorNode(
+                std::shared_ptr<ExpressionNode> left,
+                const Token                     &token,
+                std::shared_ptr<ExpressionNode> right
+        );
+
+        std::shared_ptr<ExpressionNode> left;
+        Token::Type                     operation;
+        std::shared_ptr<ExpressionNode> right;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -123,17 +139,21 @@ namespace AST
     /**
      * @brief Unary operator AST node.
      */
-    class UnaryOperator : public Expression
+    class UnaryOperatorNode : public ExpressionNode
     {
     public:
-        /**
-         * @param operator_t  Operator token
-         * @param expression  Operand
-         */
-        UnaryOperator(const Token &operator_t, std::shared_ptr<Expression> expression);
+        UnaryOperatorNode(
+                Token::Type                     operation,
+                std::shared_ptr<ExpressionNode> expression
+        );
 
-        Token::Type                 operation;
-        std::shared_ptr<Expression> expression;
+        UnaryOperatorNode(
+                const Token                     &token,
+                std::shared_ptr<ExpressionNode> expression
+        );
+
+        Token::Type                     operation;
+        std::shared_ptr<ExpressionNode> expression;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -143,22 +163,18 @@ namespace AST
     /**
      * @brief Assignment AST node.
      */
-    class Assignment : public Statement
+    class AssignmentNode : public StatementNode
     {
     public:
         /**
          * @param lvalue  Reference to update value (i.e. Variable)
-         * @param set     "=" token
          * @param rvalue  Value that should be assigned
          */
-        Assignment(std::shared_ptr<Expression> lvalue,
-                   const Token                 &set,
-                   std::shared_ptr<Expression> rvalue);
+        AssignmentNode(std::shared_ptr<ExpressionNode> lvalue,
+                       std::shared_ptr<ExpressionNode> rvalue);
 
-        std::shared_ptr<Expression> lvalue;
-        std::shared_ptr<Expression> rvalue;
-
-        Token token;
+        std::shared_ptr<ExpressionNode> lvalue;
+        std::shared_ptr<ExpressionNode> rvalue;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -168,17 +184,14 @@ namespace AST
     /**
      * @brief Variable declaration AST node.
      */
-    class Declaration : public Statement
+    class DeclarationNode : public StatementNode
     {
     public:
-        Declaration(const Token &var, std::shared_ptr<Identifier> variable,
-                    const Token &set, std::shared_ptr<Expression> value);
+        DeclarationNode(std::shared_ptr<IdentifierNode> variable,
+                        std::shared_ptr<ExpressionNode> value);
 
-        std::shared_ptr<Identifier> variable;
-        std::shared_ptr<Expression> value;
-
-        Token token_var;
-        Token token_set;
+        std::shared_ptr<IdentifierNode> variable;
+        std::shared_ptr<ExpressionNode> value;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -190,16 +203,16 @@ namespace AST
      *
      * Classical if-then-else statement.
      */
-    class Conditional : public Statement
+    class ConditionalNode : public StatementNode
     {
     public:
-        Conditional(std::shared_ptr<Expression> condition,
-                    std::shared_ptr<Statements> consequent,
-                    std::shared_ptr<Statements> alternative);
+        ConditionalNode(std::shared_ptr<ExpressionNode>    condition,
+                        std::shared_ptr<StatementListNode> consequent,
+                        std::shared_ptr<StatementListNode> alternative);
 
-        std::shared_ptr<Expression> condition;
-        std::shared_ptr<Statements> consequent;
-        std::shared_ptr<Statements> alternative;
+        std::shared_ptr<ExpressionNode>    condition;
+        std::shared_ptr<StatementListNode> consequent;
+        std::shared_ptr<StatementListNode> alternative;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -209,14 +222,14 @@ namespace AST
     /**
      * @brief Loop with boolean expression condition.
      */
-    class WhileLoop : public Statement
+    class LoopNode : public StatementNode
     {
     public:
-        WhileLoop(std::shared_ptr<Expression> condition,
-                  std::shared_ptr<Statements> statements);
+        LoopNode(std::shared_ptr<ExpressionNode>    condition,
+                 std::shared_ptr<StatementListNode> statements);
 
-        std::shared_ptr<Expression> condition;
-        std::shared_ptr<Statements> statements;
+        std::shared_ptr<ExpressionNode>    condition;
+        std::shared_ptr<StatementListNode> statements;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -224,16 +237,16 @@ namespace AST
 
 
     /**
-     * @brief Prints expression value.
+     * @brief Print statement, prints expression value.
      *
      * @warning Class is temporary and will exist until functions have been implemented.
      */
-    class Print : public Statement
+    class PrintNode : public StatementNode
     {
     public:
-        Print(std::shared_ptr<Expression> expression);
+        PrintNode(std::shared_ptr<ExpressionNode> expression);
 
-        std::shared_ptr<Expression> expression;
+        std::shared_ptr<ExpressionNode> expression;
 
     protected:
         void accept(Visitor &visitor) override;
@@ -254,25 +267,25 @@ namespace AST
     class Visitor
     {
     public:
-        void visit(AbstractSyntaxTree &node);
+        void visit(Node &node);
 
-        virtual void visit(Statements      &node) = 0;
+        virtual void visit(StatementListNode      &node) = 0;
 
-        virtual void visit(Print           &node) = 0;
-        virtual void visit(Assignment      &node) = 0;
-        virtual void visit(Declaration     &node) = 0;
+        virtual void visit(PrintNode           &node) = 0;
+        virtual void visit(AssignmentNode      &node) = 0;
+        virtual void visit(DeclarationNode     &node) = 0;
 
         // Expressions
-        virtual void visit(BinaryOperator  &node) = 0;
-        virtual void visit(UnaryOperator   &node) = 0;
-        virtual void visit(Identifier      &node) = 0;
-        virtual void visit(Literal         &node) = 0;
+        virtual void visit(BinaryOperatorNode  &node) = 0;
+        virtual void visit(UnaryOperatorNode   &node) = 0;
+        virtual void visit(IdentifierNode      &node) = 0;
+        virtual void visit(LiteralNode         &node) = 0;
 
         // Flow-control statements
-        virtual void visit(Conditional     &node) = 0;
-        virtual void visit(WhileLoop       &node) = 0;
+        virtual void visit(ConditionalNode     &node) = 0;
+        virtual void visit(LoopNode       &node) = 0;
     };
 }
 
 
-#endif //INTERPRETER_SYNTAX_TREE_HPP
+#endif //TOMATO_AST_HPP

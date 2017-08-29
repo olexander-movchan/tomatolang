@@ -1,5 +1,5 @@
-#ifndef INTERPRETER_TYPES_HPP
-#define INTERPRETER_TYPES_HPP
+#ifndef TOMATO_TYPES_HPP
+#define TOMATO_TYPES_HPP
 
 
 #include "integer.hpp"
@@ -7,4 +7,4 @@
 #include "bool.hpp"
 
 
-#endif //INTERPRETER_TYPES_HPP
+#endif //TOMATO_TYPES_HPP

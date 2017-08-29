@@ -1,52 +1,58 @@
-#ifndef INTERPRETER_LEXER_HPP
-#define INTERPRETER_LEXER_HPP
+#ifndef TOMATO_LEXER_HPP
+#define TOMATO_LEXER_HPP
 
 
 #include <string>
 #include <map>
+#include <syntax/codepoint.hpp>
 
 #include "token.hpp"
 
 
-class Lexer
+namespace Tomato
 {
-public:
-    /**
-     * @param code program source code
-     */
-    Lexer(const std::string &code);
+    class Lexer
+    {
+    public:
+        /**
+         * @param code program source code
+         */
+        Lexer(const std::string &code);
 
-    /**
-     * @brief Parses next lexical token
-     * @return next token
-     */
-    Token next();
+        /**
+         * @brief Parses next lexical token
+         * @return next token
+         */
+        Token next();
 
-    /**
-     * @brief Checks whether end of file reached
-     * @return true if EOF reached
-     */
-    bool eof() const;
+        /**
+         * @brief Checks whether end of file reached
+         * @return true if EOF reached
+         */
+        bool eof() const;
 
-private:
-    std::string code;
-    std::size_t offset;
+    private:
+        std::string code;
+        std::size_t start_offset;
+        std::size_t current_offset = 0;
 
-    Token::Position token_pos;
-    Token::Position current_pos;
+        CodePoint start_point;
+        CodePoint current_point;
 
-    char current_char();
-    void advance();
-    void skip_whitespace();
+        char current_char();
+        void advance();
+        void skip_whitespace();
 
-    Token literal();
-    Token identifier();
+        Token token(Token::Type type);
+        Token literal();
+        Token identifier();
 
-    /// @todo Refactor method
-    Token operator_token();
+        /// @todo Refactor method
+        Token operator_token();
 
-    static std::map<std::string, Token::Type> keywords;
-};
+        static std::map<std::string, Token::Type> keywords;
+    };
+}
 
 
-#endif //INTERPRETER_LEXER_HPP
+#endif //TOMATO_LEXER_HPP

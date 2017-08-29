@@ -1,6 +1,9 @@
 #include "errors.hpp"
 
 
+using namespace Tomato;
+
+
 CodeError::CodeError(const Token &token, const std::string &message)
         : token(token), message(message) {}
 

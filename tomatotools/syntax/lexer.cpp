@@ -1,6 +1,9 @@
 #include "lexer.hpp"
 
 
+using namespace Tomato;
+
+
 std::map<std::string, Token::Type> Lexer::keywords = {
         { "var"    ,  Token::Type::Var },
         { "let"    ,  Token::Type::Let },
@@ -25,12 +28,12 @@ std::map<std::string, Token::Type> Lexer::keywords = {
 };
 
 
-Lexer::Lexer(const std::string &code) : code(code), offset(0) {}
+Lexer::Lexer(const std::string &code) : code(code) {}
 
 
 char Lexer::current_char()
 {
-    return code[offset];
+    return code[current_offset];
 }
 
 
@@ -38,21 +41,29 @@ void Lexer::advance()
 {
     if (current_char() == '\n')
     {
-        current_pos.line  += 1;
-        current_pos.column = 1;
+        current_point.line  += 1;
+        current_point.column = 1;
     }
     else
     {
-        current_pos.column += 1;
+        current_point.column += 1;
     }
 
-    offset += 1;
+    current_offset += 1;
 }
 
 
 bool Lexer::eof() const
 {
-    return offset == code.length();
+    return current_offset >= code.length();
+}
+
+
+Token Lexer::token(Token::Type type)
+{
+    auto token = Token(type, code.substr(start_offset, current_offset - start_offset), start_point);
+
+    return token;
 }
 
 
@@ -60,19 +71,19 @@ Token Lexer::next()
 {
     skip_whitespace();
 
+    // Save token start position
+    start_offset = current_offset;
+    start_point  = current_point;
+
     if (eof())
     {
-        return Token(Token::Type::EndOfFile, "", current_pos);
+        return token(Token::Type::EndOfFile);
     }
-
-    // Save token start position
-    token_pos = current_pos;
-
 
     if (current_char() == '\n')
     {
         advance();
-        return Token(Token::Type::EndOfLine, "\n", token_pos);
+        return Token(Token::Type::EndOfLine, "\n");
     }
 
     static const std::string op_chars = "+-*/%^<!=>()";
@@ -95,7 +106,7 @@ Token Lexer::next()
 
     // Neither of valid token appeared
     advance();
-    return Token(Token::Type::Invalid, code.substr(offset-1, 1), token_pos);
+    return token(Token::Type::Invalid);
 }
 
 
@@ -107,46 +118,46 @@ Token Lexer::operator_token()
     switch (current)
     {
         case '+':
-            return Token(Token::Type::Add, "+", token_pos);
+            return token(Token::Type::Add);
 
         case '-':
-            return Token(Token::Type::Sub, "-", token_pos);
+            return token(Token::Type::Sub);
 
         case '*':
-            return Token(Token::Type::Mul, "*", token_pos);
+            return token(Token::Type::Mul);
 
         case '/':
         {
             if (current_char() == '/')
             {
                 advance();
-                return Token(Token::Type::IntDiv, "//", token_pos);
+                return token(Token::Type::IntDiv);
             }
             else
             {
-                return Token(Token::Type::Div, "/", token_pos);
+                return token(Token::Type::Div);
             }
         }
 
         case '^':
-            return Token(Token::Type::Exp, "^", token_pos);
+            return token(Token::Type::Exp);
 
         case '(':
-            return Token(Token::Type::LParen, "(", token_pos);
+            return token(Token::Type::LParen);
 
         case ')':
-            return Token(Token::Type::RParen, ")", token_pos);
+            return token(Token::Type::RParen);
 
         case '=':
         {
             if (current_char() == '=')
             {
                 advance();
-                return Token(Token::Type::EQ, "==", token_pos);
+                return token(Token::Type::EQ);
             }
             else
             {
-                return Token(Token::Type::Assign, "=", token_pos);
+                return token(Token::Type::Assign);
             }
         }
 
@@ -155,11 +166,11 @@ Token Lexer::operator_token()
             if (current_char() == '=')
             {
                 advance();
-                return Token(Token::Type::LE, "<=", token_pos);
+                return token(Token::Type::LE);
             }
             else
             {
-                return Token(Token::Type::LT, "<", token_pos);
+                return token(Token::Type::LT);
             }
         }
 
@@ -168,11 +179,11 @@ Token Lexer::operator_token()
             if (current_char() == '=')
             {
                 advance();
-                return Token(Token::Type::GE, ">=", token_pos);
+                return token(Token::Type::GE);
             }
             else
             {
-                return Token(Token::Type::GT, ">", token_pos);
+                return token(Token::Type::GT);
             }
         }
 
@@ -181,7 +192,7 @@ Token Lexer::operator_token()
             if (current_char() == '=')
             {
                 advance();
-                return Token(Token::Type::NE, "!=", token_pos);
+                return token(Token::Type::NE);
             }
             else
             {
@@ -193,7 +204,7 @@ Token Lexer::operator_token()
             break;
     }
 
-    return Token(Token::Type::Invalid, code.substr(offset-1, 1), token_pos);
+    return token(Token::Type::Invalid);
 }
 
 
@@ -229,10 +240,7 @@ Token Lexer::literal()
             advance();
     }
 
-    std::size_t len = current_pos.column - token_pos.column;
-    std::string lexeme = code.substr(offset - len, len);
-
-    return Token(Token::Type::Literal, lexeme, token_pos);
+    return token(Token::Type::Literal);
 }
 
 
@@ -241,15 +249,10 @@ Token Lexer::identifier()
     while (std::isalpha(current_char()))
         advance();
 
-    std::size_t len = current_pos.column - token_pos.column;
-    std::string lexeme = code.substr(offset - len, len);
+    auto id = token(Token::Type::Identifier);
 
-    if (keywords.find(lexeme) != keywords.end())
-    {
-        return Token(keywords[lexeme], lexeme, token_pos);
-    }
+    if (keywords.find(id.lexeme) != keywords.end())
+        return token(keywords[id.lexeme]);
     else
-    {
-        return Token(Token::Type::Identifier, lexeme, token_pos);
-    }
+        return id;
 }
