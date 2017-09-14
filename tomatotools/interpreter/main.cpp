@@ -8,6 +8,7 @@
 
 
 using namespace Tomato;
+using std::literals::operator""s;
 
 
 int main(int argc, char **argv)
@@ -37,8 +38,8 @@ int main(int argc, char **argv)
             add_history(line);
         }
 
-        code = code + line + "\n";
-        code_history.push_back(line);
+        code += line + "\n"s;
+        code_history.emplace_back(line);
         free(line);
 
         try

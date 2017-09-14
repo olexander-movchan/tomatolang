@@ -17,7 +17,7 @@ namespace Tomato
         /**
          * @param code program source code
          */
-        Lexer(const std::string &code);
+        explicit Lexer(const std::string &code);
 
         /**
          * @brief Parses next lexical token

@@ -71,12 +71,12 @@ void Parser::shift(Token::Type expected_type)
 
 std::shared_ptr<AST::StatementListNode> Parser::parse(const std::string &code)
 {
+    lexer = nullptr;
     lexer = std::make_unique<Lexer>(code);
     current_token = lexer->next();
 
     auto program = statement_list();
 
-    lexer = nullptr;
     return program;
 }
 
@@ -282,9 +282,9 @@ std::shared_ptr<AST::StatementListNode> Parser::statement_list()
 {
     auto st = std::make_shared<AST::StatementListNode>();
 
-    while (current_token.type != Token::Type::EndOfFile
-           && current_token.type != Token::Type::Else
-           && current_token.type != Token::Type::End)
+    while (current_token.type != Token::Type::EndOfFile &&
+           current_token.type != Token::Type::Else &&
+           current_token.type != Token::Type::End)
     {
         st->statements.push_back(statement());
     }

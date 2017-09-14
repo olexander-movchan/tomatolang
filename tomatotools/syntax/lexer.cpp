@@ -31,7 +31,10 @@ std::map<std::string, Token::Type> Lexer::keywords = {
 };
 
 
-Lexer::Lexer(const std::string &code) : code(code) {}
+Lexer::Lexer(const std::string &code) : code(code)
+{
+    Pointer = CodePoint{0, 0};
+}
 
 
 char Lexer::current_char()
@@ -45,7 +48,7 @@ void Lexer::advance()
     if (current_char() == '\n')
     {
         current_point.line  += 1;
-        current_point.column = 1;
+        current_point.column = 0;
     }
     else
     {
@@ -81,12 +84,6 @@ Token Lexer::next()
     if (eof())
     {
         return token(Token::Type::EndOfFile);
-    }
-
-    if (current_char() == '\n')
-    {
-        advance();
-        return Token(Token::Type::EndOfLine, "\n");
     }
 
     static const std::string op_chars = "+-*/%^<!=>()";
