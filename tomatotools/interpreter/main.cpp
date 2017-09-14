@@ -49,19 +49,19 @@ int main(int argc, char **argv)
         }
         catch (const CodeError &error)
         {
-            if (error.token.type == Token::Type::EndOfFile)
+            if (error.location.line == code_history.size())
             {
                 PS = PS2;
                 continue;
             }
 
             std::cout << "\n" << error.what() << " at line "
-                      << error.token.position.line << ", column "
-                      << error.token.position.column << ":\n\n";
+                      << error.location.line + 1 << ", column "
+                      << error.location.column + 1 << ":\n\n";
 
-            std::cout << code_history[error.token.position.line - 1] << '\n';
+            std::cout << code_history[error.location.line] << '\n';
 
-            for (int i = 1; i < error.token.position.column; ++i)
+            for (int i = 0; i < error.location.column; ++i)
             {
                 std::cout << ' ';
             }

@@ -14,7 +14,10 @@ Float::Float(float value) : value(value) {}
 void Float::assign(const Object &object)
 {
     if (!object.is_instance<Float>())
-        throw TypeError();
+    {
+        auto type_name = typeid(object).name();
+        throw TypeError("Type 'float' expected, got '"s + type_name + "' instead");
+    }
 
     value = object.as<Float>().value;
 }

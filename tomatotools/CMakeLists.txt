@@ -19,6 +19,8 @@ set(SOURCE_FILES
         syntax/syntax_tree.hpp
         syntax/parser.cpp
         syntax/parser.hpp
+        syntax/codepoint.cpp
+        syntax/codepoint.hpp
         errors.cpp
         errors.hpp
 

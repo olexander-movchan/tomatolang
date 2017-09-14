@@ -106,7 +106,15 @@ bool  LiteralNode::bvalue() { return lexeme == "true"; }
 
 // Visitor-related methods
 
-void Visitor::visit(Node &node) { node.accept(*this); }
+CodePoint Visitor::Pointer;
+void Visitor::visit(Node &node)
+{
+    CodePoint tmp = Pointer;
+
+    Pointer = node.location;
+    node.accept(*this);
+    Pointer = tmp;
+}
 
 void StatementListNode   ::accept(Visitor &visitor) { visitor.visit(*this); }
 

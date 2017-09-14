@@ -19,6 +19,12 @@ namespace Tomato::AST
      */
     class Node
     {
+    public:
+        Node() {}
+        Node(const CodePoint &location);
+
+        CodePoint location;
+
     protected:
         friend class Visitor;
 
@@ -283,7 +289,9 @@ namespace Tomato::AST
 
         // Flow-control statements
         virtual void visit(ConditionalNode     &node) = 0;
-        virtual void visit(LoopNode       &node) = 0;
+        virtual void visit(LoopNode            &node) = 0;
+
+        static CodePoint Pointer;
     };
 }
 

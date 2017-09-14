@@ -30,7 +30,10 @@ Integer::Integer(int value) : value(value) {}
 void Integer::assign(const Object &object)
 {
     if (!object.is_instance<Integer>())
-        throw TypeError();
+    {
+        auto type_name = typeid(object).name();
+        throw TypeError("Integer expected, got "s + type_name + " instead"s);
+    }
 
     value = object.as<Integer>().value;
 }

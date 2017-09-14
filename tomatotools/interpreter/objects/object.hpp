@@ -2,12 +2,16 @@
 #define TOMATO_OBJECT_HPP
 
 
+#include <string>
 #include <memory>
 #include "errors.hpp"
 
 
 namespace Tomato
 {
+    using std::literals::operator""s;
+
+
     /**
      * @brief Abstract base class for all runtime objects.
      *
@@ -47,7 +51,11 @@ namespace Tomato
         const T & as() const
         {
             if (!is_instance<T>())
-                throw TypeError();
+            {
+                auto expected = typeid(this).name();
+                auto gotten = typeid(T).name();
+                throw TypeError("Type '"s + expected + "' expected, got '"s + gotten + "' instead."s);
+            }
 
             return dynamic_cast<const T &>(*this);
         }

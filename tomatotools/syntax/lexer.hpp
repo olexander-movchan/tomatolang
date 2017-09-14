@@ -31,6 +31,8 @@ namespace Tomato
          */
         bool eof() const;
 
+        static CodePoint Pointer;
+
     private:
         std::string code;
         std::size_t start_offset;

@@ -3,9 +3,8 @@
 
 
 #include <stdexcept>
-#include <syntax/syntax_tree.hpp>
 
-#include "syntax/token.hpp"
+#include "syntax/codepoint.hpp"
 
 
 namespace Tomato
@@ -16,12 +15,12 @@ namespace Tomato
     class CodeError : public std::exception
     {
     public:
-        CodeError(const Token &token, const std::string &message);
+        CodeError(const CodePoint &location, const std::string &message);
 
         const char *what() const throw() override;
 
     public:
-        Token token;
+        CodePoint   location;
         std::string message;
     };
 
@@ -32,27 +31,34 @@ namespace Tomato
     class SyntaxError : public CodeError
     {
     public:
-        SyntaxError(const struct Token &token, const std::string &message);
+        explicit SyntaxError(const std::string &message);
+    };
+
+
+    class SemanticError : public CodeError
+    {
+    public:
+        explicit SemanticError(const std::string &message);
     };
 
 
     /**
      * @brief NameError represents undefined references or repeated definitions.
      */
-    class NameError : public CodeError
+    class NameError : public SemanticError
     {
     public:
-        NameError(const struct Token &token, const std::string &message);
+        explicit NameError(const std::string &message);
     };
 
 
     /**
      * @brief TypeError represents operation on incompatible types.
      */
-    class TypeError : public CodeError
+    class TypeError : public SemanticError
     {
     public:
-        TypeError() : CodeError(Token(), "") {}
+        explicit TypeError(const std::string &message="Unexpected type");
     };
 }
 

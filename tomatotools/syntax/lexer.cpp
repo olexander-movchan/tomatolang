@@ -4,6 +4,9 @@
 using namespace Tomato;
 
 
+CodePoint Lexer::Pointer;
+
+
 std::map<std::string, Token::Type> Lexer::keywords = {
         { "var"    ,  Token::Type::Var },
         { "let"    ,  Token::Type::Let },
@@ -62,7 +65,7 @@ bool Lexer::eof() const
 Token Lexer::token(Token::Type type)
 {
     auto token = Token(type, code.substr(start_offset, current_offset - start_offset), start_point);
-
+    Pointer = start_point;
     return token;
 }
 

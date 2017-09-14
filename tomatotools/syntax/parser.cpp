@@ -64,7 +64,7 @@ void Parser::shift(Token::Type expected_type)
     }
     else
     {
-        throw SyntaxError(current_token, "Unexpected token: " + current_token.lexeme);
+        throw SyntaxError("Unexpected token: " + current_token.lexeme);
     }
 }
 
@@ -165,7 +165,7 @@ std::shared_ptr<AST::ExpressionNode> Parser::term()
         }
 
         default:
-            throw SyntaxError(current_token, "Unexpected token");
+            throw SyntaxError("Unexpected token");
     }
 }
 
@@ -210,7 +210,7 @@ std::shared_ptr<AST::StatementNode> Parser::statement()
         }
 
         default:
-            throw SyntaxError(current_token, "Unexpected token");
+            throw SyntaxError("Unexpected token");
     }
 }
 

@@ -1,11 +1,15 @@
 #include "errors.hpp"
 
+#include "syntax/syntax_tree.hpp"
+#include "syntax/lexer.hpp"
+
 
 using namespace Tomato;
 
 
-CodeError::CodeError(const Token &token, const std::string &message)
-        : token(token), message(message) {}
+CodeError::CodeError(const CodePoint &location, const std::string &message)
+        : location(location), message(message) {}
+
 
 const char *CodeError::what() const throw()
 {
@@ -13,8 +17,16 @@ const char *CodeError::what() const throw()
 }
 
 
-SyntaxError::SyntaxError(const struct Token &token, const std::string &message)
-        : CodeError(token, message) {}
+SyntaxError::SyntaxError(const std::string &message) : CodeError(Lexer::Pointer, message)
+{
+    location = Lexer::Pointer;
+}
 
-NameError::NameError(const struct Token &token, const std::string &message)
-        : CodeError(token, message) {}
+
+SemanticError::SemanticError(const std::string &message) : CodeError(AST::Visitor::Pointer, message) {}
+
+
+NameError::NameError(const std::string &message) : SemanticError(message) {}
+
+
+TypeError::TypeError(const std::string &message) : SemanticError(message) {}
