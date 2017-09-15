@@ -1,5 +1,5 @@
-#ifndef TOMATO_CODEPOINT_NODE
-#define TOMATO_CODEPOINT_NODE
+#ifndef TOMATO_CODEPOINT_HPP
+#define TOMATO_CODEPOINT_HPP
 
 
 #include <cstddef>
@@ -17,7 +17,10 @@ namespace Tomato
         std::size_t line = 0;
         std::size_t column = 0;
     };
+
+
+    bool operator== (const Tomato::CodePoint &a, const Tomato::CodePoint &b);
 }
 
 
-#endif //TOMATO_CODEPOINT_NODE
+#endif //TOMATO_CODEPOINT_HPP

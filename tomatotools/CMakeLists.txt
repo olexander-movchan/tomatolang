@@ -21,10 +21,10 @@ set(SOURCE_FILES
         syntax/parser.hpp
         syntax/codepoint.cpp
         syntax/codepoint.hpp
+
         errors.cpp
         errors.hpp
 
-        interpreter/main.cpp
         interpreter/interpreter.cpp
         interpreter/interpreter.hpp
         interpreter/objects/object.cpp
@@ -36,13 +36,15 @@ set(SOURCE_FILES
         interpreter/objects/bool.cpp
         interpreter/objects/bool.hpp
         interpreter/objects/types.hpp
-        syntax/codepoint.cpp syntax/codepoint.hpp)
+        )
 
 
-add_executable(tomato ${SOURCE_FILES})
-target_include_directories(tomato PUBLIC . ${READLINE_INCLUDE_DIR})
-target_link_libraries(tomato ${READLINE_LIBRARY})
+add_library(tomatolib ${SOURCE_FILES})
+add_executable(tomato interpreter/tomato.cpp)
 
+target_include_directories(tomato PRIVATE .)
+target_include_directories(tomato PUBLIC ${READLINE_INCLUDE_DIR})
+target_include_directories(tomatolib PRIVATE .)
+target_include_directories(tomatolib PUBLIC ${READLINE_INCLUDE_DIR})
 
-install(TARGETS tomato
-        RUNTIME DESTINATION bin)
+target_link_libraries(tomato tomatolib ${READLINE_LIBRARY})
