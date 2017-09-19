@@ -23,6 +23,8 @@ namespace Tomato::AST
         Node() {}
         Node(const CodePoint &location);
 
+        virtual ~Node() = default;
+
         CodePoint location;
 
     protected:
@@ -275,7 +277,7 @@ namespace Tomato::AST
     public:
         void visit(Node &node);
 
-        virtual void visit(StatementListNode      &node) = 0;
+        virtual void visit(StatementListNode   &node) = 0;
 
         virtual void visit(PrintNode           &node) = 0;
         virtual void visit(AssignmentNode      &node) = 0;

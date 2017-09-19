@@ -24,6 +24,7 @@ namespace Tomato
          * @brief Executes commands represented by AST
          */
         void interpret(std::shared_ptr<AST::Node> ast);
+        Object::Ref evaluate(AST::ExpressionNode &expression);
 
     private:
         void visit(AST::StatementListNode   &node) override;

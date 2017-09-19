@@ -166,5 +166,11 @@ void Interpreter::visit(AST::LoopNode &node)
     }
 }
 
+Object::Ref Interpreter::evaluate(AST::ExpressionNode &expression)
+{
+    AST::Visitor::visit(expression);
+    return temporary;
+}
+
 
 InterpretationError::InterpretationError(const std::string &message) : std::runtime_error(message.c_str()) {}
