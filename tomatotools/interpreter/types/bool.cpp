@@ -10,7 +10,7 @@ Bool::Bool(bool value) : value(value) {}
 void Bool::assign(const Object &object)
 {
     if (!object.is_instance<Bool>())
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 
     value = object.as<Bool>().value;
 }
@@ -31,7 +31,7 @@ Object::Ref Bool::op_not()
 Object::Ref Bool::op_and(const Object &object)
 {
     if (!object.is_instance<Bool>())
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 
     return std::make_shared<Bool>(value && object.as<Bool>().value);
 }
@@ -40,7 +40,7 @@ Object::Ref Bool::op_and(const Object &object)
 Object::Ref Bool::op_or(const Object &object)
 {
     if (!object.is_instance<Bool>())
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 
     return std::make_shared<Bool>(value || object.as<Bool>().value);
 }

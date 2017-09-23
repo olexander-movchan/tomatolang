@@ -45,7 +45,7 @@ namespace Tomato
          * @brief Gets type T reference to itself
          * @tparam T supposed object type
          * @return reference to itself as type T
-         * @throw std::bad_cast
+         * @throw TypeError
          */
         template <typename T>
         const T & as() const
@@ -54,7 +54,7 @@ namespace Tomato
             {
                 auto expected = typeid(this).name();
                 auto gotten = typeid(T).name();
-                throw TypeError("Type '"s + expected + "' expected, got '"s + gotten + "' instead."s);
+                throw TypeError(CodePoint(), "Type '"s + expected + "' expected, got '"s + gotten + "' instead."s);
             }
 
             return dynamic_cast<const T &>(*this);

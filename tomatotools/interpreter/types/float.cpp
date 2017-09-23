@@ -16,7 +16,7 @@ void Float::assign(const Object &object)
     if (!object.is_instance<Float>())
     {
         auto type_name = typeid(object).name();
-        throw TypeError("Type 'float' expected, got '"s + type_name + "' instead");
+        throw TypeError(CodePoint(), "Type 'float' expected, got '"s + type_name + "' instead");
     }
 
     value = object.as<Float>().value;
@@ -38,7 +38,7 @@ Object::Ref Float::add(const Object &object)
         return std::make_shared<Float>(value + object.as<Integer>().value);
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 }
 
 
@@ -51,7 +51,7 @@ Object::Ref Float::sub(const Object &object)
         return std::make_shared<Float>(value - object.as<Integer>().value);
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 
 }
 
@@ -64,7 +64,7 @@ Object::Ref Float::mul(const Object &object)
         return std::make_shared<Float>(value * object.as<Integer>().value);
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 }
 
 Object::Ref Float::div(const Object &object)
@@ -76,7 +76,7 @@ Object::Ref Float::div(const Object &object)
         return std::make_shared<Float>(value / object.as<Integer>().value);
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 }
 
 Object::Ref Float::exp(const Object &object)
@@ -88,7 +88,7 @@ Object::Ref Float::exp(const Object &object)
         return std::make_shared<Float>(std::pow(value, float(object.as<Integer>().value)));
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 }
 
 Object::Ref Float::un_plus()
@@ -110,7 +110,7 @@ Object::Ref Float::lt(const Object &object)
         return std::make_shared<Bool>(value < object.as<Integer>().value);
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 }
 
 
@@ -123,7 +123,7 @@ Object::Ref Float::gt(const Object &object)
         return std::make_shared<Bool>(value > object.as<Integer>().value);
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 }
 
 
@@ -136,7 +136,7 @@ Object::Ref Float::le(const Object &object)
         return std::make_shared<Bool>(value <= object.as<Integer>().value);
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 }
 
 
@@ -149,7 +149,7 @@ Object::Ref Float::ge(const Object &object)
         return std::make_shared<Bool>(value >= object.as<Integer>().value);
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 }
 
 
@@ -162,7 +162,7 @@ Object::Ref Float::eq(const Object &object)
         return std::make_shared<Bool>(value == object.as<Integer>().value);
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 }
 
 
@@ -175,5 +175,5 @@ Object::Ref Float::ne(const Object &object)
         return std::make_shared<Bool>(value != object.as<Integer>().value);
 
     else
-        throw TypeError();
+        throw TypeError(CodePoint(), "");
 }

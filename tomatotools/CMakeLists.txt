@@ -27,16 +27,20 @@ set(SOURCE_FILES
 
         interpreter/interpreter.cpp
         interpreter/interpreter.hpp
-        interpreter/objects/object.cpp
-        interpreter/objects/object.hpp
-        interpreter/objects/integer.cpp
-        interpreter/objects/integer.hpp
-        interpreter/objects/float.cpp
-        interpreter/objects/float.hpp
-        interpreter/objects/bool.cpp
-        interpreter/objects/bool.hpp
-        interpreter/objects/types.hpp
-        )
+        interpreter/types/object.cpp
+        interpreter/types/object.hpp
+        interpreter/types/integer.cpp
+        interpreter/types/integer.hpp
+        interpreter/types/float.cpp
+        interpreter/types/float.hpp
+        interpreter/types/bool.cpp
+        interpreter/types/bool.hpp
+        interpreter/types/types.hpp
+        syntax/navigator.cpp
+        syntax/navigator.hpp
+        syntax/visitor.cpp
+        syntax/visitor.hpp
+        syntax/printer.cpp syntax/printer.hpp)
 
 
 add_library(tomatolib ${SOURCE_FILES})

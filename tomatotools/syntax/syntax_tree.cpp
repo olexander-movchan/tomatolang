@@ -1,4 +1,5 @@
 #include "syntax_tree.hpp"
+#include "visitor.hpp"
 
 
 using namespace Tomato;
@@ -102,30 +103,3 @@ LiteralNode::LiteralNode(const std::string &lexeme) : lexeme(lexeme)
 int   LiteralNode::ivalue() { return std::stoi(lexeme); }
 float LiteralNode::fvalue() { return std::stof(lexeme); }
 bool  LiteralNode::bvalue() { return lexeme == "true"; }
-
-
-// Visitor-related methods
-
-CodePoint Visitor::Pointer;
-void Visitor::visit(Node &node)
-{
-    CodePoint tmp = Pointer;
-
-    Pointer = node.location;
-    node.accept(*this);
-    Pointer = tmp;
-}
-
-void StatementListNode   ::accept(Visitor &visitor) { visitor.visit(*this); }
-
-void PrintNode           ::accept(Visitor &visitor) { visitor.visit(*this); }
-void AssignmentNode      ::accept(Visitor &visitor) { visitor.visit(*this); }
-void DeclarationNode     ::accept(Visitor &visitor) { visitor.visit(*this); }
-
-void BinaryOperatorNode  ::accept(Visitor &visitor) { visitor.visit(*this); }
-void UnaryOperatorNode   ::accept(Visitor &visitor) { visitor.visit(*this); }
-void IdentifierNode      ::accept(Visitor &visitor) { visitor.visit(*this); }
-void LiteralNode         ::accept(Visitor &visitor) { visitor.visit(*this); }
-
-void ConditionalNode     ::accept(Visitor &visitor) { visitor.visit(*this); }
-void LoopNode            ::accept(Visitor &visitor) { visitor.visit(*this); }

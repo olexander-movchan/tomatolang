@@ -4,8 +4,8 @@
 using namespace Tomato;
 
 
-Token::Token(const Token::Type &type, const std::string &lexeme, const CodePoint &position)
-        : type(type), lexeme(lexeme), position(position) {}
+Token::Token(const Token::Type &type, const std::string &lexeme, const CodePoint &location)
+        : type(type), lexeme(lexeme), location(location) {}
 
 
 bool Token::is_binary_op() const

@@ -31,15 +31,24 @@ std::map<std::string, Token::Type> Lexer::keywords = {
 };
 
 
-Lexer::Lexer(const std::string &code) : code(code)
+void Lexer::append(const std::string &code)
 {
-    Pointer = CodePoint{0, 0};
+    reset(source_buffer + code);
 }
+
+
+void Lexer::reset(const std::string &code)
+{
+    source_buffer = code;
+    navigator.move(CodePoint {0, 0});
+    current_offset = start_offset = 0;
+}
+
 
 
 char Lexer::current_char()
 {
-    return code[current_offset];
+    return source_buffer[current_offset];
 }
 
 
@@ -47,12 +56,12 @@ void Lexer::advance()
 {
     if (current_char() == '\n')
     {
-        current_point.line  += 1;
-        current_point.column = 0;
+        navigator.top().line  += 1;
+        navigator.top().column = 0;
     }
     else
     {
-        current_point.column += 1;
+        navigator.top().column += 1;
     }
 
     current_offset += 1;
@@ -61,25 +70,28 @@ void Lexer::advance()
 
 bool Lexer::eof() const
 {
-    return current_offset >= code.length();
+    return current_offset >= source_buffer.length();
 }
 
 
 Token Lexer::token(Token::Type type)
 {
-    auto token = Token(type, code.substr(start_offset, current_offset - start_offset), start_point);
-    Pointer = start_point;
+    CodePoint end = navigator.pop();
+
+    auto token = Token(type, source_buffer.substr(start_offset, current_offset - start_offset), navigator.top());
+
+    navigator.move(end);
     return token;
 }
 
 
-Token Lexer::next()
+Token Lexer::next_token()
 {
     skip_whitespace();
 
-    // Save token start position
+    // Save token start location
     start_offset = current_offset;
-    start_point  = current_point;
+    navigator.push();
 
     if (eof())
     {
@@ -252,7 +264,7 @@ Token Lexer::identifier()
     auto id = token(Token::Type::Identifier);
 
     if (keywords.find(id.lexeme) != keywords.end())
-        return token(keywords[id.lexeme]);
+        return Token(keywords[id.lexeme], id.lexeme, id.location);
     else
         return id;
 }

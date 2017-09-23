@@ -38,7 +38,7 @@ int precedence(Token::Type op)
             return 5;
 
         default:
-            throw std::runtime_error("Getting precedence of non-operator");
+            return -1;
     }
 }
 
@@ -56,28 +56,41 @@ bool left_associative(Token::Type op)
 }
 
 
+void Parser::shift()
+{
+    current_token = lexer.next_token();
+    navigator.move(current_token.location);
+}
+
+
 void Parser::shift(Token::Type expected_type)
 {
     if (current_token.type == expected_type)
     {
-        current_token = lexer->next();
+        shift();
     }
     else
     {
-        throw SyntaxError("Unexpected token: " + current_token.lexeme);
+        throw SyntaxError(navigator.top(), "Unexpected token");
     }
 }
 
 
-std::shared_ptr<AST::StatementListNode> Parser::parse(const std::string &code)
+std::shared_ptr<AST::AbstractNode> Parser::parse(const std::string &code)
 {
-    lexer = nullptr;
-    lexer = std::make_unique<Lexer>(code);
-    current_token = lexer->next();
+    lexer.reset(code);
+    shift();
 
-    auto program = statement_list();
+    return statement_list();
+}
 
-    return program;
+
+std::shared_ptr<AST::ExpressionNode> Parser::expression(const std::string &code)
+{
+    lexer.reset(code);
+    shift();
+
+    return expression();
 }
 
 
@@ -87,35 +100,34 @@ std::shared_ptr<AST::ExpressionNode> Parser::expression(int curr_precedence)
         return term();
 
     auto expr = expression(curr_precedence + 1);
-  
-    if (current_token.is_binary_op() && left_associative(current_token.type))
+
+    if (!current_token.is_binary_op() || precedence(current_token.type) > curr_precedence)
+        return expr;
+
+    if (left_associative(current_token.type))
     {
-        while (current_token.is_binary_op() && precedence(current_token.type) == curr_precedence)
+        while (precedence(current_token.type) == curr_precedence)
         {
-            auto bin_op = current_token;
-            shift(current_token.type);
+            auto op = current_token;
+            shift();
 
             expr = std::make_shared<AST::BinaryOperatorNode>(
                     expr,
-                    bin_op,
+                    op,
                     expression(curr_precedence + 1)
             );
         }
     }
-    else if (current_token.is_binary_op())
+    else
     {
-        if (current_token.is_binary_op() && precedence(current_token.type) == curr_precedence)
-        {
-            auto bin_op = current_token;
-            shift(current_token.type);
+        auto op = current_token;
+        shift();
 
-            expr = std::make_shared<AST::BinaryOperatorNode>(
-                    expr,
-                    bin_op,
-                    expression(curr_precedence)
-            );
-
-        }
+        expr = std::make_shared<AST::BinaryOperatorNode>(
+                expr,
+                op,
+                expression(curr_precedence)
+        );
     }
 
     return expr;
@@ -165,7 +177,7 @@ std::shared_ptr<AST::ExpressionNode> Parser::term()
         }
 
         default:
-            throw SyntaxError("Unexpected token");
+            throw SyntaxError(navigator.top(), "Unexpected token");
     }
 }
 
@@ -210,7 +222,7 @@ std::shared_ptr<AST::StatementNode> Parser::statement()
         }
 
         default:
-            throw SyntaxError("Unexpected token");
+            throw SyntaxError(navigator.top(), "Unexpected token");
     }
 }
 

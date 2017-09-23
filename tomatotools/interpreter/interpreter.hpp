@@ -4,8 +4,8 @@
 
 #include <map>
 
-#include "syntax/syntax_tree.hpp"
-#include "objects/object.hpp"
+#include "syntax/visitor.hpp"
+#include "types/object.hpp"
 
 
 namespace Tomato
@@ -13,18 +13,17 @@ namespace Tomato
     class InterpretationError : public std::runtime_error
     {
     public:
-        InterpretationError(const std::string &message);
+        explicit InterpretationError(const std::string &message);
     };
 
 
     class Interpreter : public AST::Visitor
     {
     public:
-        /**
-         * @brief Executes commands represented by AST
-         */
-        void interpret(std::shared_ptr<AST::Node> ast);
-        Object::Ref evaluate(AST::ExpressionNode &expression);
+        explicit Interpreter(std::ostream &out);
+
+        void interpret(const std::string &code);
+        void interpret(std::shared_ptr<AST::AbstractNode> ast);
 
     private:
         void visit(AST::StatementListNode   &node) override;
@@ -42,7 +41,9 @@ namespace Tomato
         void visit(AST::LoopNode            &node) override;
 
     private:
-        Object::Ref                         temporary;
+        Object::Ref     temporary;
+        std::ostream    &out;
+
         std::map<std::string, Object::Ref>  memory;
     };
 }

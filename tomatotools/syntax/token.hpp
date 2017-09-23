@@ -34,11 +34,11 @@ namespace Tomato
 
         Token() = default;
 
-        Token(const Type &type, const std::string &lexeme, const CodePoint &position = CodePoint());
+        Token(const Type &type, const std::string &lexeme, const CodePoint &location = CodePoint());
 
         Type         type;
         std::string  lexeme;
-        CodePoint    position;
+        CodePoint    location;
 
         bool is_binary_op() const;
 

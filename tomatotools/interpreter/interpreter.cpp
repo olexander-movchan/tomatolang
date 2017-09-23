@@ -1,14 +1,27 @@
 #include "interpreter.hpp"
+#include "types/types.hpp"
+#include "syntax/parser.hpp"
 
-#include "objects/types.hpp"
-
-#include <iostream>
+#include <ostream>
 
 
 using namespace Tomato;
 
 
-void Interpreter::interpret(std::shared_ptr<AST::Node> ast)
+Interpreter::Interpreter(std::ostream &out) : out(out) {}
+
+
+void Interpreter::interpret(const std::string &code)
+{
+    Parser parser;
+
+    auto tree = parser.parse(code);
+
+    AST::Visitor::visit(*tree);
+}
+
+
+void Interpreter::interpret(std::shared_ptr<AST::AbstractNode> ast)
 {
     AST::Visitor::visit(*ast);
 }
@@ -136,7 +149,7 @@ void Interpreter::visit(AST::PrintNode &node)
 {
     AST::Visitor::visit(*node.expression);
 
-    std::cout << temporary->str() << std::endl;
+    out << temporary->str() << std::endl;
 }
 
 
@@ -164,12 +177,6 @@ void Interpreter::visit(AST::LoopNode &node)
         visit(*node.statements);
         AST::Visitor::visit(*node.condition);
     }
-}
-
-Object::Ref Interpreter::evaluate(AST::ExpressionNode &expression)
-{
-    AST::Visitor::visit(expression);
-    return temporary;
 }
 
 

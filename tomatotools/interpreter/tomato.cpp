@@ -1,10 +1,13 @@
 #include <iostream>
 #include <vector>
+
 #include <readline/readline.h>
 #include <readline/history.h>
 
 #include "syntax/parser.hpp"
 #include "interpreter.hpp"
+
+#include "syntax/printer.hpp"
 
 
 using namespace Tomato;
@@ -13,8 +16,7 @@ using std::literals::operator""s;
 
 int main(int argc, char **argv)
 {
-    Parser parser;
-    Interpreter interpreter;
+    Interpreter interpreter(std::cout);
 
     std::string code;
     std::vector<std::string> code_history;
@@ -44,9 +46,7 @@ int main(int argc, char **argv)
 
         try
         {
-            auto ast = parser.parse(code);
-
-            interpreter.interpret(ast);
+            interpreter.interpret(code);
         }
         catch (const CodeError &error)
         {

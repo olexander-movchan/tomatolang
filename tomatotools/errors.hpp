@@ -31,14 +31,14 @@ namespace Tomato
     class SyntaxError : public CodeError
     {
     public:
-        explicit SyntaxError(const std::string &message);
+        SyntaxError(const CodePoint &location, const std::string &message);
     };
 
 
     class SemanticError : public CodeError
     {
     public:
-        explicit SemanticError(const std::string &message);
+        SemanticError(const CodePoint &location, const std::string &message);
     };
 
 
@@ -48,7 +48,7 @@ namespace Tomato
     class NameError : public SemanticError
     {
     public:
-        explicit NameError(const std::string &message);
+        NameError(const CodePoint &location, const std::string &message);
     };
 
 
@@ -58,7 +58,7 @@ namespace Tomato
     class TypeError : public SemanticError
     {
     public:
-        explicit TypeError(const std::string &message="Unexpected type");
+        TypeError(const CodePoint &location, const std::string &message);
     };
 }
 

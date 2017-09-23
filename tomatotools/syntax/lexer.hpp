@@ -4,9 +4,9 @@
 
 #include <string>
 #include <map>
-#include <syntax/codepoint.hpp>
 
 #include "token.hpp"
+#include "navigator.hpp"
 
 
 namespace Tomato
@@ -14,16 +14,14 @@ namespace Tomato
     class Lexer
     {
     public:
-        /**
-         * @param code program source code
-         */
-        explicit Lexer(const std::string &code);
+        void append(const std::string &code);
+        void reset(const std::string &code);
 
         /**
-         * @brief Parses next lexical token
+         * @brief Parse next lexical token
          * @return next token
          */
-        Token next();
+        Token next_token();
 
         /**
          * @brief Checks whether end of file reached
@@ -34,12 +32,11 @@ namespace Tomato
         static CodePoint Pointer;
 
     private:
-        std::string code;
+        std::string source_buffer;
         std::size_t start_offset;
         std::size_t current_offset = 0;
 
-        CodePoint start_point;
-        CodePoint current_point;
+        CodeNavigator navigator;
 
         char current_char();
         void advance();

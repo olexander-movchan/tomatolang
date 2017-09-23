@@ -17,12 +17,15 @@ namespace Tomato
     class Parser
     {
     public:
-        std::shared_ptr<AST::StatementListNode> parse(const std::string &code);
+        std::shared_ptr<AST::AbstractNode> parse(const std::string &code);
+        std::shared_ptr<AST::ExpressionNode> expression(const std::string &code);
 
     private:
-        std::unique_ptr<Lexer> lexer;
-        Token current_token;
+        Lexer           lexer;
+        Token           current_token;
+        CodeNavigator   navigator;
 
+        void shift();
         void shift(Token::Type expected_type);
 
         std::shared_ptr<AST::StatementListNode>  statement_list();

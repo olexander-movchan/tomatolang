@@ -3,21 +3,40 @@
 
 
 using namespace std::string_literals;
+using namespace Tomato;
 
 
-TEST(Lexer__Test, Simple_Test)
+TEST(LexerTest, GeneralTest)
 {
-    auto code = "var a = 0"s;
-    Tomato::Lexer lexer(code);
+    auto code = "2 + 2 * 2"s;
+    Lexer lexer;
 
-    ASSERT_EQ(lexer.next().type, Tomato::Token::Type::Var);
-    ASSERT_EQ(lexer.next().type, Tomato::Token::Type::Identifier);
-    ASSERT_EQ(lexer.next().type, Tomato::Token::Type::Assign);
-    ASSERT_EQ(lexer.next().type, Tomato::Token::Type::Literal);
+    lexer.append(code);
 
-    ASSERT_EQ(lexer.next().type, Tomato::Token::Type::EndOfFile);
-    ASSERT_EQ(lexer.next().type, Tomato::Token::Type::EndOfFile);
-    ASSERT_EQ(lexer.next().type, Tomato::Token::Type::EndOfFile);
+    ASSERT_EQ(lexer.next_token().type, Tomato::Token::Type::Literal);
+    ASSERT_EQ(lexer.next_token().type, Tomato::Token::Type::Add);
+    ASSERT_EQ(lexer.next_token().type, Tomato::Token::Type::Literal);
+    ASSERT_EQ(lexer.next_token().type, Tomato::Token::Type::Mul);
+    ASSERT_EQ(lexer.next_token().type, Tomato::Token::Type::Literal);
 
-    ASSERT_EQ(lexer.next().position.column, code.length());
+    ASSERT_EQ(lexer.next_token().type, Tomato::Token::Type::EndOfFile);
+    ASSERT_EQ(lexer.next_token().type, Tomato::Token::Type::EndOfFile);
+    ASSERT_EQ(lexer.next_token().type, Tomato::Token::Type::EndOfFile);
+
+    ASSERT_EQ(lexer.next_token().location.column, code.length());
+}
+
+
+TEST(LexerTest, AppendAndReset)
+{
+    Lexer lexer;
+
+    lexer.reset("2 + 2");
+
+    ASSERT_EQ(lexer.next_token().type, Token::Type::Literal);
+    ASSERT_EQ(lexer.next_token().type, Token::Type::Add);
+    ASSERT_EQ(lexer.next_token().type, Token::Type::Literal);
+
+    lexer.reset("var a = 2");
+
 }

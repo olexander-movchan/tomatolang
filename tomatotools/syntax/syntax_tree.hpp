@@ -13,52 +13,64 @@
 namespace Tomato::AST
 {
     /**
-     * @brief Abstract base class for all AST nodes.
+     * @brief Base class for abstract AST nodes.
      *
-     * @note AST users should implement visitor pattern.
+     * @note Visitable nodes should derive from VisitableNode.
      */
-    class Node
+    class AbstractNode
     {
     public:
-        Node() {}
-        Node(const CodePoint &location);
+        AbstractNode() = default;
+        AbstractNode(const CodePoint &location);
 
-        virtual ~Node() = default;
+        virtual ~AbstractNode() = default;
 
         CodePoint location;
 
     protected:
         friend class Visitor;
 
-        /**
-         * @brief Provides double dispatch (see visitor design pattern).
-         * @param visitor Visitor instance
-         *
-         * Every non-abstract Node subclass should define accept method as follows:
-         * @code{.cpp}
-         * void accept(Visitor &visitor) { visitor.visit(*this); }
-         * @endcode
-         */
         virtual void accept(class Visitor &visitor) = 0;
     };
 
 
     /**
+     * @brief Base class for visitable AST nodes.
+     * @tparam NodeType Actual node type.
+     * @tparam AbstractBase Abstract node class to inherit from.
+     * @note Look for curiously recurring template pattern
+     *
+     * @code
+     * class MyNode : public VisitableNode<MyNode, MyAbstractNode>
+     * {
+     *     // ...
+     * }
+     * @endcode
+     */
+    template<typename NodeType, typename AbstractBase = AbstractNode>
+    class VisitableNode : public AbstractBase
+    {
+    public:
+        template <typename ... Args>
+        explicit VisitableNode(Args... args) : AbstractBase(args...) {}
+
+    protected:
+        void accept(class Visitor& visitor) override;
+    };
+
+    /**
      * @brief Abstract base class for AST statement nodes.
      */
-    class StatementNode : public Node {};
+    class StatementNode : public AbstractNode {};
 
 
     /**
      * @brief List of statements
      */
-    class StatementListNode : public Node
+    class StatementListNode : public VisitableNode<StatementListNode>
     {
     public:
         std::list<std::shared_ptr<StatementNode>> statements;
-
-    protected:
-        void accept(Visitor &visitor) override;
     };
 
 
@@ -69,7 +81,7 @@ namespace Tomato::AST
     {
     public:
         ExpressionNode() = default;
-        ExpressionNode(const Token &token);
+        explicit ExpressionNode(const Token &token);
 
         Token token;
     };
@@ -78,7 +90,7 @@ namespace Tomato::AST
     /**
      * @brief Literal AST node.
      */
-    class LiteralNode : public ExpressionNode
+    class LiteralNode : public VisitableNode<LiteralNode, ExpressionNode>
     {
     public:
         enum class Type
@@ -95,32 +107,26 @@ namespace Tomato::AST
         int    ivalue();
         float  fvalue();
         bool   bvalue();
-
-    protected:
-        void accept(Visitor &visitor) override;
     };
 
 
     /**
      * @brief Identifier AST node.
      */
-    class IdentifierNode : public ExpressionNode
+    class IdentifierNode : public VisitableNode<IdentifierNode, ExpressionNode>
     {
     public:
-        IdentifierNode(const std::string &name);
-        IdentifierNode(const Token &token);
+        explicit IdentifierNode(const std::string &name);
+        explicit IdentifierNode(const Token &token);
 
         std::string name;
-
-    protected:
-        void accept(Visitor &visitor) override;
     };
 
 
     /**
      * @brief Binary operator AST node.
      */
-    class BinaryOperatorNode : public ExpressionNode
+    class BinaryOperatorNode : public VisitableNode<BinaryOperatorNode, ExpressionNode>
     {
     public:
         BinaryOperatorNode(
@@ -138,16 +144,13 @@ namespace Tomato::AST
         std::shared_ptr<ExpressionNode> left;
         Token::Type                     operation;
         std::shared_ptr<ExpressionNode> right;
-
-    protected:
-        void accept(Visitor &visitor) override;
     };
 
 
     /**
      * @brief Unary operator AST node.
      */
-    class UnaryOperatorNode : public ExpressionNode
+    class UnaryOperatorNode : public VisitableNode<UnaryOperatorNode, ExpressionNode>
     {
     public:
         UnaryOperatorNode(
@@ -162,16 +165,13 @@ namespace Tomato::AST
 
         Token::Type                     operation;
         std::shared_ptr<ExpressionNode> expression;
-
-    protected:
-        void accept(Visitor &visitor) override;
     };
 
 
     /**
      * @brief Assignment AST node.
      */
-    class AssignmentNode : public StatementNode
+    class AssignmentNode : public VisitableNode<AssignmentNode, StatementNode>
     {
     public:
         /**
@@ -183,16 +183,13 @@ namespace Tomato::AST
 
         std::shared_ptr<ExpressionNode> lvalue;
         std::shared_ptr<ExpressionNode> rvalue;
-
-    protected:
-        void accept(Visitor &visitor) override;
     };
 
 
     /**
      * @brief Variable declaration AST node.
      */
-    class DeclarationNode : public StatementNode
+    class DeclarationNode : public VisitableNode<DeclarationNode, StatementNode>
     {
     public:
         DeclarationNode(std::shared_ptr<IdentifierNode> variable,
@@ -200,9 +197,6 @@ namespace Tomato::AST
 
         std::shared_ptr<IdentifierNode> variable;
         std::shared_ptr<ExpressionNode> value;
-
-    protected:
-        void accept(Visitor &visitor) override;
     };
 
 
@@ -211,7 +205,7 @@ namespace Tomato::AST
      *
      * Classical if-then-else statement.
      */
-    class ConditionalNode : public StatementNode
+    class ConditionalNode : public VisitableNode<ConditionalNode, StatementNode>
     {
     public:
         ConditionalNode(std::shared_ptr<ExpressionNode>    condition,
@@ -220,17 +214,14 @@ namespace Tomato::AST
 
         std::shared_ptr<ExpressionNode>    condition;
         std::shared_ptr<StatementListNode> consequent;
-        std::shared_ptr<StatementListNode> alternative;
-
-    protected:
-        void accept(Visitor &visitor) override;
+        std::shared_ptr<StatementListNode> alternative;;
     };
 
 
     /**
      * @brief Loop with boolean expression condition.
      */
-    class LoopNode : public StatementNode
+    class LoopNode : public VisitableNode<LoopNode, StatementNode>
     {
     public:
         LoopNode(std::shared_ptr<ExpressionNode>    condition,
@@ -238,9 +229,6 @@ namespace Tomato::AST
 
         std::shared_ptr<ExpressionNode>    condition;
         std::shared_ptr<StatementListNode> statements;
-
-    protected:
-        void accept(Visitor &visitor) override;
     };
 
 
@@ -249,52 +237,26 @@ namespace Tomato::AST
      *
      * @warning Class is temporary and will exist until functions have been implemented.
      */
-    class PrintNode : public StatementNode
+    class PrintNode : public VisitableNode<PrintNode, StatementNode>
     {
     public:
-        PrintNode(std::shared_ptr<ExpressionNode> expression);
+        explicit PrintNode(std::shared_ptr<ExpressionNode> expression);
 
         std::shared_ptr<ExpressionNode> expression;
-
-    protected:
-        void accept(Visitor &visitor) override;
     };
+}
 
 
-    /**
-     * @brief Abstract AST node visitor.
-     *
-     * Visitor design pattern:
-     * Visitor's primary purpose is to abstract functionality that can be
-     * applied to an aggregate hierarchy of "element" objects. The approach
-     * encourages designing lightweight Element classes - because processing
-     * functionality is removed from their list of responsibilities.
-     * New functionality can easily be added to the original inheritance
-     * hierarchy by creating a new Visitor subclass.
-     */
-    class Visitor
+#include "visitor.hpp"
+
+
+namespace Tomato::AST
+{
+    template<typename NodeType, typename AbstractBase>
+    void VisitableNode<NodeType, AbstractBase>::accept(class Visitor& visitor)
     {
-    public:
-        void visit(Node &node);
-
-        virtual void visit(StatementListNode   &node) = 0;
-
-        virtual void visit(PrintNode           &node) = 0;
-        virtual void visit(AssignmentNode      &node) = 0;
-        virtual void visit(DeclarationNode     &node) = 0;
-
-        // Expressions
-        virtual void visit(BinaryOperatorNode  &node) = 0;
-        virtual void visit(UnaryOperatorNode   &node) = 0;
-        virtual void visit(IdentifierNode      &node) = 0;
-        virtual void visit(LiteralNode         &node) = 0;
-
-        // Flow-control statements
-        virtual void visit(ConditionalNode     &node) = 0;
-        virtual void visit(LoopNode            &node) = 0;
-
-        static CodePoint Pointer;
-    };
+        visitor.visit(static_cast<NodeType&>(*this));
+    }
 }
 
 
