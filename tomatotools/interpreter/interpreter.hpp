@@ -5,6 +5,7 @@
 #include <map>
 
 #include "syntax/visitor.hpp"
+#include "semantic/symbols.hpp"
 #include "types/object.hpp"
 
 
@@ -23,7 +24,6 @@ namespace Tomato
         explicit Interpreter(std::ostream &out);
 
         void interpret(const std::string &code);
-        void interpret(std::shared_ptr<AST::AbstractNode> ast);
 
     private:
         void visit(AST::StatementListNode   &node) override;
@@ -41,6 +41,7 @@ namespace Tomato
         void visit(AST::LoopNode            &node) override;
 
     private:
+        SymbolTable     symbols;
         Object::Ref     temporary;
         std::ostream    &out;
 

@@ -8,7 +8,7 @@
 using namespace Tomato;
 
 
-Interpreter::Interpreter(std::ostream &out) : out(out) {}
+Interpreter::Interpreter(std::ostream &out) : out(out), symbols(navigator) {}
 
 
 void Interpreter::interpret(const std::string &code)
@@ -18,12 +18,6 @@ void Interpreter::interpret(const std::string &code)
     auto tree = parser.parse(code);
 
     AST::Visitor::visit(*tree);
-}
-
-
-void Interpreter::interpret(std::shared_ptr<AST::AbstractNode> ast)
-{
-    AST::Visitor::visit(*ast);
 }
 
 
@@ -114,19 +108,18 @@ void Interpreter::visit(AST::StatementListNode &node)
 
 void Interpreter::visit(AST::IdentifierNode &node)
 {
-    if (memory.find(node.name) != memory.end())
-        temporary = memory[node.name];
-    else
-        throw InterpretationError("Undefined variable: " + node.name);
+    symbols.lookup(node.name);
+
+    temporary = memory[node.name];
 }
 
 
 void Interpreter::visit(AST::AssignmentNode &node)
 {
-    AST::Visitor::visit(*node.lvalue);
+    AST::Visitor::visit(*node.destination);
     auto var = temporary;
 
-    AST::Visitor::visit(*node.rvalue);
+    AST::Visitor::visit(*node.source);
     auto value = temporary;
 
     var->assign(*value);
@@ -135,11 +128,11 @@ void Interpreter::visit(AST::AssignmentNode &node)
 
 void Interpreter::visit(AST::DeclarationNode &node)
 {
-    AST::Visitor::visit(*node.value);
+    AST::Visitor::visit(*node.initializer);
 
-    // TODO: Define interpretation exception.
-    if (memory.find(node.variable->name) != memory.end())
-        throw InterpretationError("Redeclare variable: " + node.variable->name);
+    navigator.push(node.variable->location);
+    symbols.define(Symbol(node.variable->name));
+    navigator.pop();
 
     memory[node.variable->name] = temporary;
 }

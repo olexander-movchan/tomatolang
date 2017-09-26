@@ -19,7 +19,7 @@ TEST(ParserTest, Expressions)
     ASSERT_NO_THROW(parser.parse("2 + 3 * -(2 - bar) ^ 4"));
     ASSERT_NO_THROW(parser.parse("a < b and b < c"));
 
-    ASSERT_THROW(parser.parse("2 + "),    SyntaxError);
+    ASSERT_THROW(parser.parse("2 +"),    SyntaxError);
     ASSERT_THROW(parser.parse("2 + / 3"), SyntaxError);
     ASSERT_THROW(parser.parse("2 ^^ 3"),  SyntaxError);
     ASSERT_THROW(parser.parse("and 2 3"), SyntaxError);
@@ -61,8 +61,8 @@ private:
     {
         nodes.push_back(&node);
 
-        AST::Visitor::visit(*node.lvalue);
-        AST::Visitor::visit(*node.rvalue);
+        AST::Visitor::visit(*node.destination);
+        AST::Visitor::visit(*node.source);
     }
 
     void visit(AST::DeclarationNode     &node) override
@@ -70,7 +70,7 @@ private:
         nodes.push_back(&node);
 
         visit(*node.variable);
-        AST::Visitor::visit(*node.value);
+        AST::Visitor::visit(*node.initializer);
     }
 
     void visit(AST::BinaryOperatorNode  &node) override

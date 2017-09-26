@@ -153,7 +153,7 @@ std::shared_ptr<AST::ExpressionNode> Parser::term()
         {
             auto un_op = current_token;
 
-            shift(current_token.type);
+            shift();
 
             // Read only product:
             // TODO: Remove hardcoded value
@@ -165,14 +165,14 @@ std::shared_ptr<AST::ExpressionNode> Parser::term()
         case Token::Type::Identifier:
         {
             auto identifier = std::make_shared<AST::IdentifierNode>(current_token);
-            shift(current_token.type);
+            shift();
             return identifier;
         }
 
         case Token::Type::Literal:
         {
             auto literal = std::make_shared<AST::LiteralNode>(current_token);
-            shift(current_token.type);
+            shift();
             return literal;
         }
 
@@ -210,12 +210,12 @@ std::shared_ptr<AST::StatementNode> Parser::statement()
 
             if (current_token.type == Token::Type::Assign)
             {
-                auto token = current_token;
-                shift(Token::Type::Assign);
+                auto location = current_token.location;
+                shift();
 
-                auto rvalue = expression();
+                auto source = expression();
 
-                return std::make_shared<AST::AssignmentNode>(expr, rvalue);
+                return std::make_shared<AST::AssignmentNode>(location, expr, source);
             }
 
             return expr;
@@ -240,12 +240,14 @@ std::shared_ptr<AST::DeclarationNode> Parser::declaration()
 
     auto expr = expression();
 
-    return std::make_shared<AST::DeclarationNode>(var, expr);
+    return std::make_shared<AST::DeclarationNode>(token_var.location, var, expr);
 }
 
 
 std::shared_ptr<AST::ConditionalNode> Parser::conditional()
 {
+    auto location = current_token.location;
+
     shift(Token::Type::If);
 
     auto condition = expression();
@@ -264,12 +266,14 @@ std::shared_ptr<AST::ConditionalNode> Parser::conditional()
 
     shift(Token::Type::End);
 
-    return std::make_shared<AST::ConditionalNode>(condition, consequent, alternative);
+    return std::make_shared<AST::ConditionalNode>(location, condition, consequent, alternative);
 }
 
 
 std::shared_ptr<AST::LoopNode> Parser::while_loop()
 {
+    auto location = current_token.location;
+
     shift(Token::Type::While);
     auto condition = expression();
 
@@ -277,22 +281,24 @@ std::shared_ptr<AST::LoopNode> Parser::while_loop()
     auto body = statement_list();
     shift(Token::Type::End);
 
-    return std::make_shared<AST::LoopNode>(condition, body);
+    return std::make_shared<AST::LoopNode>(location, condition, body);
 }
 
 
 std::shared_ptr<AST::PrintNode> Parser::print()
 {
+    auto location = current_token.location;
+
     shift(Token::Type::Print);
     auto expr = expression();
 
-    return std::make_shared<AST::PrintNode>(expr);
+    return std::make_shared<AST::PrintNode>(location, expr);
 }
 
 
 std::shared_ptr<AST::StatementListNode> Parser::statement_list()
 {
-    auto st = std::make_shared<AST::StatementListNode>();
+    auto st = std::make_shared<AST::StatementListNode>(navigator.top());
 
     while (current_token.type != Token::Type::EndOfFile &&
            current_token.type != Token::Type::Else &&

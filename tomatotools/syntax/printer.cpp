@@ -1,4 +1,5 @@
 #include "printer.hpp"
+#include "syntax_tree.hpp"
 
 
 using namespace Tomato;
@@ -50,12 +51,12 @@ void Printer::visit(AssignmentNode &node)
     buffer << "Assignment" << std::endl;
 
     indent += 1;
-    Visitor::visit(*node.lvalue);
+    Visitor::visit(*node.destination);
 
     print_indent();
     buffer << ":=" << std::endl;
 
-    Visitor::visit(*node.rvalue);
+    Visitor::visit(*node.source);
     indent -= 1;
 }
 
@@ -66,7 +67,7 @@ void Printer::visit(DeclarationNode &node)
     buffer << "Declaration {" << node.variable->name << '}' << std::endl;
 
     indent += 1;
-    Visitor::visit(*node.value);
+    Visitor::visit(*node.initializer);
     indent -= 1;
 }
 

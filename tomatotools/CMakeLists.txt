@@ -40,7 +40,7 @@ set(SOURCE_FILES
         syntax/navigator.hpp
         syntax/visitor.cpp
         syntax/visitor.hpp
-        syntax/printer.cpp syntax/printer.hpp)
+        syntax/printer.cpp syntax/printer.hpp semantic/symbols.cpp semantic/symbols.hpp)
 
 
 add_library(tomatolib ${SOURCE_FILES})

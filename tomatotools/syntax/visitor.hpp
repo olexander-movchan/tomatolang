@@ -2,8 +2,6 @@
 #define TOMATO_VISITOR_HPP
 
 
-#include "codepoint.hpp"
-#include "syntax_tree.hpp"
 #include "navigator.hpp"
 
 
@@ -15,30 +13,23 @@ namespace Tomato::AST
     class Visitor
     {
     public:
-        void visit(AbstractNode &node)
-        {
-            navigator.push(node.location);
+        void visit(class AbstractNode &node);
 
-            node.accept(*this);
+        virtual void visit(class StatementListNode   &node) = 0;
 
-            navigator.pop();
-        }
-
-        virtual void visit(StatementListNode   &node) = 0;
-
-        virtual void visit(PrintNode           &node) = 0;
-        virtual void visit(AssignmentNode      &node) = 0;
-        virtual void visit(DeclarationNode     &node) = 0;
+        virtual void visit(class PrintNode           &node) = 0;
+        virtual void visit(class AssignmentNode      &node) = 0;
+        virtual void visit(class DeclarationNode     &node) = 0;
 
         // Expressions
-        virtual void visit(BinaryOperatorNode  &node) = 0;
-        virtual void visit(UnaryOperatorNode   &node) = 0;
-        virtual void visit(IdentifierNode      &node) = 0;
-        virtual void visit(LiteralNode         &node) = 0;
+        virtual void visit(class BinaryOperatorNode  &node) = 0;
+        virtual void visit(class UnaryOperatorNode   &node) = 0;
+        virtual void visit(class IdentifierNode      &node) = 0;
+        virtual void visit(class LiteralNode         &node) = 0;
 
         // Flow-control statements
-        virtual void visit(ConditionalNode     &node) = 0;
-        virtual void visit(LoopNode            &node) = 0;
+        virtual void visit(class ConditionalNode     &node) = 0;
+        virtual void visit(class LoopNode            &node) = 0;
 
     protected:
         CodeNavigator navigator;

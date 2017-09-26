@@ -4,8 +4,12 @@
 
 #include <memory>
 #include <list>
-#include "token.hpp"
 
+#include "token.hpp"
+#include "visitor.hpp"
+
+
+#define ACCEPT_VISITOR protected: void accept(Visitor &visitor) { visitor.visit(*this); }
 
 /**
  * @brief Abstract syntax tree.
@@ -20,8 +24,7 @@ namespace Tomato::AST
     class AbstractNode
     {
     public:
-        AbstractNode() = default;
-        AbstractNode(const CodePoint &location);
+        explicit AbstractNode(const CodePoint &location);
 
         virtual ~AbstractNode() = default;
 
@@ -35,42 +38,25 @@ namespace Tomato::AST
 
 
     /**
-     * @brief Base class for visitable AST nodes.
-     * @tparam NodeType Actual node type.
-     * @tparam AbstractBase Abstract node class to inherit from.
-     * @note Look for curiously recurring template pattern
-     *
-     * @code
-     * class MyNode : public VisitableNode<MyNode, MyAbstractNode>
-     * {
-     *     // ...
-     * }
-     * @endcode
-     */
-    template<typename NodeType, typename AbstractBase = AbstractNode>
-    class VisitableNode : public AbstractBase
-    {
-    public:
-        template <typename ... Args>
-        explicit VisitableNode(Args... args) : AbstractBase(args...) {}
-
-    protected:
-        void accept(class Visitor& visitor) override;
-    };
-
-    /**
      * @brief Abstract base class for AST statement nodes.
      */
-    class StatementNode : public AbstractNode {};
+    class StatementNode : public AbstractNode
+    {
+    public:
+        explicit StatementNode(const CodePoint &location);
+    };
 
 
     /**
      * @brief List of statements
      */
-    class StatementListNode : public VisitableNode<StatementListNode>
+    class StatementListNode : public StatementNode
     {
     public:
+        explicit StatementListNode(const CodePoint &location);
         std::list<std::shared_ptr<StatementNode>> statements;
+
+        ACCEPT_VISITOR
     };
 
 
@@ -80,7 +66,6 @@ namespace Tomato::AST
     class ExpressionNode : public StatementNode
     {
     public:
-        ExpressionNode() = default;
         explicit ExpressionNode(const Token &token);
 
         Token token;
@@ -90,7 +75,7 @@ namespace Tomato::AST
     /**
      * @brief Literal AST node.
      */
-    class LiteralNode : public VisitableNode<LiteralNode, ExpressionNode>
+    class LiteralNode : public ExpressionNode
     {
     public:
         enum class Type
@@ -98,8 +83,7 @@ namespace Tomato::AST
             Integer, Float, Bool,
         };
 
-        LiteralNode(const std::string &lexeme);
-        LiteralNode(const Token &token);
+        explicit LiteralNode(const Token &token);
 
         Type        type;
         std::string lexeme;
@@ -107,34 +91,31 @@ namespace Tomato::AST
         int    ivalue();
         float  fvalue();
         bool   bvalue();
+
+        ACCEPT_VISITOR
     };
 
 
     /**
      * @brief Identifier AST node.
      */
-    class IdentifierNode : public VisitableNode<IdentifierNode, ExpressionNode>
+    class IdentifierNode : public ExpressionNode
     {
     public:
-        explicit IdentifierNode(const std::string &name);
         explicit IdentifierNode(const Token &token);
 
         std::string name;
+
+        ACCEPT_VISITOR
     };
 
 
     /**
      * @brief Binary operator AST node.
      */
-    class BinaryOperatorNode : public VisitableNode<BinaryOperatorNode, ExpressionNode>
+    class BinaryOperatorNode : public ExpressionNode
     {
     public:
-        BinaryOperatorNode(
-                std::shared_ptr<ExpressionNode> left,
-                Token::Type                     operation,
-                std::shared_ptr<ExpressionNode> right
-        );
-
         BinaryOperatorNode(
                 std::shared_ptr<ExpressionNode> left,
                 const Token                     &token,
@@ -144,20 +125,17 @@ namespace Tomato::AST
         std::shared_ptr<ExpressionNode> left;
         Token::Type                     operation;
         std::shared_ptr<ExpressionNode> right;
+
+        ACCEPT_VISITOR
     };
 
 
     /**
      * @brief Unary operator AST node.
      */
-    class UnaryOperatorNode : public VisitableNode<UnaryOperatorNode, ExpressionNode>
+    class UnaryOperatorNode : public ExpressionNode
     {
     public:
-        UnaryOperatorNode(
-                Token::Type                     operation,
-                std::shared_ptr<ExpressionNode> expression
-        );
-
         UnaryOperatorNode(
                 const Token                     &token,
                 std::shared_ptr<ExpressionNode> expression
@@ -165,70 +143,82 @@ namespace Tomato::AST
 
         Token::Type                     operation;
         std::shared_ptr<ExpressionNode> expression;
+
+        ACCEPT_VISITOR
     };
 
 
     /**
      * @brief Assignment AST node.
      */
-    class AssignmentNode : public VisitableNode<AssignmentNode, StatementNode>
+    class AssignmentNode : public StatementNode
     {
     public:
         /**
-         * @param lvalue  Reference to update value (i.e. Variable)
-         * @param rvalue  Value that should be assigned
+         * @param destination Expression to be changed (i.e. l-value).
+         * @param source New value expression.
          */
-        AssignmentNode(std::shared_ptr<ExpressionNode> lvalue,
-                       std::shared_ptr<ExpressionNode> rvalue);
+        AssignmentNode(const CodePoint &location,
+                       std::shared_ptr<ExpressionNode> destination,
+                       std::shared_ptr<ExpressionNode> source);
 
-        std::shared_ptr<ExpressionNode> lvalue;
-        std::shared_ptr<ExpressionNode> rvalue;
+        std::shared_ptr<ExpressionNode> destination;
+        std::shared_ptr<ExpressionNode> source;
+
+        ACCEPT_VISITOR
     };
 
 
     /**
      * @brief Variable declaration AST node.
      */
-    class DeclarationNode : public VisitableNode<DeclarationNode, StatementNode>
+    class DeclarationNode : public StatementNode
     {
     public:
-        DeclarationNode(std::shared_ptr<IdentifierNode> variable,
-                        std::shared_ptr<ExpressionNode> value);
+        DeclarationNode(const CodePoint &location,
+                        std::shared_ptr<IdentifierNode> variable,
+                        std::shared_ptr<ExpressionNode> initializer);
 
         std::shared_ptr<IdentifierNode> variable;
-        std::shared_ptr<ExpressionNode> value;
+        std::shared_ptr<ExpressionNode> initializer;
+
+        ACCEPT_VISITOR
     };
 
 
     /**
-     * @brief Conditional statement.
-     *
-     * Classical if-then-else statement.
+     * @brief Conditional 'if-then-else' statement.
      */
-    class ConditionalNode : public VisitableNode<ConditionalNode, StatementNode>
+    class ConditionalNode : public StatementNode
     {
     public:
-        ConditionalNode(std::shared_ptr<ExpressionNode>    condition,
+        ConditionalNode(const CodePoint &location,
+                        std::shared_ptr<ExpressionNode>    condition,
                         std::shared_ptr<StatementListNode> consequent,
                         std::shared_ptr<StatementListNode> alternative);
 
         std::shared_ptr<ExpressionNode>    condition;
         std::shared_ptr<StatementListNode> consequent;
-        std::shared_ptr<StatementListNode> alternative;;
+        std::shared_ptr<StatementListNode> alternative;
+
+        ACCEPT_VISITOR
     };
 
 
     /**
      * @brief Loop with boolean expression condition.
      */
-    class LoopNode : public VisitableNode<LoopNode, StatementNode>
+    class LoopNode : public StatementNode
     {
     public:
-        LoopNode(std::shared_ptr<ExpressionNode>    condition,
+        LoopNode(const CodePoint &location,
+                 std::shared_ptr<ExpressionNode>    condition,
                  std::shared_ptr<StatementListNode> statements);
 
         std::shared_ptr<ExpressionNode>    condition;
         std::shared_ptr<StatementListNode> statements;
+
+        ACCEPT_VISITOR
     };
 
 
@@ -237,26 +227,15 @@ namespace Tomato::AST
      *
      * @warning Class is temporary and will exist until functions have been implemented.
      */
-    class PrintNode : public VisitableNode<PrintNode, StatementNode>
+    class PrintNode : public StatementNode
     {
     public:
-        explicit PrintNode(std::shared_ptr<ExpressionNode> expression);
+        PrintNode(const CodePoint &location, std::shared_ptr<ExpressionNode> expression);
 
         std::shared_ptr<ExpressionNode> expression;
+
+        ACCEPT_VISITOR
     };
-}
-
-
-#include "visitor.hpp"
-
-
-namespace Tomato::AST
-{
-    template<typename NodeType, typename AbstractBase>
-    void VisitableNode<NodeType, AbstractBase>::accept(class Visitor& visitor)
-    {
-        visitor.visit(static_cast<NodeType&>(*this));
-    }
 }
 
 
