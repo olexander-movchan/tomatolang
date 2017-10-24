@@ -148,6 +148,8 @@ void Interpreter::visit(AST::PrintNode &node)
 
 void Interpreter::visit(AST::ConditionalNode &node)
 {
+    symbols.push_scope();
+
     AST::Visitor::visit(*node.condition);
 
     if (temporary->as<Bool>().value)
@@ -158,11 +160,15 @@ void Interpreter::visit(AST::ConditionalNode &node)
     {
         visit(*node.alternative);
     }
+
+    symbols.pop_scope();
 }
 
 
 void Interpreter::visit(AST::LoopNode &node)
 {
+    symbols.push_scope();
+
     AST::Visitor::visit(*node.condition);
 
     while (temporary->as<Bool>().value)
@@ -170,6 +176,8 @@ void Interpreter::visit(AST::LoopNode &node)
         visit(*node.statements);
         AST::Visitor::visit(*node.condition);
     }
+
+    symbols.pop_scope();
 }
 
 

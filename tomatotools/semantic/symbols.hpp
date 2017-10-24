@@ -3,6 +3,7 @@
 
 
 #include <unordered_map>
+#include <vector>
 #include <errors.hpp>
 #include "syntax/navigator.hpp"
 
@@ -47,9 +48,21 @@ namespace Tomato
          */
         Symbol lookup(const std::string &name);
 
+        /**
+         * @brief Creates new 'inner' scope where new declarations hide names from 'outer' scopes
+         */
+        void push_scope();
+
+        /**
+         * @brief Removes the most inner scope and all its names.
+         */
+        void pop_scope();
+
     private:
         CodeNavigator &navigator;
-        std::unordered_map<std::string, Symbol> symbols;
+        using Scope = std::unordered_map<std::string, Symbol>;
+
+        std::vector<Scope> symbols;
     };
 }
 

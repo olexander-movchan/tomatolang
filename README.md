@@ -2,6 +2,7 @@
 
 **Tomato** is a general purpose programming language.
 
+![Tomato interactive session screenshot](screenshots/interactive.png)
 
 ## Interpreter
 
