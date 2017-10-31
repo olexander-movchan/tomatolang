@@ -167,17 +167,21 @@ void Interpreter::visit(AST::ConditionalNode &node)
 
 void Interpreter::visit(AST::LoopNode &node)
 {
-    symbols.push_scope();
-
     AST::Visitor::visit(*node.condition);
 
-    while (temporary->as<Bool>().value)
+    while (true)
     {
-        visit(*node.statements);
-        AST::Visitor::visit(*node.condition);
-    }
+        symbols.push_scope();
 
-    symbols.pop_scope();
+        AST::Visitor::visit(*node.condition);
+
+        if (!temporary->as<Bool>().value)
+            break;
+
+        visit(*node.statements);
+
+        symbols.pop_scope();
+    }
 }
 
 
