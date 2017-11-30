@@ -15,8 +15,8 @@ set(SOURCE_FILES
         syntax/token.hpp
         syntax/lexer.cpp
         syntax/lexer.hpp
-        syntax/syntax_tree.cpp
-        syntax/syntax_tree.hpp
+        syntax/tree.cpp
+        syntax/tree.hpp
         syntax/parser.cpp
         syntax/parser.hpp
         syntax/codepoint.cpp
@@ -40,7 +40,9 @@ set(SOURCE_FILES
         syntax/navigator.hpp
         syntax/visitor.cpp
         syntax/visitor.hpp
-        syntax/printer.cpp syntax/printer.hpp semantic/symbols.cpp semantic/symbols.hpp)
+        semantic/symbols.cpp
+        semantic/symbols.hpp
+        )
 
 
 add_library(tomatolib ${SOURCE_FILES})

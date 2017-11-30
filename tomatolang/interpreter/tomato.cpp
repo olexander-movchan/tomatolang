@@ -7,8 +7,6 @@
 #include "syntax/parser.hpp"
 #include "interpreter.hpp"
 
-#include "syntax/printer.hpp"
-
 
 using namespace Tomato;
 using std::literals::operator""s;

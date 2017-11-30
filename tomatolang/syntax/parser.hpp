@@ -5,7 +5,7 @@
 #include <memory>
 #include <stdexcept>
 
-#include "syntax_tree.hpp"
+#include "tree.hpp"
 #include "lexer.hpp"
 
 
