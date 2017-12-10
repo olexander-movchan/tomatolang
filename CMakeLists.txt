@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.5)
 project(tomatolang)
 
-add_subdirectory(tomatolang)
 
-option(TOMATO_BUILD_DOC "Generate Doxygen documentation" ON)
-option(TOMATO_BUILD_TESTS "Build GTest based tests" ON)
+add_subdirectory(src)
+
 
 find_package(GTest)
 if (GTEST_FOUND)
     add_subdirectory(tests)
 endif ()
+
 
 find_package(Doxygen)
 if (DOXYGEN_FOUND AND TOMATO_BUILD_DOC)
