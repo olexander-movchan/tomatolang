@@ -10,7 +10,7 @@
 #include "operators.hpp"
 
 
-#define ACCEPT_VISITOR void accept(class Visitor &visitor) override { visitor.process(*this); }
+#define ACCEPT_VISITOR void accept(Visitor &visitor) override { visitor.process(*this); }
 
 
 namespace Tomato::Syntax
@@ -126,9 +126,9 @@ namespace Tomato::Syntax
         ACCEPT_VISITOR
     };
 
-    struct VariableDeclaration
+    struct ValueDeclaration
     {
-        VariableDeclaration(
+        ValueDeclaration(
                 std::shared_ptr<Identifier> variable,
                 std::shared_ptr<Expression> value,
                 bool constant = false

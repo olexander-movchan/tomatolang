@@ -4,6 +4,7 @@ project(tomatotests)
 add_executable(tomatotest
         main.cpp
         lexer_tests.cpp
+        parser_tests.cpp
         )
 
 target_include_directories(tomatotest PUBLIC ${GTEST_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/src/)

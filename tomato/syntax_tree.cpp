@@ -39,7 +39,7 @@ MemberAccess::MemberAccess(
 StatementBlock::StatementBlock(std::vector<std::shared_ptr<Statement>> statements) : statements(statements) {}
 
 
-VariableDeclaration::VariableDeclaration(
+ValueDeclaration::ValueDeclaration(
         std::shared_ptr<Identifier> variable,
         std::shared_ptr<Expression> value,
         bool constant)

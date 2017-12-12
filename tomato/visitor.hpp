@@ -24,6 +24,8 @@ namespace Tomato::Syntax
 
         virtual void process(struct PrintStatement        &node) = 0;
         virtual void process(struct ReadStatement         &node) = 0;
+
+        virtual void process(struct InvalidStatement      &node) = 0;
     };
 }
 

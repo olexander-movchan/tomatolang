@@ -44,7 +44,7 @@ namespace Tomato::Syntax
         Lexer() = default;
         explicit Lexer(const std::string &text);
 
-        void reset(const std::string &text);
+        void set_text(const std::string &text);
 
         Token get_next();
         bool eof();

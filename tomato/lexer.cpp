@@ -89,11 +89,11 @@ const std::map<std::string, Terminal> Lexer::keywords = {
 
 Lexer::Lexer(const std::string &text)
 {
-    reset(text);
+    set_text(text);
 }
 
 
-void Lexer::reset(const std::string &text)
+void Lexer::set_text(const std::string &text)
 {
     this->text = text;
     offset = len = 0;

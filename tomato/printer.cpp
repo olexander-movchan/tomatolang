@@ -10,21 +10,16 @@ Printer::Printer(std::ostream &stream) : stream(stream) {}
 void Printer::print(ASTNode &tree)
 {
     visit(tree);
-    stream << std::endl;
 }
 
 
 void Printer::process(StatementBlock &node)
 {
-    indent += 1;
-
     for (auto &statement : node.statements)
     {
         visit(*statement);
         stream << std::endl;
     }
-
-    indent -= 1;
 }
 
 void Printer::process(Identifier &node)
@@ -78,9 +73,9 @@ void Printer::process(ConditionalStatement &node)
 {
     stream << "if ";
     visit(*node.condition);
-    stream << "then ";
+    stream << " then\n";
     visit(*node.then_case);
-    stream << "else ";
+    stream << "else\n";
     visit(*node.else_case);
     stream << "end ";
 }
@@ -104,4 +99,9 @@ void Printer::process(ReadStatement &node)
 {
     stream << "read ";
     visit(*node.expression);
+}
+
+void Printer::process(struct InvalidStatement &node)
+{
+    stream << "INVALID";
 }

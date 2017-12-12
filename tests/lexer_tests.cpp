@@ -8,7 +8,7 @@ TEST(LexerTest, GeneralTest)
 
     Lexer lexer;
 
-    lexer.reset("let pi = 3.1415926");
+    lexer.set_text("let pi = 3.1415926");
 
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Let);
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Identifier);
@@ -30,7 +30,7 @@ TEST(LexerTest, Terminals)
 
     Lexer lexer;
 
-    lexer.reset("let var import if then else end while do for in func");
+    lexer.set_text("let var import if then else end while do for in func");
 
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Let);
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Var);
@@ -45,9 +45,9 @@ TEST(LexerTest, Terminals)
     ASSERT_EQ(lexer.get_next().terminal, Terminal::In);
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Func);
 
-    lexer.reset("+  -  *  /  %  ^  =  <  >  "
-                "+= -= *= /= %= ^= == <= >= != "
-                "and or not");
+    lexer.set_text("+  -  *  /  %  ^  =  <  >  "
+                           "+= -= *= /= %= ^= == <= >= != "
+                           "and or not");
 
     for (int i = 0; i < 22; ++i)
     {
@@ -56,7 +56,7 @@ TEST(LexerTest, Terminals)
 
     ASSERT_TRUE(lexer.eof());
 
-    lexer.reset("read print true false");
+    lexer.set_text("read print true false");
 
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Read);
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Print);
@@ -65,7 +65,7 @@ TEST(LexerTest, Terminals)
 
     ASSERT_TRUE(lexer.eof());
 
-    lexer.reset("([{}])");
+    lexer.set_text("([{}])");
 
     ASSERT_EQ(lexer.get_next().terminal, Terminal::LParen);
     ASSERT_EQ(lexer.get_next().terminal, Terminal::LSquareBracket);
