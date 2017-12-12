@@ -10,10 +10,15 @@ namespace Tomato::Syntax
 {
     enum class Terminal
     {
-        Invalid, EndOfFile, Operator, Identifier, Literal, LParen, RParen,
+        Invalid, EndOfFile, Operator, Identifier, Literal, Dot, Coma,
+
+        LParen, LSquareBracket, LCurlyBracket,
+        RParen, RSquareBracket, RCurlyBracket,
 
         // Keywords:
-                Import, Var, Let, If, Then, Else, End, While, Do, For, In, Func,
+        Import, Var, Let, If, Then, Else, End, While, Do, For, In, Func,
+
+        Print, Read,
     };
 
 
@@ -30,11 +35,7 @@ namespace Tomato::Syntax
     std::string to_string(const Token &token);
 
 
-    class InvalidToken : public std::runtime_error
-    {
-    public:
-        explicit InvalidToken(const std::string &message);
-    };
+    class InvalidToken : public std::exception {};
 
 
     class Lexer

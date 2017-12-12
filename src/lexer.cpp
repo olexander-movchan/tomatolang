@@ -1,5 +1,6 @@
-#include <iostream>
 #include "lexer.hpp"
+
+#include <iostream>
 
 
 using namespace Tomato::Syntax;
@@ -15,8 +16,6 @@ std::string Tomato::Syntax::to_string(Terminal terminal)
         case Terminal::Import:      return "import";
         case Terminal::Operator:    return "operator";
         case Terminal::Identifier:  return "identifier";
-        case Terminal::LParen:      return "lparen";
-        case Terminal::RParen:      return "rparen";
         case Terminal::Literal:     return "literal";
         case Terminal::Var:         return "var";
         case Terminal::Let:         return "let";
@@ -29,6 +28,19 @@ std::string Tomato::Syntax::to_string(Terminal terminal)
         case Terminal::For:         return "for";
         case Terminal::In:          return "in";
         case Terminal::Func:        return "func";
+
+        case Terminal::Dot:         return "dot";
+        case Terminal::Coma:        return "coma";
+
+        case Terminal::LParen:          return "lparen";
+        case Terminal::RParen:          return "rparen";
+        case Terminal::LSquareBracket:  return "lsquarebracket";
+        case Terminal::RSquareBracket:  return "rsquarebracket";
+        case Terminal::LCurlyBracket:   return "lcurlybracket";
+        case Terminal::RCurlyBracket:   return "rcurlybracket";
+
+        case Terminal::Print:       return "print";
+        case Terminal::Read:        return "read";
     }
 }
 
@@ -47,9 +59,6 @@ std::string Tomato::Syntax::to_string(const Token &token)
             return "<" + to_string(token.terminal) + ">";
     }
 }
-
-
-InvalidToken::InvalidToken(const std::string &message) : runtime_error(message) {}
 
 
 const std::map<std::string, Terminal> Lexer::keywords = {
@@ -72,6 +81,9 @@ const std::map<std::string, Terminal> Lexer::keywords = {
         {"and",     Terminal::Operator},
         {"or",      Terminal::Operator},
         {"not",     Terminal::Operator},
+
+        {"print",   Terminal::Print},
+        {"read",    Terminal::Read},
 };
 
 
@@ -121,6 +133,7 @@ void Lexer::skip()
 
 void Lexer::accept()
 {
+    if (!eof())
     len += 1;
 }
 
@@ -136,7 +149,7 @@ void Lexer::expect(char character)
 
 void Lexer::error()
 {
-    throw InvalidToken("Invalid token: " + to_string(token(Terminal::Invalid)));
+    throw InvalidToken();
 }
 
 
@@ -160,53 +173,86 @@ Token Lexer::token(Terminal terminal)
 
 Token Lexer::get_next()
 {
-    skip_whitespace();
+    if (eof())
+        return token(Terminal::EndOfFile);
 
-    if (std::isdigit(current()))
+    try
     {
-        return number();
+        if (std::isdigit(current()))
+        {
+            return number();
+        }
+
+        if (std::isalpha(current()))
+        {
+            return identifier();
+        }
+
+        switch (current())
+        {
+            case '+':
+            case '-':
+            case '*':
+            case '/':
+            case '%':
+            case '^':
+            case '<':
+            case '>':
+            case '=':
+            case '!':
+                return operator_();
+
+            case '(':
+                accept();
+                return token(Terminal::LParen);
+
+            case ')':
+                accept();
+                return token(Terminal::RParen);
+
+            case '[':
+                accept();
+                return token(Terminal::LSquareBracket);
+
+            case ']':
+                accept();
+                return token(Terminal::RSquareBracket);
+
+            case '{':
+                accept();
+                return token(Terminal::LCurlyBracket);
+
+            case '}':
+                accept();
+                return token(Terminal::RCurlyBracket);
+
+            case '.':
+                accept();
+                return token(Terminal::Dot);
+
+            case ',':
+                accept();
+                return token(Terminal::Coma);
+
+            case '"':
+                return string_literal();
+
+            case '\'':
+                return char_literal();
+
+            default:
+                break;
+        }
+
+        accept();
+        error();
+    }
+    catch (InvalidToken &)
+    {
+        return token(Terminal::Invalid);
     }
 
-    if (std::isalpha(current()))
-    {
-        return identifier();
-    }
-
-    switch (current())
-    {
-        case '+':
-        case '-':
-        case '*':
-        case '/':
-        case '&':
-        case '|':
-        case '^':
-        case '<':
-        case '>':
-        case '=':
-        case '!':
-            return operator_();
-
-        case '(':
-            accept();
-            return token(Terminal::LParen);
-
-        case ')':
-            accept();
-            return token(Terminal::RParen);
-
-        case '"':
-            return string_literal();
-
-        case '\'':
-            return char_literal();
-
-        default:
-            break;
-    }
-
-    accept();
-    error();
+    throw std::logic_error("this point shouldn't be reached");
 }
 
 
@@ -261,9 +307,8 @@ Token Lexer::operator_()
         case '-':
         case '*':
         case '/':
-        case '&':
-        case '|':
         case '^':
+        case '%':
         case '<':
         case '>':
         case '=':

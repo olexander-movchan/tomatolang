@@ -1,5 +1,5 @@
 #include "visitor.hpp"
-#include "tree.hpp"
+#include "syntax_tree.hpp"
 
 
 

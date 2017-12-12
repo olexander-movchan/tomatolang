@@ -13,7 +13,8 @@ find_library(READLINE_LIBRARY readline)
 set(SOURCE_FILES
         lexer.cpp
         lexer.hpp
-        )
+        syntax_tree.hpp
+        parser.cpp parser.hpp visitor.cpp visitor.hpp operators.cpp operators.hpp syntax_tree.cpp printer.cpp printer.hpp)
 
 
 add_library(tomatolib ${SOURCE_FILES})

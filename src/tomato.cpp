@@ -5,6 +5,8 @@
 #include <readline/history.h>
 
 #include "lexer.hpp"
+#include "parser.hpp"
+#include "printer.hpp"
 
 
 using namespace Tomato::Syntax;
@@ -12,7 +14,8 @@ using namespace Tomato::Syntax;
 
 int main(int argc, char **argv)
 {
-    Lexer lexer;
+    Parser parser;
+    Printer printer(std::cout);
 
     char const * const prompt = ">>> ";
 
@@ -30,20 +33,11 @@ int main(int argc, char **argv)
             add_history(line);
         }
 
-        lexer.reset(line);
+        parser.reset(line);
         free(line);
 
-        while (!lexer.eof())
-        {
-            try
-            {
-                std::cout << to_string(lexer.get_next()) << std::endl;
-            }
-            catch (InvalidToken &error)
-            {
-                std::cout << error.what() << std::endl;
-            }
-        }
+        auto tree = parser.expression();
+        printer.print(*tree);
     }
 
     return 0;
