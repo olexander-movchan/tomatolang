@@ -1,10 +1,10 @@
 #include "operators.hpp"
 
 
-using namespace Tomato::Syntax;
+using namespace Tomato;
 
 
-bool Tomato::Syntax::IsUnaryOperator(const std::string &lexeme)
+bool Tomato::IsUnaryOperator(const std::string &lexeme)
 {
     try
     {
@@ -18,7 +18,7 @@ bool Tomato::Syntax::IsUnaryOperator(const std::string &lexeme)
 }
 
 
-bool Tomato::Syntax::IsBinaryOperator(const std::string &lexeme)
+bool Tomato::IsBinaryOperator(const std::string &lexeme)
 {
     try
     {
@@ -32,7 +32,7 @@ bool Tomato::Syntax::IsBinaryOperator(const std::string &lexeme)
 }
 
 
-UnaryOperator Tomato::Syntax::GetUnaryOperator(const std::string &lexeme)
+UnaryOperator Tomato::GetUnaryOperator(const std::string &lexeme)
 {
     static const std::map<std::string, UnaryOperator> map = {
             {"+",   UnaryOperator::Plus},
@@ -45,7 +45,7 @@ UnaryOperator Tomato::Syntax::GetUnaryOperator(const std::string &lexeme)
 }
 
 
-BinaryOperator Tomato::Syntax::GetBinaryOperator(const std::string &lexeme)
+BinaryOperator Tomato::GetBinaryOperator(const std::string &lexeme)
 {
     static const std::map<std::string, BinaryOperator> map = {
             {"+", BinaryOperator::Plus},
@@ -80,7 +80,7 @@ BinaryOperator Tomato::Syntax::GetBinaryOperator(const std::string &lexeme)
 }
 
 
-int Tomato::Syntax::GetPrecedence(UnaryOperator operator_)
+int Tomato::GetPrecedence(UnaryOperator operator_)
 {
     switch (operator_)
     {
@@ -93,7 +93,7 @@ int Tomato::Syntax::GetPrecedence(UnaryOperator operator_)
 }
 
 
-int Tomato::Syntax::GetPrecedence(BinaryOperator operator_)
+int Tomato::GetPrecedence(BinaryOperator operator_)
 {
     switch (operator_)
     {
@@ -135,10 +135,10 @@ int Tomato::Syntax::GetPrecedence(BinaryOperator operator_)
     }
 }
 
-bool Tomato::Syntax::IsLeftAssociative(int precedence)
+bool Tomato::IsLeftAssociative(int precedence)
 {
     return precedence != 5;
 }
 
 
-const int Tomato::Syntax::MaxPrecedence = 5;
+const int Tomato::MaxPrecedence = 5;

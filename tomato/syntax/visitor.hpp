@@ -9,15 +9,14 @@ namespace Tomato::Syntax
     public:
         void visit(struct ASTNode &node);
 
-        virtual void process(struct StatementBlock   &node) = 0;
+        virtual void process(struct Program               &node) = 0;
+
+        virtual void process(struct ValueDeclaration      &node) = 0;
 
         virtual void process(struct Identifier            &node) = 0;
         virtual void process(struct Literal               &node) = 0;
         virtual void process(struct BinaryOperation       &node) = 0;
         virtual void process(struct UnaryOperation        &node) = 0;
-        virtual void process(struct Indexation            &node) = 0;
-        virtual void process(struct Call                  &node) = 0;
-        virtual void process(struct MemberAccess          &node) = 0;
 
         virtual void process(struct ConditionalStatement  &node) = 0;
         virtual void process(struct ConditionalLoop       &node) = 0;
@@ -25,7 +24,7 @@ namespace Tomato::Syntax
         virtual void process(struct PrintStatement        &node) = 0;
         virtual void process(struct ReadStatement         &node) = 0;
 
-        virtual void process(struct InvalidStatement      &node) = 0;
+        virtual void process(struct StatementBlock        &node) = 0;
     };
 }
 

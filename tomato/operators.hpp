@@ -5,7 +5,7 @@
 #include <map>
 
 
-namespace Tomato::Syntax
+namespace Tomato
 {
     enum class BinaryOperator
     {

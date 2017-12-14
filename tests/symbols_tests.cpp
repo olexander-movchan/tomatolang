@@ -1,25 +1,17 @@
 #include <gtest/gtest.h>
-#include <semantic/symbols.hpp>
-#include <errors.hpp>
+#include <semantic/symtab.hpp>
 
-
-using namespace std::string_literals;
-using namespace Tomato;
 
 
 TEST(SymbolTableTest, GeneralTest)
 {
-    CodeNavigator navigator;
-    SymbolTable symbols(navigator);
+    SymbolTable symtab;
 
-    ASSERT_NO_THROW(symbols.define(Symbol("foo")));
-    ASSERT_NO_THROW(symbols.define(Symbol("bar")));
-    ASSERT_NO_THROW(symbols.define(Symbol("foobar")));
+    symtab.push_scope("__builtin__");
 
-    ASSERT_THROW(symbols.define(Symbol("foo")), NameError);
+    symtab.define_symbol("int", Type());
+    symtab.define_symbol("float", Type());
+    symtab.define_symbol("bool", Type());
 
-    ASSERT_NO_THROW(symbols.lookup("foo"));
-    ASSERT_NO_THROW(symbols.lookup("bar"));
-
-    ASSERT_THROW(symbols.lookup("baz"), NameError);
+    symtab.push_scope("__global__");
 }

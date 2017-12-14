@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <parser.hpp>
+#include <syntax/parser.hpp>
 
 
 TEST(ParserTest, Expressions)
@@ -9,6 +9,4 @@ TEST(ParserTest, Expressions)
     Parser parser;
 
     parser.set_text("var pi = let");
-
-    auto tree = parser.statement_block();
 }

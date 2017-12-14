@@ -43,31 +43,11 @@ void Printer::process(BinaryOperation &node)
 
 void Printer::process(UnaryOperation &node)
 {
-    stream << "<OP> (";
+    stream << "(<OP> ";
     visit(*node.operand);
     stream << ")";
 }
 
-void Printer::process(Indexation &node)
-{
-    visit(*node.array);
-    stream << "[";
-    visit(*node.index);
-    stream << "]";
-}
-
-void Printer::process(Call &node)
-{
-    visit(*node.function);
-    stream << "()";
-}
-
-void Printer::process(MemberAccess &node)
-{
-    visit(*node.expression);
-    stream << ".";
-    visit(*node.member);
-}
 
 void Printer::process(ConditionalStatement &node)
 {
@@ -101,7 +81,24 @@ void Printer::process(ReadStatement &node)
     visit(*node.expression);
 }
 
-void Printer::process(struct InvalidStatement &node)
+
+void Printer::process(Program &node)
 {
-    stream << "INVALID";
+    stream << "PROGRAM\n";
+}
+
+void Printer::process(ValueDeclaration &node)
+{
+    stream << "var " << node.value->name;
+
+    if (node.type)
+        stream << " " << node.type->name;
+
+    if (node.init)
+    {
+        stream << " = ";
+        visit(*node.init);
+    }
+
+    stream << std::endl;
 }

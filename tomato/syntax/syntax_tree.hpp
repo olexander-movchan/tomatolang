@@ -86,7 +86,7 @@ namespace Tomato::Syntax
         std::shared_ptr<Expression> array;
         std::shared_ptr<Expression> index;
 
-        ACCEPT_VISITOR
+//        ACCEPT_VISITOR
     };
 
     struct Call : Expression
@@ -98,7 +98,7 @@ namespace Tomato::Syntax
         std::shared_ptr<Expression> function;
         // argument list
 
-        ACCEPT_VISITOR
+//        ACCEPT_VISITOR
     };
 
     struct MemberAccess : Expression
@@ -111,7 +111,7 @@ namespace Tomato::Syntax
         std::shared_ptr<Expression> expression;
         std::shared_ptr<Identifier> member;
 
-        ACCEPT_VISITOR
+//        ACCEPT_VISITOR
     };
 
     struct StatementBlock : ASTNode
@@ -126,17 +126,21 @@ namespace Tomato::Syntax
         ACCEPT_VISITOR
     };
 
-    struct ValueDeclaration
+    struct ValueDeclaration : Statement
     {
         ValueDeclaration(
-                std::shared_ptr<Identifier> variable,
-                std::shared_ptr<Expression> value,
-                bool constant = false
+                std::shared_ptr<Identifier> value,
+                std::shared_ptr<Identifier> type,
+                std::shared_ptr<Expression> init,
+                bool constant
         );
 
-        std::shared_ptr<Identifier> variable;
-        std::shared_ptr<Expression> value;
+        std::shared_ptr<Identifier> value;
+        std::shared_ptr<Identifier> type;
+        std::shared_ptr<Expression> init;
         bool constant;
+
+        ACCEPT_VISITOR
     };
 
     struct ConditionalStatement : Statement
@@ -185,6 +189,13 @@ namespace Tomato::Syntax
         );
 
         std::shared_ptr<Expression> expression;
+
+        ACCEPT_VISITOR
+    };
+
+    struct Program : ASTNode
+    {
+        std::vector<std::shared_ptr<Statement>> statements;
 
         ACCEPT_VISITOR
     };

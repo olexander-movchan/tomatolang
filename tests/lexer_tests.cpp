@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <lexer.hpp>
+#include <syntax/lexer.hpp>
 
 
 TEST(LexerTest, GeneralTest)

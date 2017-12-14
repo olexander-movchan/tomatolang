@@ -40,10 +40,11 @@ StatementBlock::StatementBlock(std::vector<std::shared_ptr<Statement>> statement
 
 
 ValueDeclaration::ValueDeclaration(
-        std::shared_ptr<Identifier> variable,
-        std::shared_ptr<Expression> value,
+        std::shared_ptr<Identifier> value,
+        std::shared_ptr<Identifier> type,
+        std::shared_ptr<Expression> init,
         bool constant)
-        : variable(variable), value(value), constant(constant) {}
+        : value(value), type(type), init(init), constant(constant) {}
 
 
 ConditionalStatement::ConditionalStatement(
