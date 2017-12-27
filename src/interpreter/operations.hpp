@@ -105,7 +105,8 @@ namespace Tomato::Runtime
                 return std::make_shared<Scalar<G>>(
                         type_symbol,
                         Op(dynamic_cast<const Scalar<L> &>(left).value,
-                           dynamic_cast<const Scalar<R> &>(right).value)
+                           dynamic_cast<const Scalar<R> &>(right).value),
+                        false
                 );
             }
             catch (std::bad_cast &)

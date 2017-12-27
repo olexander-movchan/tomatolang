@@ -12,19 +12,20 @@ namespace Tomato::Runtime
     class Object
     {
     public:
-        explicit Object(Semantic::Symbol type);
+        explicit Object(Semantic::Symbol type, bool is_mutable);
         virtual ~Object() = default; // make Object polymorphic type
 
         virtual void assign(const Object &) = 0;
 
         Semantic::Symbol type;
+        bool is_mutable;
     };
 
     template <typename T>
     class Scalar : public Object
     {
     public:
-        Scalar(Semantic::Symbol type, const T &value);
+        Scalar(Semantic::Symbol type, const T &value, bool is_mutable);
 
         void assign(const Object &object) override;
 

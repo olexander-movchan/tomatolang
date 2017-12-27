@@ -5,15 +5,18 @@ using namespace Tomato::Semantic;
 using namespace Tomato::Runtime;
 
 
-Object::Object(Semantic::Symbol type) : type(type) {}
+Object::Object(Semantic::Symbol type, bool is_mutable) : type(type), is_mutable(is_mutable) {}
 
 
 template<typename T>
-Scalar<T>::Scalar(Semantic::Symbol type, const T &value) : Object(type), value(value) {}
+Scalar<T>::Scalar(Semantic::Symbol type, const T &value, bool is_mutable) : Object(type, is_mutable), value(value) {}
 
 template<typename T>
 void Scalar<T>::assign(const Object &object)
 {
+    if (!is_mutable)
+        throw SemanticError("assigning to constant object");
+
     try
     {
         value = dynamic_cast<const Scalar<T> &>(object).value;

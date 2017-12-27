@@ -125,11 +125,11 @@ void Interpreter::process(Syntax::ValueDeclaration &node)
         try
         {
             if (type_sym == symbol_int)
-                memory[var_sym] = std::make_shared<Runtime::Scalar<int>>(symbol_int, 0);
+                memory[var_sym] = std::make_shared<Runtime::Scalar<int>>(symbol_int, 0, !node.constant);
             else if (type_sym == symbol_float)
-                memory[var_sym] = std::make_shared<Runtime::Scalar<float>>(symbol_float, 0.0f);
+                memory[var_sym] = std::make_shared<Runtime::Scalar<float>>(symbol_float, 0.0f, !node.constant);
             else if (type_sym == symbol_bool)
-                memory[var_sym] = std::make_shared<Runtime::Scalar<bool>>(symbol_bool, false);
+                memory[var_sym] = std::make_shared<Runtime::Scalar<bool>>(symbol_bool, false, !node.constant);
             else
                 throw Semantic::SemanticError("undefined type");
         }
@@ -181,15 +181,15 @@ void Interpreter::process(Syntax::Literal &node)
     switch (node.type)
     {
         case Syntax::Literal::Type::Integer:
-            temp = std::make_shared<Runtime::Scalar<int>>(symbol_int, std::stoi(node.lexeme));
+            temp = std::make_shared<Runtime::Scalar<int>>(symbol_int, std::stoi(node.lexeme), false);
             break;
 
         case Syntax::Literal::Type::Float:
-            temp = std::make_shared<Runtime::Scalar<float>>(symbol_float, std::stof(node.lexeme));
+            temp = std::make_shared<Runtime::Scalar<float>>(symbol_float, std::stof(node.lexeme), false);
             break;
 
         case Syntax::Literal::Type::Boolean:
-            temp = std::make_shared<Runtime::Scalar<bool>>(symbol_bool, node.lexeme == "true");
+            temp = std::make_shared<Runtime::Scalar<bool>>(symbol_bool, node.lexeme == "true", false);
             break;
 
         default:
