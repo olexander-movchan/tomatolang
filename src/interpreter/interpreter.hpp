@@ -21,8 +21,13 @@ namespace Tomato
 
         void run();
 
+        void interpret(std::istream &file);
+
     private:
         void process(Syntax::Program               &node) override;
+        void process(Syntax::Function              &node) override;
+        void process(Syntax::Call                  &node) override;
+        void process(Syntax::ReturnStatement       &node) override;
         void process(Syntax::ValueDeclaration      &node) override;
         void process(Syntax::Assignment            &node) override;
         void process(Syntax::Identifier            &node) override;
@@ -50,6 +55,7 @@ namespace Tomato
 
         std::set<Semantic::Symbol> types;
         std::map<Semantic::Symbol, std::shared_ptr<Runtime::Object>> memory;
+        std::map<Semantic::Symbol, std::shared_ptr<Syntax::Function>> functions;
     };
 }
 

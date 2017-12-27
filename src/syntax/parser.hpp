@@ -44,6 +44,10 @@ namespace Tomato::Syntax
         std::shared_ptr<ReadStatement> read_statement();
         std::shared_ptr<ConditionalStatement> if_statement();
         std::shared_ptr<ConditionalLoop> while_statement();
+        std::shared_ptr<Function> function();
+        std::shared_ptr<ReturnStatement> return_statement();
+
+        std::shared_ptr<Call> call(std::shared_ptr<Identifier> function);
 
     private:
         /**

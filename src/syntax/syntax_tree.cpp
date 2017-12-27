@@ -27,9 +27,6 @@ Indexation::Indexation(
         : array(array), index(index) {}
 
 
-Call::Call(std::shared_ptr<Expression> function) : function(function) {}
-
-
 MemberAccess::MemberAccess(
         std::shared_ptr<Expression> expression,
         std::shared_ptr<Identifier> member)
@@ -70,3 +67,17 @@ PrintStatement::PrintStatement(std::shared_ptr<Expression> expression) : express
 
 
 ReadStatement::ReadStatement(std::shared_ptr<Expression> expression) : expression(expression) {}
+
+Function::Function(
+        std::shared_ptr<Identifier> identifier,
+        const std::vector<Function::Argument> &arguments,
+        std::shared_ptr<Identifier> return_type,
+        std::shared_ptr<StatementBlock> body)
+        : identifier(identifier), arguments(arguments), return_type(return_type), body(body) {}
+
+ReturnStatement::ReturnStatement(std::shared_ptr<Expression> expression) : expression(expression) {}
+
+Call::Call(
+        std::shared_ptr<Identifier> function,
+        const std::vector<std::shared_ptr<Expression>> &arguments)
+        : function(function), arguments(arguments) {}

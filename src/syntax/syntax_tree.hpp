@@ -89,18 +89,6 @@ namespace Tomato::Syntax
 //        ACCEPT_VISITOR
     };
 
-    struct Call : Expression
-    {
-        explicit Call(
-                std::shared_ptr<Expression> function
-        );
-
-        std::shared_ptr<Expression> function;
-        // argument list
-
-//        ACCEPT_VISITOR
-    };
-
     struct MemberAccess : Expression
     {
         MemberAccess(
@@ -209,6 +197,51 @@ namespace Tomato::Syntax
     struct Program : ASTNode
     {
         std::vector<std::shared_ptr<Statement>> statements;
+
+        ACCEPT_VISITOR
+    };
+
+    struct Function : Statement
+    {
+        struct Argument
+        {
+            std::shared_ptr<Identifier> param;
+            std::shared_ptr<Identifier> type;
+        };
+
+        Function(
+                std::shared_ptr<Identifier> identifier,
+                const std::vector<Argument> &arguments,
+                std::shared_ptr<Identifier> return_type,
+                std::shared_ptr<StatementBlock> body
+        );
+
+        std::shared_ptr<Identifier> identifier;
+        std::vector<Argument> arguments;
+        std::shared_ptr<Identifier> return_type;
+        std::shared_ptr<StatementBlock> body;
+
+        ACCEPT_VISITOR
+    };
+
+    struct ReturnStatement : Statement
+    {
+        explicit ReturnStatement(std::shared_ptr<Expression> expression);
+
+        std::shared_ptr<Expression> expression;
+
+        ACCEPT_VISITOR
+    };
+
+    struct Call : Expression
+    {
+        Call(
+                std::shared_ptr<Identifier> function,
+                const std::vector<std::shared_ptr<Expression>> &arguments
+        );
+
+        std::shared_ptr<Identifier> function;
+        std::vector<std::shared_ptr<Expression>> arguments;
 
         ACCEPT_VISITOR
     };

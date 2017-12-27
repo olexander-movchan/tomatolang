@@ -27,6 +27,12 @@ void Scalar<T>::assign(const Object &object)
     }
 }
 
+template<typename T>
+std::shared_ptr<Object> Tomato::Runtime::Scalar<T>::clone()
+{
+    return std::make_shared<Scalar<T>>(type, value, is_mutable);
+}
+
 
 template class Scalar<int>;
 template class Scalar<float>;

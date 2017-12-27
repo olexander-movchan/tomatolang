@@ -13,6 +13,12 @@
 using namespace Tomato;
 
 
+struct FunctionReturn
+{
+    std::shared_ptr<Runtime::Object> object;
+};
+
+
 Interpreter::Interpreter(std::istream &istream, std::ostream &ostream) : istream(istream), ostream(ostream)
 {
     symbol_int = symtab.define("int");
@@ -83,6 +89,35 @@ void Interpreter::run()
 }
 
 
+void Interpreter::interpret(std::istream &file)
+{
+    std::string code((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+    Syntax::Parser parser;
+    parser.set_text(code);
+
+    while (!parser.eof())
+    {
+        try
+        {
+            auto tree = parser.parse();
+            visit(*tree);
+        }
+        catch (Syntax::SyntaxError &error)
+        {
+            std::cout << "syntax error: " << error.what() << std::endl;
+            break;
+        }
+        catch (Semantic::SemanticError &error)
+        {
+            std::cout << "semantic error: " << error.what() << std::endl;
+            break;
+        }
+    }
+}
+
+
+
 void Interpreter::process(Syntax::Program &node)
 {
     throw std::runtime_error("this feature is not implemented");
@@ -111,7 +146,8 @@ void Interpreter::process(Syntax::ValueDeclaration &node)
             }
         }
 
-        memory[var_sym] = std::move(temp);
+        memory[var_sym] = temp->clone();
+        memory[var_sym]->is_mutable = !node.constant;
     }
     else if (node.type)
     {
@@ -308,4 +344,78 @@ void Interpreter::process(Syntax::StatementBlock &node)
     }
 
     symtab.pop_scope();
+}
+
+void Interpreter::process(Syntax::Function &node)
+{
+    auto symbol = symtab.define(node.identifier->name);
+
+    functions[symbol] = std::make_shared<Syntax::Function>(node);
+}
+
+void Interpreter::process(Syntax::Call &node)
+{
+    auto func_sym = symtab.lookup(node.function->name);
+
+    if (functions.find(func_sym) == functions.end())
+        throw Semantic::SemanticError(node.function->name + " does not name a function");
+
+    auto func = functions[func_sym];
+
+    if (node.arguments.size() != func->arguments.size())
+        throw Semantic::SemanticError(
+                "function " + func->identifier->name + " takes "
+                + std::to_string(func->arguments.size()) + " arguments, but "
+                + std::to_string(node.arguments.size()) + " provided");
+
+    symtab.push_scope();
+
+    for (int i = 0; i < node.arguments.size(); ++i)
+    {
+        auto expected_type_sym = symtab.lookup(func->arguments[i].type->name);
+
+        visit(*node.arguments[i]);
+
+        if (temp->type != expected_type_sym)
+        {
+            symtab.pop_scope();
+            throw Semantic::SemanticError("parameter type mismatch");
+        }
+
+        auto param_sym = symtab.define(func->arguments[i].param->name);
+
+        memory[param_sym] = temp->clone();
+        memory[param_sym]->is_mutable = true;
+    }
+
+    try
+    {
+        visit(*func->body);
+
+        if (func->return_type)
+            throw Semantic::SemanticError("function did not return anything");
+
+        temp = std::make_shared<Runtime::Scalar<bool>>(symbol_bool, true, false);
+    }
+    catch (FunctionReturn &ret)
+    {
+        if (!func->return_type)
+            throw Semantic::SemanticError("function tries to return something");
+
+        auto ret_sym = symtab.lookup(func->return_type->name);
+
+        if (ret.object->type != ret_sym)
+            throw Semantic::SemanticError("function's return type mismatch");
+
+        temp = ret.object;
+    }
+
+    symtab.pop_scope();
+}
+
+void Interpreter::process(Syntax::ReturnStatement &node)
+{
+    visit(*node.expression);
+
+    throw FunctionReturn {temp};
 }

@@ -10,7 +10,7 @@ namespace Tomato::Syntax
 {
     enum class Terminal
     {
-        Invalid, EndOfFile, Operator, Assignment, Identifier, Dot, Coma,
+        Invalid, EndOfFile, Operator, Assignment, Arrow, Identifier, Dot, Coma,
 
         IntegerLiteral, FloatLiteral, BooleanLiteral, CharacterLiteral, StringLiteral,
 
@@ -18,7 +18,7 @@ namespace Tomato::Syntax
         RParen, RSquareBracket, RCurlyBracket,
 
         // Keywords:
-        Import, Var, Let, If, Then, Else, End, While, Do, For, In, Func,
+        Import, Var, Let, If, Then, Else, End, While, Do, For, In, Func, Return,
 
         Print, Read,
     };

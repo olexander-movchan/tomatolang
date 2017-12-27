@@ -106,16 +106,23 @@ std::shared_ptr<Expression> Parser::term()
             }
 
         case Terminal::LParen:
-            {
-                accept();
-                auto expr = expression();
-                expect(Terminal::RParen);
+        {
+            accept();
+            auto expr = expression();
+            expect(Terminal::RParen);
 
-                return expr;
-            }
+            return expr;
+        }
 
         case Terminal::Identifier:
-            return identifier();
+        {
+            auto id = identifier();
+
+            if (current.terminal == Terminal::LParen)
+                return call(id);
+            else
+                return id;
+        }
 
         case Terminal::IntegerLiteral:
         case Terminal::FloatLiteral:
@@ -204,11 +211,17 @@ std::shared_ptr<Statement> Parser::statement()
         case Terminal::While:
             return while_statement();
 
+        case Terminal::Func:
+            return function();
+
         case Terminal::Print:
             return print_statement();
 
         case Terminal::Read:
             return read_statement();
+
+        case Terminal::Return:
+            return return_statement();
 
         default:
             reject("statement");
@@ -313,6 +326,42 @@ std::shared_ptr<ConditionalLoop> Parser::while_statement()
     return std::make_shared<ConditionalLoop>(condition, body);
 }
 
+std::shared_ptr<Function> Parser::function()
+{
+    expect(Terminal::Func);
+    auto name = identifier();
+    expect(Terminal::LParen);
+
+    std::vector<Function::Argument> args;
+
+    while (current.terminal != Terminal::RParen)
+    {
+        auto param = identifier();
+        auto type = identifier();
+
+        args.push_back({param, type});
+
+        if (current.terminal != Terminal::RParen)
+            expect(Terminal::Coma);
+    }
+
+    expect(Terminal::RParen);
+
+    std::shared_ptr<Identifier> ret_type;
+
+    if (current.terminal == Terminal::Arrow)
+    {
+        accept();
+        ret_type = identifier();
+    }
+
+    auto body = statement_block();
+
+    expect(Terminal::End);
+
+    return std::make_shared<Function>(name, args, ret_type, body);
+}
+
 std::shared_ptr<StatementBlock> Parser::statement_block()
 {
     auto block = std::make_shared<StatementBlock>();
@@ -331,8 +380,12 @@ std::shared_ptr<StatementBlock> Parser::statement_block()
             case Terminal::LParen:
             case Terminal::If:
             case Terminal::While:
+            case Terminal::Func:
+            case Terminal::Return:
             case Terminal::Print:
             case Terminal::Read:
+            case Terminal::Var:
+            case Terminal::Let:
                 block->statements.push_back(statement());
                 break;
 
@@ -340,4 +393,30 @@ std::shared_ptr<StatementBlock> Parser::statement_block()
                 return block;
         }
     }
+}
+
+std::shared_ptr<ReturnStatement> Parser::return_statement()
+{
+    expect(Terminal::Return);
+
+    return std::make_shared<ReturnStatement>(expression());
+}
+
+std::shared_ptr<Call> Parser::call(std::shared_ptr<Identifier> function)
+{
+    std::vector<std::shared_ptr<Expression>> args;
+
+    expect(Terminal::LParen);
+
+    while (current.terminal != Terminal::RParen)
+    {
+        args.push_back(expression());
+
+        if (current.terminal != Terminal::RParen)
+            expect(Terminal::Coma);
+    }
+
+    expect(Terminal::RParen);
+
+    return std::make_shared<Call>(function, args);
 }

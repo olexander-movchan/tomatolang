@@ -13,6 +13,9 @@ namespace Tomato::Syntax
 
         virtual void process(struct ValueDeclaration      &node) = 0;
         virtual void process(struct Assignment            &node) = 0;
+        virtual void process(struct Function              &node) = 0;
+        virtual void process(struct ReturnStatement       &node) = 0;
+        virtual void process(struct Call                  &node) = 0;
 
         virtual void process(struct Identifier            &node) = 0;
         virtual void process(struct Literal               &node) = 0;

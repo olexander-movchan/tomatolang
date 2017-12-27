@@ -35,6 +35,7 @@ std::string Tomato::Syntax::to_string(Terminal terminal)
         case Terminal::For:         return "for";
         case Terminal::In:          return "in";
         case Terminal::Func:        return "func";
+        case Terminal::Return:      return "return";
 
         case Terminal::Dot:         return "dot";
         case Terminal::Coma:        return "coma";
@@ -85,6 +86,7 @@ const std::map<std::string, Terminal> Lexer::keywords = {
         {"for",     Terminal::For},
         {"in",      Terminal::In},
         {"func",    Terminal::Func},
+        {"return",  Terminal::Return},
 
         {"true",    Terminal::BooleanLiteral},
         {"false",   Terminal::BooleanLiteral},
@@ -317,12 +319,22 @@ Token Lexer::operator_()
     switch (current())
     {
         case '+':
-        case '-':
         case '*':
         case '/':
         case '^':
         case '%':
             accept();
+            return token(Terminal::Operator);
+
+        case '-':
+            accept();
+
+            if (current() == '>')
+            {
+                accept();
+                return token(Terminal::Arrow);
+            }
+
             return token(Terminal::Operator);
 
         case '<':

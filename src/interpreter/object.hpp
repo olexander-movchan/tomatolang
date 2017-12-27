@@ -16,6 +16,7 @@ namespace Tomato::Runtime
         virtual ~Object() = default; // make Object polymorphic type
 
         virtual void assign(const Object &) = 0;
+        virtual std::shared_ptr<Object> clone() = 0;
 
         Semantic::Symbol type;
         bool is_mutable;
@@ -28,6 +29,8 @@ namespace Tomato::Runtime
         Scalar(Semantic::Symbol type, const T &value, bool is_mutable);
 
         void assign(const Object &object) override;
+
+        std::shared_ptr<Object> clone() override;
 
         T value;
     };
