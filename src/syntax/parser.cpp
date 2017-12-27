@@ -178,6 +178,9 @@ std::shared_ptr<Statement> Parser::statement()
         case Terminal::Print:
             return print_statement();
 
+        case Terminal::Read:
+            return read_statement();
+
         default:
             reject("statement");
     }
@@ -236,4 +239,11 @@ std::shared_ptr<PrintStatement> Parser::print_statement()
     expect(Terminal::Print);
 
     return std::make_shared<PrintStatement>(expression());
+}
+
+std::shared_ptr<ReadStatement> Parser::read_statement()
+{
+    expect(Terminal::Read);
+
+    return std::make_shared<ReadStatement>(expression());
 }

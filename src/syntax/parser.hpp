@@ -18,7 +18,7 @@ namespace Tomato::Syntax
     /**
      * @brief Tomato language syntax parser.
      *
-     * Handwritten recursive descent parser. Actually, LL(1) parser except more advanced expression parsing.
+     * Handwritten recursive descent LL(1) parser.
      */
     class Parser
     {
@@ -39,6 +39,7 @@ namespace Tomato::Syntax
         std::shared_ptr<Statement> statement();
         std::shared_ptr<ValueDeclaration> value_declaration();
         std::shared_ptr<PrintStatement> print_statement();
+        std::shared_ptr<ReadStatement> read_statement();
 
     private:
         /**

@@ -11,5 +11,5 @@ add_executable(tomatotest
         parser_tests.cpp
         )
 
-target_include_directories(tomatotest PUBLIC ${GTEST_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY}/tomato/)
+target_include_directories(tomatotest PUBLIC ${GTEST_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY}/src/)
 target_link_libraries(tomatotest tomatolib GTest::Main)

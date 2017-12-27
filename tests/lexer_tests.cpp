@@ -13,7 +13,7 @@ TEST(LexerTest, GeneralTest)
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Let);
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Identifier);
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Operator);
-    ASSERT_EQ(lexer.get_next().terminal, Terminal::Literal);
+    ASSERT_EQ(lexer.get_next().terminal, Terminal::FloatLiteral);
 
     ASSERT_TRUE(lexer.eof());
 
@@ -60,8 +60,8 @@ TEST(LexerTest, Terminals)
 
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Read);
     ASSERT_EQ(lexer.get_next().terminal, Terminal::Print);
-    ASSERT_EQ(lexer.get_next().terminal, Terminal::Literal);
-    ASSERT_EQ(lexer.get_next().terminal, Terminal::Literal);
+    ASSERT_EQ(lexer.get_next().terminal, Terminal::BooleanLiteral);
+    ASSERT_EQ(lexer.get_next().terminal, Terminal::BooleanLiteral);
 
     ASSERT_TRUE(lexer.eof());
 
