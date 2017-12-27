@@ -1,5 +1,5 @@
 #include <iostream>
-#include "interpreter.hpp"
+#include "interpreter/interpreter.hpp"
 
 
 int main(int argc, char **argv)

@@ -117,7 +117,11 @@ std::shared_ptr<Expression> Parser::term()
         case Terminal::Identifier:
             return identifier();
 
-        case Terminal::Literal:
+        case Terminal::IntegerLiteral:
+        case Terminal::FloatLiteral:
+        case Terminal::BooleanLiteral:
+        case Terminal::CharacterLiteral:
+        case Terminal::StringLiteral:
             return literal();
 
         default:
@@ -135,7 +139,21 @@ std::shared_ptr<Identifier> Parser::identifier()
 std::shared_ptr<Literal> Parser::literal()
 {
     auto lit = std::make_shared<Literal>(current.lexeme);
-    expect(Terminal::Literal);
+
+    switch (current.terminal)
+    {
+        case Terminal::IntegerLiteral:
+        case Terminal::FloatLiteral:
+        case Terminal::BooleanLiteral:
+        case Terminal::CharacterLiteral:
+        case Terminal::StringLiteral:
+            accept();
+            break;
+
+        default:
+            reject("literal");
+    }
+
     return lit;
 }
 
@@ -144,7 +162,11 @@ std::shared_ptr<Statement> Parser::statement()
     switch (current.terminal)
     {
         case Terminal::Identifier:
-        case Terminal::Literal:
+        case Terminal::IntegerLiteral:
+        case Terminal::FloatLiteral:
+        case Terminal::BooleanLiteral:
+        case Terminal::CharacterLiteral:
+        case Terminal::StringLiteral:
         case Terminal::Operator:
         case Terminal::LParen:
             return expression();

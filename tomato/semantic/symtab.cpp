@@ -4,29 +4,56 @@
 using namespace Tomato::Semantic;
 
 
+Symbol SymbolTable::NextSymbol = 0;
+
+
 SymbolTable::SymbolTable()
 {
-
+    push_scope();
 }
 
 
-template<typename T>
-void SymbolTable::define_symbol(const std::string &name, const T &symbol)
+void SymbolTable::push_scope()
 {
-    symbols.back().insert(name, std::make_shared<Symbol>(symbol));
+    symbols.emplace_back();
 }
 
 
-template<typename T>
-T SymbolTable::lookup_symbol(const std::string &name)
+void SymbolTable::pop_scope()
 {
-    for (auto scope = symbols.rbegin(); scope != symbols.rend(); scope++)
+    symbols.pop_back();
+}
+
+
+const SymbolTable::Scope &SymbolTable::scope()
+{
+    return symbols.back();
+}
+
+
+Symbol SymbolTable::define(const std::string &name)
+{
+    if (symbols.back().find(name) != symbols.back().end())
+    {
+        throw SemanticError("name '" + name + "' is already defined at this scope");
+    }
+
+    symbols.back()[name] = NextSymbol++;
+
+    return NextSymbol - 1;
+}
+
+
+Symbol SymbolTable::lookup(const std::string &name)
+{
+    for (auto scope = symbols.rbegin(); scope != symbols.rend(); ++scope)
     {
         try
         {
-            return dynamic_cast<T>(scope->at(name));
+            return scope->at(name);
         }
         catch (std::out_of_range &) {}
-        catch (std::bad_cast &) {}
     }
+
+    throw SemanticError("undefined reference to '" + name + "'");
 }

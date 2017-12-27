@@ -3,34 +3,42 @@
 
 
 #include <string>
-#include <memory>
-#include <map>
 #include <vector>
-
-#include "symbols.hpp"
-#include "operators.hpp"
+#include <map>
+#include <memory>
 
 
 namespace Tomato::Semantic
 {
+    using Symbol = size_t;
+
+
+    class SemanticError : public std::runtime_error
+    {
+    public:
+        using runtime_error::runtime_error;
+    };
+
+
     class SymbolTable
     {
     public:
         SymbolTable();
 
-        template <typename T>
-        void define_symbol(const std::string &name, const T &symbol);
+        Symbol define(const std::string &name);
+        Symbol lookup(const std::string &name);
 
-        template <typename T>
-        T lookup_symbol(const std::string &name);
+        using Scope = std::map<std::string, Symbol>;
 
         void push_scope();
         void pop_scope();
 
-    private:
-        using Scope = std::map<std::string, std::shared_ptr<Symbol>>;
+        const Scope & scope();
 
+    private:
         std::vector<Scope> symbols;
+
+        static Symbol NextSymbol;
     };
 }
 

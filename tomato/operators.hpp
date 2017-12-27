@@ -10,7 +10,6 @@ namespace Tomato
     enum class BinaryOperator
     {
         Plus, Minus, Mul, Div, Mod, Exp, Assign,
-        AssignPlus, AssignMinus, AssignMul, AssignDiv, AssignMod, AssignExp,
 
         LT, LE, EQ, NE, GE, GT,
 

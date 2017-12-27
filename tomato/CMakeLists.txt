@@ -23,13 +23,15 @@ set(SOURCE_FILES
         syntax/visitor.hpp
         syntax/printer.cpp
         syntax/printer.hpp
-        interpreter.cpp
-        interpreter.hpp
+        interpreter/interpreter.cpp
+        interpreter/interpreter.hpp
         semantic/symtab.cpp
         semantic/symtab.hpp
-        semantic/symbols.cpp
-        semantic/symbols.hpp
-        semantic/overloading.cpp semantic/overloading.hpp)
+        interpreter/object.cpp
+        interpreter/object.hpp
+        interpreter/operations.cpp
+        interpreter/operations.hpp
+        )
 
 
 add_library(tomatolib ${SOURCE_FILES})

@@ -16,7 +16,13 @@ std::string Tomato::Syntax::to_string(Terminal terminal)
         case Terminal::Import:      return "import";
         case Terminal::Operator:    return "operator";
         case Terminal::Identifier:  return "identifier";
-        case Terminal::Literal:     return "literal";
+
+        case Terminal::IntegerLiteral:    return "integer_literal";
+        case Terminal::FloatLiteral:      return "float_literal";
+        case Terminal::BooleanLiteral:    return "boolean_literal";
+        case Terminal::CharacterLiteral:  return "character_literal";
+        case Terminal::StringLiteral:     return "string_literal";
+
         case Terminal::Var:         return "var";
         case Terminal::Let:         return "let";
         case Terminal::If:          return "if";
@@ -51,7 +57,11 @@ std::string Tomato::Syntax::to_string(const Token &token)
     {
         case Terminal::Invalid:
         case Terminal::Identifier:
-        case Terminal::Literal:
+        case Terminal::IntegerLiteral:
+        case Terminal::FloatLiteral:
+        case Terminal::BooleanLiteral:
+        case Terminal::CharacterLiteral:
+        case Terminal::StringLiteral:
         case Terminal::Operator:
             return "<" + to_string(token.terminal) + ": " + token.lexeme + ">";
 
@@ -75,8 +85,8 @@ const std::map<std::string, Terminal> Lexer::keywords = {
         {"in",      Terminal::In},
         {"func",    Terminal::Func},
 
-        {"true",    Terminal::Literal},
-        {"false",   Terminal::Literal},
+        {"true",    Terminal::BooleanLiteral},
+        {"false",   Terminal::BooleanLiteral},
 
         {"and",     Terminal::Operator},
         {"or",      Terminal::Operator},
@@ -143,11 +153,11 @@ void Lexer::expect(char character)
     if (current() == character)
         accept();
     else
-        error();
+        reject();
 }
 
 
-void Lexer::error()
+void Lexer::reject()
 {
     throw InvalidToken();
 }
@@ -245,7 +255,7 @@ Token Lexer::get_next()
         }
 
         accept();
-        error();
+        reject();
     }
     catch (InvalidToken &)
     {
@@ -261,7 +271,7 @@ Token Lexer::number()
     if (!std::isdigit(current()))
     {
         accept();
-        error();
+        reject();
     }
 
     while (std::isdigit(current()))
@@ -273,14 +283,16 @@ Token Lexer::number()
 
         if (!std::isdigit(current()))
         {
-            error();
+            reject();
         }
 
         while (isdigit(current()))
             accept();
+
+        return token(Terminal::FloatLiteral);
     }
 
-    return token(Terminal::Literal);
+    return token(Terminal::IntegerLiteral);
 }
 
 
@@ -289,7 +301,7 @@ Token Lexer::identifier()
     if (!std::isalnum(current()))
     {
         accept();
-        error();
+        reject();
     }
 
     while (std::isalnum(current()))
@@ -336,7 +348,7 @@ Token Lexer::operator_()
 
         default:
             accept();
-            error();
+            reject();
     }
 }
 
@@ -359,7 +371,7 @@ Token Lexer::string_literal()
 
     expect('"');
 
-    return token(Terminal::Literal);
+    return token(Terminal::StringLiteral);
 }
 
 
@@ -375,5 +387,5 @@ Token Lexer::char_literal()
 
     expect('\'');
 
-    return token(Terminal::Literal);
+    return token(Terminal::CharacterLiteral);
 }

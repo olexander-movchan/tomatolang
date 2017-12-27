@@ -10,7 +10,9 @@ namespace Tomato::Syntax
 {
     enum class Terminal
     {
-        Invalid, EndOfFile, Operator, Identifier, Literal, Dot, Coma,
+        Invalid, EndOfFile, Operator, Identifier, Dot, Coma,
+
+        IntegerLiteral, FloatLiteral, BooleanLiteral, CharacterLiteral, StringLiteral,
 
         LParen, LSquareBracket, LCurlyBracket,
         RParen, RSquareBracket, RCurlyBracket,
@@ -54,7 +56,7 @@ namespace Tomato::Syntax
         void skip();
         void accept();
         void expect(char character);
-        void error();
+        void reject();
 
         Token token(Terminal terminal);
         void skip_whitespace();
