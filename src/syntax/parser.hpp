@@ -36,10 +36,14 @@ namespace Tomato::Syntax
         std::shared_ptr<Identifier> identifier();
         std::shared_ptr<Literal> literal();
 
+        std::shared_ptr<StatementBlock> statement_block();
+
         std::shared_ptr<Statement> statement();
         std::shared_ptr<ValueDeclaration> value_declaration();
         std::shared_ptr<PrintStatement> print_statement();
         std::shared_ptr<ReadStatement> read_statement();
+        std::shared_ptr<ConditionalStatement> if_statement();
+        std::shared_ptr<ConditionalLoop> while_statement();
 
     private:
         /**

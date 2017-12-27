@@ -24,6 +24,7 @@ namespace Tomato
     private:
         void process(Syntax::Program               &node) override;
         void process(Syntax::ValueDeclaration      &node) override;
+        void process(Syntax::Assignment            &node) override;
         void process(Syntax::Identifier            &node) override;
         void process(Syntax::Literal               &node) override;
         void process(Syntax::BinaryOperation       &node) override;

@@ -15,6 +15,7 @@ std::string Tomato::Syntax::to_string(Terminal terminal)
 
         case Terminal::Import:      return "import";
         case Terminal::Operator:    return "operator";
+        case Terminal::Assignment:      return "assignment";
         case Terminal::Identifier:  return "identifier";
 
         case Terminal::IntegerLiteral:    return "integer_literal";
@@ -321,9 +322,11 @@ Token Lexer::operator_()
         case '/':
         case '^':
         case '%':
+            accept();
+            return token(Terminal::Operator);
+
         case '<':
         case '>':
-        case '=':
             accept();
 
             if (current() == '=')
@@ -332,6 +335,17 @@ Token Lexer::operator_()
             }
 
             return token(Terminal::Operator);
+
+        case '=':
+            accept();
+
+            if (current() == '=')
+            {
+                accept();
+                return token(Terminal::Operator);
+            }
+
+            return token(Terminal::Assignment);
 
         case '!':
             accept();

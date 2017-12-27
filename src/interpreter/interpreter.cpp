@@ -29,7 +29,12 @@ void Interpreter::run()
 {
     Syntax::Parser parser;
 
-    char const * const prompt = ">>> ";
+    const char * const primary_prompt = ">>> ";
+    const char * const append_prompt = "... ";
+
+    const char * prompt = primary_prompt;
+
+    std::string statement;
 
     while (true)
     {
@@ -45,11 +50,12 @@ void Interpreter::run()
             continue;
         }
 
-        // save readline history
+        using namespace std::string_literals;
+        statement += " "s + line;
         add_history(line);
-
-        parser.set_text(line);
         free(line);
+
+        parser.set_text(statement);
 
         try
         {
@@ -58,12 +64,21 @@ void Interpreter::run()
         }
         catch (Syntax::SyntaxError &error)
         {
+            if (parser.eof()) // unexpected EOF, try read more lines
+            {
+                prompt = append_prompt;
+                continue;
+            }
+
             std::cout << "syntax error: " << error.what() << std::endl;
         }
         catch (Semantic::SemanticError &error)
         {
             std::cout << "semantic error: " << error.what() << std::endl;
         }
+
+        prompt = primary_prompt;
+        statement.clear();
     }
 }
 
@@ -129,6 +144,24 @@ void Interpreter::process(Syntax::ValueDeclaration &node)
     }
 }
 
+void Interpreter::process(Syntax::Assignment &node)
+{
+    visit(*node.source);
+    auto source = temp;
+
+    visit(*node.destination);
+    auto destination = temp;
+
+    temp.reset();
+
+    if (destination.use_count() == 1)
+    {
+        throw Semantic::SemanticError("assigning to rvalue expression");
+    }
+
+    destination->assign(*source);
+}
+
 void Interpreter::process(Syntax::Identifier &node)
 {
     auto var_sym = symtab.lookup(node.name);
@@ -145,7 +178,23 @@ void Interpreter::process(Syntax::Identifier &node)
 
 void Interpreter::process(Syntax::Literal &node)
 {
-    temp = std::make_shared<Runtime::Scalar<int>>(symbol_int, std::stoi(node.lexeme));
+    switch (node.type)
+    {
+        case Syntax::Literal::Type::Integer:
+            temp = std::make_shared<Runtime::Scalar<int>>(symbol_int, std::stoi(node.lexeme));
+            break;
+
+        case Syntax::Literal::Type::Float:
+            temp = std::make_shared<Runtime::Scalar<float>>(symbol_float, std::stof(node.lexeme));
+            break;
+
+        case Syntax::Literal::Type::Boolean:
+            temp = std::make_shared<Runtime::Scalar<bool>>(symbol_bool, node.lexeme == "true");
+            break;
+
+        default:
+            throw std::logic_error("unsupported type");
+    }
 }
 
 void Interpreter::process(Syntax::BinaryOperation &node)
@@ -183,7 +232,7 @@ void Interpreter::process(Syntax::ConditionalStatement &node)
 
     if (cond)
         visit(*node.then_case);
-    else
+    else if (node.else_case)
         visit(*node.else_case);
 }
 

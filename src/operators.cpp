@@ -55,8 +55,6 @@ BinaryOperator Tomato::GetBinaryOperator(const std::string &lexeme)
             {"%", BinaryOperator::Mod},
             {"^", BinaryOperator::Exp},
 
-            {"=", BinaryOperator::Assign},
-
 //            {"+=", BinaryOperator::AssignPlus},
 //            {"-=", BinaryOperator::AssignMinus},
 //            {"*=", BinaryOperator::AssignMul},
@@ -122,15 +120,6 @@ int Tomato::GetPrecedence(BinaryOperator operator_)
         case BinaryOperator::And:
         case BinaryOperator::Or:
         case BinaryOperator::Xor:
-            return 1;
-
-        case BinaryOperator::Assign:
-//        case BinaryOperator::AssignMinus:
-//        case BinaryOperator::AssignPlus:
-//        case BinaryOperator::AssignMul:
-//        case BinaryOperator::AssignDiv:
-//        case BinaryOperator::AssignMod:
-//        case BinaryOperator::AssignExp:
             return 0;
     }
 }

@@ -15,6 +15,8 @@ namespace Tomato::Runtime
         explicit Object(Semantic::Symbol type);
         virtual ~Object() = default; // make Object polymorphic type
 
+        virtual void assign(const Object &) = 0;
+
         Semantic::Symbol type;
     };
 
@@ -23,6 +25,8 @@ namespace Tomato::Runtime
     {
     public:
         Scalar(Semantic::Symbol type, const T &value);
+
+        void assign(const Object &object) override;
 
         T value;
     };

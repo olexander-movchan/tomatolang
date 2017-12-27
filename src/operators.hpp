@@ -9,7 +9,7 @@ namespace Tomato
 {
     enum class BinaryOperator
     {
-        Plus, Minus, Mul, Div, Mod, Exp, Assign,
+        Plus, Minus, Mul, Div, Mod, Exp,
 
         LT, LE, EQ, NE, GE, GT,
 

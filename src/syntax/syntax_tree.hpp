@@ -39,10 +39,10 @@ namespace Tomato::Syntax
 
     struct Literal : Expression
     {
-        explicit Literal(
-                const std::string &lexeme
-        );
+        enum class Type { Integer, Float, Boolean, Character, String };
+        Literal(Type type, const std::string &lexeme);
 
+        Type type;
         std::string lexeme;
 
         ACCEPT_VISITOR
@@ -139,6 +139,19 @@ namespace Tomato::Syntax
         std::shared_ptr<Identifier> type;
         std::shared_ptr<Expression> init;
         bool constant;
+
+        ACCEPT_VISITOR
+    };
+
+    struct Assignment : Statement
+    {
+        Assignment(
+                std::shared_ptr<Expression> destination,
+                std::shared_ptr<Expression> source
+        );
+
+        std::shared_ptr<Expression> destination;
+        std::shared_ptr<Expression> source;
 
         ACCEPT_VISITOR
     };

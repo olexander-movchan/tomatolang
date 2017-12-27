@@ -6,7 +6,7 @@ using namespace Tomato::Syntax;
 
 Identifier::Identifier(const std::string &name) : name(name) {}
 
-Literal::Literal(const std::string &lexeme) : lexeme(lexeme) {}
+Literal::Literal(Type type, const std::string &lexeme) : type(type), lexeme(lexeme) {}
 
 BinaryOperation::BinaryOperation(
         std::shared_ptr<Expression> left,
@@ -60,6 +60,13 @@ ConditionalLoop::ConditionalLoop(
         : condition(condition), body(body) {}
 
 
+Assignment::Assignment(
+        std::shared_ptr<Expression> destination,
+        std::shared_ptr<Expression> source)
+        : destination(destination), source(source) {}
+
+
 PrintStatement::PrintStatement(std::shared_ptr<Expression> expression) : expression(expression) {}
+
 
 ReadStatement::ReadStatement(std::shared_ptr<Expression> expression) : expression(expression) {}

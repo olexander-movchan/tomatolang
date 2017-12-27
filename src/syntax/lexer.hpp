@@ -10,7 +10,7 @@ namespace Tomato::Syntax
 {
     enum class Terminal
     {
-        Invalid, EndOfFile, Operator, Identifier, Dot, Coma,
+        Invalid, EndOfFile, Operator, Assignment, Identifier, Dot, Coma,
 
         IntegerLiteral, FloatLiteral, BooleanLiteral, CharacterLiteral, StringLiteral,
 

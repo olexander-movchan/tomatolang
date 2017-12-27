@@ -138,23 +138,33 @@ std::shared_ptr<Identifier> Parser::identifier()
 
 std::shared_ptr<Literal> Parser::literal()
 {
-    auto lit = std::make_shared<Literal>(current.lexeme);
+    auto lexeme = current.lexeme;
 
     switch (current.terminal)
     {
         case Terminal::IntegerLiteral:
+            accept();
+            return std::make_shared<Literal>(Literal::Type::Integer, lexeme);
+
         case Terminal::FloatLiteral:
+            accept();
+            return std::make_shared<Literal>(Literal::Type::Float, lexeme);
+
         case Terminal::BooleanLiteral:
+            accept();
+            return std::make_shared<Literal>(Literal::Type::Boolean, lexeme);
+
         case Terminal::CharacterLiteral:
+            accept();
+            return std::make_shared<Literal>(Literal::Type::Character, lexeme);
+
         case Terminal::StringLiteral:
             accept();
-            break;
+            return std::make_shared<Literal>(Literal::Type::String, lexeme);
 
         default:
             reject("literal");
     }
-
-    return lit;
 }
 
 std::shared_ptr<Statement> Parser::statement()
@@ -169,11 +179,30 @@ std::shared_ptr<Statement> Parser::statement()
         case Terminal::StringLiteral:
         case Terminal::Operator:
         case Terminal::LParen:
-            return expression();
+        {
+            auto expr = expression();
+
+            if (current.terminal == Terminal::Assignment)
+            {
+                accept();
+
+                return std::make_shared<Assignment>(expr, expression());
+            }
+            else
+            {
+                return expr;
+            }
+        }
 
         case Terminal::Let:
         case Terminal::Var:
             return value_declaration();
+
+        case Terminal::If:
+            return if_statement();
+
+        case Terminal::While:
+            return while_statement();
 
         case Terminal::Print:
             return print_statement();
@@ -191,6 +220,7 @@ std::shared_ptr<ValueDeclaration> Parser::value_declaration()
     std::shared_ptr<Identifier> value;
     std::shared_ptr<Identifier> type;
     std::shared_ptr<Expression> init;
+
     bool constant;
 
     switch (current.terminal)
@@ -216,12 +246,9 @@ std::shared_ptr<ValueDeclaration> Parser::value_declaration()
         type = identifier();
     }
 
-    if (constant || current.terminal == Terminal::Operator)
+    if (constant || current.terminal == Terminal::Assignment)
     {
-        if (current.lexeme != "=")
-            reject("initializer");
-
-        accept();
+        expect(Terminal::Assignment);
         init = expression();
     }
 
@@ -246,4 +273,71 @@ std::shared_ptr<ReadStatement> Parser::read_statement()
     expect(Terminal::Read);
 
     return std::make_shared<ReadStatement>(expression());
+}
+
+std::shared_ptr<ConditionalStatement> Parser::if_statement()
+{
+    expect(Terminal::If);
+
+    auto condition = expression();
+
+    expect(Terminal::Then);
+
+    auto then_case = statement_block();
+
+    std::shared_ptr<StatementBlock> else_case;
+
+    if (current.terminal == Terminal::Else)
+    {
+        accept();
+        else_case = statement_block();
+    }
+
+    expect(Terminal::End);
+
+    return std::make_shared<ConditionalStatement>(condition, then_case, else_case);
+}
+
+std::shared_ptr<ConditionalLoop> Parser::while_statement()
+{
+    expect(Terminal::While);
+
+    auto condition = expression();
+
+    expect(Terminal::Do);
+
+    auto body = statement_block();
+
+    expect(Terminal::End);
+
+    return std::make_shared<ConditionalLoop>(condition, body);
+}
+
+std::shared_ptr<StatementBlock> Parser::statement_block()
+{
+    auto block = std::make_shared<StatementBlock>();
+
+    while (true)
+    {
+        switch (current.terminal)
+        {
+            case Terminal::IntegerLiteral:
+            case Terminal::FloatLiteral:
+            case Terminal::BooleanLiteral:
+            case Terminal::CharacterLiteral:
+            case Terminal::StringLiteral:
+            case Terminal::Operator:
+            case Terminal::Identifier:
+            case Terminal::LParen:
+            case Terminal::If:
+            case Terminal::While:
+            case Terminal::Print:
+            case Terminal::Read:
+                block->statements.push_back(statement());
+                break;
+
+            default:
+                return block;
+        }
+    }
 }

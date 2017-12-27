@@ -129,7 +129,7 @@ Build using CMake, C++17 support is required: ::
     $ cd cmake-build
     $ cmake ..
     $ cmake --build .
-    $ ./tomatotools/tomato
+    $ ./src/tomato
 
 
 Third-Party libraries
