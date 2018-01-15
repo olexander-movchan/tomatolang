@@ -41,7 +41,7 @@ const UnaryOperation &Operations::lookup(UnaryOperator op, Symbol type)
 }
 
 
-void Operations::init_builtins(Symbol symbol_int, Symbol symbol_float, Symbol symbol_bool)
+void Operations::init_builtins(Symbol symbol_int, Symbol symbol_float, Symbol symbol_bool, Symbol symbol_char)
 {
     // Integer operations
     define(symbol_int, BinaryOperator::Plus, symbol_int, Runtime::Operation<int, int, int, Runtime::Sum>(symbol_int));
@@ -104,6 +104,15 @@ void Operations::init_builtins(Symbol symbol_int, Symbol symbol_float, Symbol sy
     define(symbol_bool, BinaryOperator::And, symbol_bool, Runtime::Operation<bool, bool, bool, Runtime::And>(symbol_bool));
     define(symbol_bool, BinaryOperator::Or, symbol_bool, Runtime::Operation<bool, bool, bool, Runtime::Or>(symbol_bool));
     define(symbol_bool, BinaryOperator::Xor, symbol_bool, Runtime::Operation<bool, bool, bool, Runtime::Xor>(symbol_bool));
+
+
+    define(symbol_char, BinaryOperator::Plus, symbol_int, Runtime::Operation<char, int, char, Runtime::Sum>(symbol_char));
+    define(symbol_int, BinaryOperator::Plus, symbol_char, Runtime::Operation<int, char, char, Runtime::Sum>(symbol_char));
+    define(symbol_char, BinaryOperator::Minus, symbol_int, Runtime::Operation<char, int, char, Runtime::Sub>(symbol_char));
+    define(symbol_int, BinaryOperator::Minus, symbol_char, Runtime::Operation<int, char, char, Runtime::Sub>(symbol_char));
+
+    define(symbol_char, BinaryOperator::EQ, symbol_char, Runtime::Operation<int, float, bool, Runtime::EQ>(symbol_bool));
+    define(symbol_char, BinaryOperator::NE, symbol_char, Runtime::Operation<int, float, bool, Runtime::NE>(symbol_bool));
 }
 
 

@@ -37,3 +37,4 @@ std::shared_ptr<Object> Tomato::Runtime::Scalar<T>::clone()
 template class Scalar<int>;
 template class Scalar<float>;
 template class Scalar<bool>;
+template class Scalar<char>;

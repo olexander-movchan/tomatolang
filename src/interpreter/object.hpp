@@ -38,6 +38,7 @@ namespace Tomato::Runtime
     extern template class Scalar<int>;
     extern template class Scalar<float>;
     extern template class Scalar<bool>;
+    extern template class Scalar<char>;
 }
 
 

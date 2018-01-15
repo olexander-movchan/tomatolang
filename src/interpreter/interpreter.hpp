@@ -47,6 +47,7 @@ namespace Tomato
         Semantic::Symbol symbol_int;
         Semantic::Symbol symbol_float;
         Semantic::Symbol symbol_bool;
+        Semantic::Symbol symbol_char;
 
         Semantic::SymbolTable symtab;
         std::shared_ptr<Runtime::Object> temp;

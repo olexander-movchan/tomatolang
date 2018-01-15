@@ -25,7 +25,12 @@ namespace Tomato::Runtime
     class Operations
     {
     public:
-        void init_builtins(Semantic::Symbol symbol_int, Semantic::Symbol symbol_float, Semantic::Symbol symbol_bool);
+        void init_builtins(
+                Semantic::Symbol symbol_int,
+                Semantic::Symbol symbol_float,
+                Semantic::Symbol symbol_bool,
+                Semantic::Symbol symbol_char
+        );
 
         void define(Semantic::Symbol ltype, BinaryOperator op, Semantic::Symbol rtype, const BinaryOperation &definition);
         void define(UnaryOperator op, Semantic::Symbol type, const UnaryOperation &definition);

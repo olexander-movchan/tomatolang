@@ -24,10 +24,11 @@ Interpreter::Interpreter(std::istream &istream, std::ostream &ostream) : istream
     symbol_int = symtab.define("int");
     symbol_float = symtab.define("float");
     symbol_bool = symtab.define("bool");
+    symbol_char = symtab.define("char");
 
-    types = {symbol_int, symbol_float, symbol_bool};
+    types = {symbol_int, symbol_float, symbol_bool, symbol_char};
 
-    operations.init_builtins(symbol_int, symbol_float, symbol_bool);
+    operations.init_builtins(symbol_int, symbol_float, symbol_bool, symbol_char);
 }
 
 
@@ -166,6 +167,8 @@ void Interpreter::process(Syntax::ValueDeclaration &node)
                 memory[var_sym] = std::make_shared<Runtime::Scalar<float>>(symbol_float, 0.0f, !node.constant);
             else if (type_sym == symbol_bool)
                 memory[var_sym] = std::make_shared<Runtime::Scalar<bool>>(symbol_bool, false, !node.constant);
+            else if (type_sym == symbol_char)
+                memory[var_sym] = std::make_shared<Runtime::Scalar<char>>(symbol_char, 'a', !node.constant);
             else
                 throw Semantic::SemanticError("undefined type");
         }
@@ -226,6 +229,10 @@ void Interpreter::process(Syntax::Literal &node)
 
         case Syntax::Literal::Type::Boolean:
             temp = std::make_shared<Runtime::Scalar<bool>>(symbol_bool, node.lexeme == "true", false);
+            break;
+
+        case Syntax::Literal::Type::Character:
+            temp = std::make_shared<Runtime::Scalar<char>>(symbol_char, node.lexeme[1], false);
             break;
 
         default:
@@ -308,6 +315,10 @@ void Interpreter::process(Syntax::PrintStatement &node)
             ostream << dynamic_cast<Runtime::Scalar<float> &>(*temp).value << std::endl;
         else if (temp->type == symbol_bool)
             ostream << std::boolalpha << dynamic_cast<Runtime::Scalar<bool> &>(*temp).value << std::endl;
+        else if (temp->type == symbol_char)
+            ostream << dynamic_cast<Runtime::Scalar<char> &>(*temp).value << std::endl;
+        else
+            throw std::logic_error("internal interpretation error");
     }
     catch (std::bad_cast &)
     {
@@ -327,6 +338,8 @@ void Interpreter::process(Syntax::ReadStatement &node)
             istream >> dynamic_cast<Runtime::Scalar<float> &>(*temp).value;
         else if (temp->type == symbol_bool)
             istream >> dynamic_cast<Runtime::Scalar<bool> &>(*temp).value;
+        else if (temp->type == symbol_char)
+            istream >> dynamic_cast<Runtime::Scalar<char> &>(*temp).value;
     }
     catch (std::bad_cast &)
     {
