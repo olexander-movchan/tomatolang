@@ -22,26 +22,30 @@ Every programm consist of statements. Valid statements are:
 - Control flow statement.
 
 
-Variables & Type System
------------------------
+Type System
+-----------
 
 **Tomato** language is statically and strongly typed, i.e. once variable was
 declared, its type can't be changed and only values of that type can be
 assigned to variable.
 
-Variables must be declared only once and can't be used until declared.
-Variable's type is implicitly inferred and is same as initial value's type.
+Variables and constans must be declared only once and can't be used until declared.
 
-Declaration looks like: ::
+There is a general grammar of declaring constant or variable: ::
 
-    var <name> = <expression>
+    <let|var> <name> [type] [= <expression>]
 
-Assignment: ::
+e.g.: ::
 
-    <name> = <expression>
+    let pi = 3.14
+    let e float = 2.71
 
-Note that assignment is not an expression.
+    var x = 2
+    var i int
+    var c char = 'a'
 
+Declaring a constant requires initial value, while declaring a variable allows
+to omit it setting variable to default 'zero' value.
 
 Numerical Operations
 --------------------
